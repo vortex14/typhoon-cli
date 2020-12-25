@@ -123,9 +123,9 @@ func VisitAndReplace(path string, fi os.FileInfo, err error) error {
 		return nil
 	}
 
-	if !strings.Contains(path, "first_mongo_callback.py") {
-		return nil
-	}
+	//if !strings.Contains(path, "first_mongo_callback.py") {
+	//	return nil
+	//}
 
 	data, err := ioutil.ReadFile(path)
 	newContents := string(data)
