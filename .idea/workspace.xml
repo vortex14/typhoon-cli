@@ -2,11 +2,17 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="8f624ae2-7c3e-4855-83db-a3d525867ca5" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/typhoon-cli.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" />
+      <change afterPath="$PROJECT_DIR$/project/fetcher/responses/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/project/fetcher/responses/http/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/typhoon/ui.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cli" beforeDir="false" afterPath="$PROJECT_DIR$/cli" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cli.go" beforeDir="false" afterPath="$PROJECT_DIR$/cli.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/project/fetcher/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/log.log" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/project/fetcher/fetcheer.ru" beforeDir="false" afterPath="$PROJECT_DIR$/project/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/project/fetcher/tst.p.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/typhoon/components.go" beforeDir="false" afterPath="$PROJECT_DIR$/typhoon/components.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/typhoon/typhoon.go" beforeDir="false" afterPath="$PROJECT_DIR$/typhoon/typhoon.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -16,6 +22,7 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
+        <option value="Python Script" />
         <option value="Go File" />
       </list>
     </option>
@@ -47,6 +54,8 @@
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/typhoon" />
+      <recent name="$PROJECT_DIR$/ui" />
+      <recent name="$PROJECT_DIR$/project" />
     </key>
   </component>
   <component name="RunManager">
@@ -79,5 +88,6 @@
         </entry>
       </map>
     </option>
+    <option name="oldMeFiltersMigrated" value="true" />
   </component>
 </project>

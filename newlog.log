@@ -1,0 +1,1 @@
+event_time=2020-12-23T14:17:09.17+10 loglevel=DEBUG file=/Users/dmitrijviharev/Desktop/projects/typhoon_projects/amazon_api/typhoon/extensions/elogger/loguru_logging.py:__main__:83 message="oops" test="True" message="123" best_key="bets of \"key"

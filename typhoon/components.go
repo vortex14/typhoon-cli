@@ -35,6 +35,15 @@ func checkDirectory(required []string, pathComponent string) bool {
 	return status
 }
 
+func isExistDir(path string) bool {
+	var status = false
+	if _, err := os.Stat(path); !os.IsNotExist(err) {
+		status = true
+	}
+
+	return status
+}
+
 func checkComponent(component string) bool {
 	var status = false
 
@@ -42,7 +51,7 @@ func checkComponent(component string) bool {
 	if _, err := os.Stat(pathComponent); !os.IsNotExist(err) {
 
 		if component == "fetcher" {
-			required := []string{"run.py", "executions", "responses", "__init__.py"}
+			required := []string{"executions", "responses", "__init__.py"}
 			status = checkDirectory(required, pathComponent)
 			logVal := fmt.Sprintf("Fetcher dir is %t", status)
 			if status == true {
@@ -53,7 +62,7 @@ func checkComponent(component string) bool {
 
 		} else if component == "processor" {
 
-			required := []string{"run.py", "executable", "__init__.py"}
+			required := []string{"executable", "__init__.py"}
 			status = checkDirectory(required, pathComponent)
 			logVal := fmt.Sprintf("Processor dir is %t", status)
 			if status == true {
@@ -63,7 +72,7 @@ func checkComponent(component string) bool {
 			}
 
 		} else if component == "scheduler" {
-			required := []string{"run.py", "__init__.py"}
+			required := []string{"__init__.py"}
 			status = checkDirectory(required, pathComponent)
 			logVal := fmt.Sprintf("Scheduler dir is %t", status)
 			if status == true {
@@ -73,7 +82,7 @@ func checkComponent(component string) bool {
 			}
 
 		} else if component == "donor" {
-			required := []string{"run.py", "__init__.py", "v1", "routes.py"}
+			required := []string{"__init__.py", "v1", "routes.py"}
 			status = checkDirectory(required, pathComponent)
 			logVal := fmt.Sprintf("Scheduler dir is %t", status)
 			if status == true {
@@ -83,7 +92,7 @@ func checkComponent(component string) bool {
 			}
 
 		} else if component == "result_transporter" {
-			required := []string{"run.py", "__init__.py", "consumers"}
+			required := []string{"__init__.py", "consumers"}
 			status = checkDirectory(required, pathComponent)
 			logVal := fmt.Sprintf("Scheduler dir is %t", status)
 			if status == true {
@@ -96,6 +105,17 @@ func checkComponent(component string) bool {
 		color.Red("path %s doesn't exist", component)
 	}
 
+	fileName := fmt.Sprintf("%s.py", component)
+	required := []string{fileName}
+	status = checkDirectory(required, ".")
+	logVal := fmt.Sprintf("%s.py is %t", component, status)
+
+	if status == true {
+		color.Green(logVal)
+	} else {
+		color.Red(logVal)
+	}
+
 
 	return status
 }
@@ -103,6 +123,8 @@ func checkComponent(component string) bool {
 func checkProject(components []string) bool {
 	var status = true
 	var statuses = make(map[string]bool)
+
+
 
 	for _, component := range components {
 		color.Yellow("checking: %s...",component)

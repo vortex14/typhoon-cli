@@ -1,13 +1,18 @@
 package typhoon
 
 import (
+	"bufio"
 	"bytes"
 	"fmt"
 	"github.com/fatih/color"
 	"github.com/go-cmd/cmd"
+	"github.com/go-logfmt/logfmt"
+	"github.com/kelseyhightower/envconfig"
 	"io"
+	"io/ioutil"
 	"log"
 	"os"
+	"os/exec"
 	"os/signal"
 	"strings"
 	"sync"
@@ -16,6 +21,9 @@ import (
 )
 
 
+type kv struct {
+	k, v []byte
+}
 
 func Find(slice []string, val string) (int, bool) {
 	for i, item := range slice {
@@ -52,27 +60,136 @@ func (w *Worker) Run(typhoonPath string) {
 		Buffered:  false,
 		Streaming: true,
 	}
+
 	envCmd := cmd.NewCmdOptions(cmdOptions, w.Command, w.Args...)
 	w.Cmd = envCmd
-	w.Cmd.Dir = w.ComponentPath
 	w.Status = make(chan bool, 1)
 	w.Status <- true
-	//color.Red()
 	projectEnv := fmt.Sprintf("PYTHONPATH=%s:%s", typhoonPath, w.ProjectPath)
-	//color.Red(projectEnv)
-	//projectEnv := "PYTHONPATH=/Users/dmitrijviharev/Desktop/projects/typhoon_projects/typhoon-local/typhoon-lite-log/pytyphoon:/Users/dmitrijviharev/Desktop/projects/typhoon_projects/typhoon-kube-project"
+	//color.Red("project path %s; projectEnv: %s", typhoonPath, projectEnv)
 	newEnv := append(os.Environ(), projectEnv)
 	envCmd.Env = newEnv
-	//color.Green("Setup %s", w.Name)
 }
+
+type Settings struct {
+	Path string
+	Status string
+
+}
+
+func LoadEnv2()  {
+	findCmd := cmd.NewCmd("ls")
+	statusChan := findCmd.Start() // non-blocking
+	status := findCmd.Status()
+	<- statusChan
+	fmt.Printf("output---->: %s \n", status.Stdout)
+
+
+}
+
+func LoadEnv()  {
+
+	loadStatus := false
+	var pathProfile string
+	pathHome := os.Getenv("HOME")
+
+	pathsProfiles := []string{
+		fmt.Sprintf("%s/.bash_profile", pathHome),
+		fmt.Sprintf("%s/.bashrc", pathHome),
+		fmt.Sprintf("%s/.bashprofile", pathHome),
+		fmt.Sprintf("%s/.bash_rc", pathHome),
+	}
+
+	for _, _pathProfile := range pathsProfiles {
+		fmt.Sprintf("path: %s", _pathProfile)
+
+		if _, err := os.Stat(_pathProfile); !os.IsNotExist(err) {
+			pathProfile = _pathProfile
+			loadStatus = true
+		}
+	}
+
+	if !loadStatus {
+		color.Red("Not found bash profile !" )
+		os.Exit(1)
+	}
+
+	color.Yellow("bash profile path: : %s", pathProfile)
+
+	cmdSource := exec.Command("bash", "-c", "source " + pathProfile + "; env")
+
+	bs, err := cmdSource.CombinedOutput()
+	if err != nil {
+		log.Fatalln(err)
+	}
+	s := bufio.NewScanner(bytes.NewReader(bs))
+
+	for s.Scan() {
+		kv := strings.SplitN(s.Text(), "=", 2)
+		if strings.Contains(strings.ToLower(kv[0]), "typhoon") {
+			os.Setenv(kv[0], kv[1])
+		}
+	}
+
+}
+
+func ReadEnv() error {
+
+
+	LoadEnv()
+
+
+	var settings Settings
+	err := envconfig.Process("typhoon", &settings)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	format := "Typhoon path: %v\nProjects path: %d\n"
+	_, err = fmt.Printf(format, settings.Path, settings.Status)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	color.Green("Typhoon read Env")
+	//for _, e := range os.Environ() {
+	//
+	//	pair := strings.SplitN(e, "=", 2)
+	//	fmt.Printf("%s: %s\n", pair[0], pair[1])
+	//}
+	return nil
+}
+
+func ParseLogData(logFileName string) error {
+	currentPath, _ := os.Getwd()
+	logPath := fmt.Sprintf("%s/%s", currentPath, logFileName)
+	dat, err := ioutil.ReadFile(logPath)
+
+	color.Red("Log file path: %s", logPath)
+	if err != nil {
+
+		color.Red("Log file not found")
+		os.Exit(0)
+
+
+	}
+
+	logDataMap := logfmt.NewDecoder(strings.NewReader(string(dat)))
+	for logDataMap.ScanRecord() {
+		for logDataMap.ScanKeyval() {
+			color.Yellow("%s = %s", logDataMap.Key(), logDataMap.Value())
+		}
+	}
+
+
+
+	return nil
+
+
+}
+
 
 func (w *Worker) Logging(wg *sync.WaitGroup) {
 
 	Info := color.New(color.FgWhite, color.BgBlack, color.Bold).SprintFunc()
-	//levelInfo := color.New(color.FgWhite, color.BgHiCyan, color.Bold).SprintFunc()
-	//pathInfo := color.New(color.FgWhite, color.BgBlack, color.Bold).SprintFunc()
-	//fmt.Printf("This %s rocks!\n", timeInfo("package"))
-	//logColorsMap := make(map[string] interface{})
 
 	defer wg.Done()
 	for w.Cmd.Stdout != nil || w.Cmd.Stderr != nil || w.Status != nil {
@@ -81,64 +198,42 @@ func (w *Worker) Logging(wg *sync.WaitGroup) {
 			if !open {
 				continue
 			}
-			logData := string(line)
-			logArr := strings.Split(logData, " ")
-
-
-			if len(logArr) > 1 {
-
-				logDataMap := make(map[string]string)
-				for _, logRaw := range logArr {
-					logDetail := strings.Split(logRaw, "=")
-					if len(logDetail) != 2 {
-						continue
-					}
-
-					logDataMap[logDetail[0]] = logDetail[1]
-
-				}
-
-				//logFormat := `
-				//
-				//event_time=%s level=%s
-				//
-				//`
-				//logValues := make([]interface{}, 0)
-				//
-				//
-				fmt.Printf(`%s Logs ...
+			color.Cyan(line)
+			fmt.Printf(`%s Logs ...
 `, Info(w.Name))
-				for key, value := range logDataMap {
+			logDataMap := logfmt.NewDecoder(strings.NewReader(line))
+
+			for logDataMap.ScanRecord() {
+				for logDataMap.ScanKeyval() {
+
+
 
 					if w.Name == "processor" {
-						color.Yellow("%s = %s", key, value)
+						color.Yellow("%s = %s", logDataMap.Key(), logDataMap.Value())
 					} else if w.Name == "result_transporter" {
-						color.Green("%s = %s", key, value)
+						color.Green("%s = %s", logDataMap.Key(), logDataMap.Value())
 					} else if w.Name == "fetcher" {
-						color.Magenta("%s = %s", key, value)
+						color.Blue("%s = %s", logDataMap.Key(), logDataMap.Value())
 					} else if w.Name == "donor" {
-						color.Cyan("%s = %s", key, value)
+						color.HiBlackString("%s = %s", logDataMap.Key(), logDataMap.Value())
 					} else if w.Name == "scheduler" {
-						color.Blue("%s = %s", key, value)
+						color.Cyan("%s = %s", logDataMap.Key(), logDataMap.Value())
 					}
 
-					//if key == "event_time" {
-					//	logValues = append(logValues, timeInfo(value))
-					//	continue
-					//}
-					//if key  == "level" {
-					//	logValues = append(logValues, levelInfo(value))
-					//	continue
-					//}
+
 
 				}
-				fmt.Printf(`
-------------
-`)
-				//
-				//fmt.Printf(logFormat, logValues...)
 
 			}
+			if logDataMap.Err() != nil {
+				color.Red("Invalid Log format. Don't use = . Broken line: %s",line)
+				//panic(d.Err())
+				continue
+			}
+			fmt.Printf(`
+------------
+`)
+
 
 
 
@@ -148,9 +243,25 @@ func (w *Worker) Logging(wg *sync.WaitGroup) {
 			}
 			errLog := ""
 			io.Copy(os.Stderr, bytes.NewBufferString(errLog))
-			errLog = fmt.Sprintf("Component: %s; %s , %s", w.Name, errLog, line)
-			color.Red(errLog)
-			//fmt.Fprintln(os.Stderr, line)
+			//errLog = fmt.Sprintf("Component: %s; %s , %s", w.Name, errLog, line)
+			//color.Red(errLog)
+
+			err := w.Cmd.Stop()
+
+			if err != nil {
+				color.Red(" %s error: %s",w.Name, line)
+				//fmt.Fprintln(os.Stderr, line)
+			}
+			//close(w.Status)
+
+			//color.Red("Return from Logging. Component: %s", w.Name)
+			//status := w.Cmd.Status()
+			//errKill := syscall.Kill(-status.PID, syscall.SIGKILL)
+			//if errKill != nil {
+			//	color.Red("Error kill :%s, component: %s", errKill, w.Name)
+			//}
+			continue
+
 		case status, ok := <-w.Status:
 			if ok != true || status == false {
 
@@ -182,14 +293,30 @@ func initComponents(wg *sync.WaitGroup, tcomponents *TyphoonComponents, configFi
 	tcomponents.ActiveComponents = make(map[string]*Worker)
 	defer wg.Done()
 
+	fmt.Printf(`
+											╭━┳━╭━╭━╮╮
+											┃┈┈┈┣▅╋▅┫┃
+											┃┈┃┈╰━╰━━━━━━╮
+											╰┳╯┈┈┈┈┈┈┈┈┈◢▉◣
+											╲┃┈┈┈┈┈┈┈┈┈┈▉▉▉  
+											╲┃┈┈┈┈┈┈┈┈┈┈◥▉◤
+											╲┃┈┈┈┈╭━┳━━━━╯
+											╲┣━━━━━━┫  		
+					
+
+`)
+
 	//var wg sync.WaitGroup
 	for _, component := range tcomponents.Components {
-		pathExecute := fmt.Sprintf("run.py")
+		pathExecute := fmt.Sprintf("%s.py", component)
 		configArg := fmt.Sprintf("--config=%s", configFile)
 		typhoonComponent := &Worker{Command: "python3.8", Args: []string{pathExecute, configArg}}
 		typhoonComponent.Name = component
 		typhoonComponent.ComponentPath = fmt.Sprintf("%s/project/%s", tcomponents.PathProject, component )
+
 		typhoonComponent.ProjectPath = tcomponents.PathProject
+
+		color.Red("ProjectPath: %s. file execute : %s", typhoonComponent.ProjectPath, pathExecute)
 		typhoonComponent.Run(tcomponents.TyphoonPath)
 
 		typhoonComponent.Cmd.Start()
@@ -209,7 +336,7 @@ func closeComponent(wg *sync.WaitGroup, component *Worker) {
 	defer wg.Done()
 	component.Status <- false
 	color.Red("component %s was be closed", component.Name)
-
+	//time.Sleep(time.Second * 2)
 
 }
 
@@ -255,6 +382,18 @@ func handle() {
 	}
 }
 
+func Check(typhoonComponents[]string)  {
+	pathProject, err := os.Getwd()
+	if err != nil {
+		log.Println(err)
+	}
+
+	isProject := checkProject(typhoonComponents)
+	if isProject == false {
+		color.Red("Project does not exists in the current directory :%s", pathProject )
+		os.Exit(1)
+	}
+}
 
 func Run(typhoonComponents[]string, configFile string)  {
 
@@ -283,6 +422,10 @@ func Run(typhoonComponents[]string, configFile string)  {
 		os.Exit(1)
 	}
 
+	if isExistDir("typhoon") {
+		TyphoonPath = "typhoon"
+		goto toComponentInit
+	}
 
 	//Check TYPHOON_PATH
 	for _, s := range os.Environ() {
@@ -290,15 +433,13 @@ func Run(typhoonComponents[]string, configFile string)  {
 		if kv[0] == "TYPHOON_PATH" {
 			TyphoonPath = kv[1]
 		}
-
-
 	}
 	if len(TyphoonPath) == 0 {
 		color.Red("Not found TYPHOON_PATH")
 		os.Exit(1)
 	}
 
-
+	toComponentInit:
 	//return
 
 	var typhoonComponent = &TyphoonComponents{
