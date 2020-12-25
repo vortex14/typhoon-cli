@@ -14,10 +14,13 @@ import (
 	"os"
 	"os/exec"
 	"os/signal"
+	"path/filepath"
 	"strings"
 	"sync"
 	"syscall"
+	"text/template"
 	"time"
+	v1_1 "typhoon-cli/typhoon/migrates/v1.1"
 )
 
 
@@ -74,18 +77,10 @@ func (w *Worker) Run(typhoonPath string) {
 type Settings struct {
 	Path string
 	Status string
+	Projects string
 
 }
 
-func LoadEnv2()  {
-	findCmd := cmd.NewCmd("ls")
-	statusChan := findCmd.Start() // non-blocking
-	status := findCmd.Status()
-	<- statusChan
-	fmt.Printf("output---->: %s \n", status.Stdout)
-
-
-}
 
 func LoadEnv()  {
 
@@ -133,28 +128,202 @@ func LoadEnv()  {
 
 }
 
-func ReadEnv() error {
+func goTemplate(dataT string, newPath string, data interface{}) {
+
+	tmpl, _ := template.New("test").Parse(dataT)
+
+	f, err := os.Create(newPath)
+	if err != nil {
+		log.Println("create file: ", err)
+		return
+	}
+
+	err = tmpl.Execute(f, &data)
+	if err != nil {
+		log.Print("execute: ", err)
+		return
+	}
+	f.Close()
+}
 
 
+func V11TestMigrate(projectName string)  {
+	_, dataT := v1_1.GetComponentTemplate()
+	v1_1.MigrateComponents()
+
+	_, confT := v1_1.GetConfigTemplate()
+
+	goTemplate(confT, "config.local.yaml", map[string]string{
+		"projectName":   projectName,
+	})
+
+	if _, err := os.Stat("fetcher.py"); os.IsNotExist(err) {
+		fetcherConfig := map[string]string{
+			"component":   "fetcher",
+			"executeFile": "fetcher",
+			"componentClass": "Fetcher",
+			"apiClass": "FetcherApi",
+		}
+		goTemplate(dataT, "fetcher.py", &fetcherConfig)
+	}
+
+	if _, err := os.Stat("processor.py"); os.IsNotExist(err) {
+		processorConfig := map[string]string{
+			"component":   "processor",
+			"executeFile": "processor",
+			"componentClass": "Processor",
+			"apiClass": "ProcessorApi",
+		}
+		goTemplate(dataT, "processor.py", &processorConfig)
+	}
+
+	if _, err := os.Stat("donor.py"); os.IsNotExist(err) {
+
+		donorConfig := map[string]string{
+			"component":   "donor",
+			"executeFile": "donor",
+			"componentClass": "Donor",
+			"apiClass": "DonorApi",
+		}
+		goTemplate(dataT, "donor.py", &donorConfig)
+
+	}
+
+
+	if _, err := os.Stat("scheduler.py"); os.IsNotExist(err) {
+
+		donorConfig := map[string]string{
+			"component":   "scheduler",
+			"executeFile": "scheduler",
+			"componentClass": "Scheduler",
+			"apiClass": "SchedulerApi",
+		}
+		goTemplate(dataT, "scheduler.py", &donorConfig)
+
+	}
+
+	if _, err := os.Stat("scheduler.py"); os.IsNotExist(err) {
+
+		schConfig := map[string]string{
+			"component":   "scheduler",
+			"executeFile": "scheduler",
+			"componentClass": "Scheduler",
+			"apiClass": "SchedulerApi",
+		}
+		goTemplate(dataT, "scheduler.py", &schConfig)
+
+	}
+
+	if _, err := os.Stat("result_transporter.py"); os.IsNotExist(err) {
+
+		rtConfig := map[string]string{
+			"component":   "result_transporter",
+			"executeFile": "resulttransporter",
+			"componentClass": "ResultTransporter",
+			"apiClass": "ResultWorkerApi",
+		}
+		goTemplate(dataT, "result_transporter.py", &rtConfig)
+
+	}
+
+
+	_ = filepath.Walk("project/fetcher", v1_1.VisitAndReplace)
+
+	_ = filepath.Walk("project/processor", v1_1.VisitAndReplace)
+
+	_ = filepath.Walk("project/result_transporter", v1_1.VisitAndReplace)
+
+	_ = filepath.Walk("project/donor", v1_1.VisitAndReplace)
+
+	_ = filepath.Walk("project/scheduler", v1_1.VisitAndReplace)
+
+	return
+
+	//t, err := template.ParseFiles("typhoon/component.gopy")
+	//if err != nil {
+	//	log.Print(err)
+	//	return
+	//}
+	//f, err := os.Create("fetcher.py")
+	//
+	//config := map[string]string{
+	//	"textColor":      "#abcdef",
+	//	"linkColorHover": "#ffaacc",
+	//}
+	////f.Write([]byte("terter ert tert e"))
+	//err = t.Execute(f, config)
+	//if err != nil {
+	//	log.Print("execute: ", err)
+	//	return
+	//}
+	//
+	//f, _ = os.Open("fetcher.py")
+	//io.Copy(os.Stdout, f)
+	//f.Close()
+
+
+	//tpl := template.Must(template.ParseGlob("migrates/component_run.gopy"))
+	//t := template.New("fetcher") // Create a template.
+	//t, _ = t.ParseFiles("component.gopy")  // Parse template file.
+	//f, err := os.Create("fetcher.py")
+	//
+	//w := bufio.NewWriter(f)
+	//if err != nil {
+	//	log.Fatal(err)
+	//}
+	//defer f.Close()
+	//w.Flush()
+	//
+	//
+	//_ = t.Execute(w, component) // merge.
+	//
+	//color.Red("tEst :: %+f", component)
+	//tpl := template.Must(template.ParseFiles("component.gopy"))
+	//
+
+	//err := tpl.Execute(os.Stdout, &component)
+	//if err != nil {
+	//	log.Fatal(err)
+	//}
+
+
+
+}
+
+
+func Migrate(version string, projectName string) error {
+	color.Yellow("Migrate project to %s", version)
+	if "v1.1" == version {
+		V11TestMigrate(projectName)
+	} else {
+		color.Red("Version not found")
+	}
+
+
+	return nil
+}
+
+func ReadEnv() (error, setting *Settings) {
 	LoadEnv()
-
-
 	var settings Settings
 	err := envconfig.Process("typhoon", &settings)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
-	format := "Typhoon path: %v\nProjects path: %d\n"
-	_, err = fmt.Printf(format, settings.Path, settings.Status)
-	if err != nil {
-		log.Fatal(err.Error())
+	return nil, &settings
+}
+
+func CreateSymbolicLink() error {
+	_, settings := ReadEnv()
+
+	linkTyphoonPath := fmt.Sprintf("%s/pytyphoon/typhoon", settings.Path)
+	err := os.Symlink(linkTyphoonPath, "typhoon")
+
+	if err != nil{
+		fmt.Printf("err %s",  err)
 	}
-	color.Green("Typhoon read Env")
-	//for _, e := range os.Environ() {
-	//
-	//	pair := strings.SplitN(e, "=", 2)
-	//	fmt.Printf("%s: %s\n", pair[0], pair[1])
-	//}
+
+
 	return nil
 }
 

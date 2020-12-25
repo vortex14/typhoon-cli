@@ -48,11 +48,49 @@ func main() {
 				},
 			},
 			{
+				Name: "init",
+				Usage: "create symbolic link to typhoon in current dir",
+				Action: func(context *cli.Context) error {
+					color.Green("create symbolic link to typhoon in current dir ")
+
+
+					typhoon.CreateSymbolicLink()
+					return nil
+				},
+
+			},
+			{
 				Name: "bashrc",
 				Usage: "Read from ~/.bashrc Typhoon variables",
 				Action: func(context *cli.Context) error {
 					log.Printf("Read from bashrc")
-					typhoon.ReadEnv()
+					_, env := typhoon.ReadEnv()
+
+					color.Green("TYPHOON_PATH: %s \nTYPHOON_PROJECTS: %s\n", env.Path, env.Projects)
+					//log.Printf("%+f", env)
+					return nil
+				},
+			},
+			{
+				Name: "migrate",
+				Usage: "Migrate typhoon project to new version",
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:    "new",
+						Aliases: []string{"n"},
+						Value:   "v1.1",
+						Usage:   "migrate project to v1.1",
+
+					},
+					&cli.StringFlag{
+						Name:    "project",
+						Aliases: []string{"p"},
+						Usage:   "Project name ",
+						Required: true,
+					},
+				},
+				Action: func(context *cli.Context) error {
+					typhoon.Migrate(context.String("new"), context.String("project"))
 					return nil
 				},
 			},

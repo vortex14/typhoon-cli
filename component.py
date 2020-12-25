@@ -1,0 +1,1 @@
+The text color is #abcdef and the link color is #ffaacc
