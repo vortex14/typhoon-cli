@@ -115,10 +115,17 @@ func main() {
 						Value: "config.local.yaml",
 						Usage:   "Load configuration from `FILE`",
 					},
+					&cli.StringFlag{
+						Name:    "reload",
+						Aliases: []string{"r"},
+						Value: "true",
+						Usage:   "Auto reloading project",
+					},
 				},
 				Action:  func(c *cli.Context) error {
 					configFile := c.String("config")
-					typhoon.Run(typhoonComponents, configFile)
+					reload := c.String("reload")
+					typhoon.Run(typhoonComponents, configFile, reload)
 					return nil
 				},
 			},
@@ -169,6 +176,14 @@ func main() {
 
 			},
 			{
+				Name: "watch",
+				Usage: "Watch for changing in typhoon project",
+				Action: func(context *cli.Context) error {
+					typhoon.WatchTest()
+					return nil
+				},
+			},
+			{
 				Name:    "run",
 				Aliases: []string{"rc"},
 				Usage:   "Run single component",
@@ -191,11 +206,18 @@ func main() {
 						Value: "config.local.yaml",
 						Usage:   "Load configuration from `FILE`",
 					},
+					&cli.StringFlag{
+						Name:    "reload",
+						Aliases: []string{"r"},
+						Value: "true",
+						Usage:   "Auto reloading project",
+					},
 				},
 				Action:  func(c *cli.Context) error {
 					configFile := c.String("config")
 					componentName := c.String("component")
 					componentsName := c.String("components")
+					reload := c.String("reload")
 
 					if len(componentsName) > 0 {
 						componentsArr := strings.Split(componentsName, ",")
@@ -209,11 +231,11 @@ func main() {
 							}
 						}
 
-						typhoon.Run(componentsArr, configFile)
+						typhoon.Run(componentsArr, configFile, reload)
 
 					} else {
 						color.Yellow("run: %s , config: %s", componentName, configFile)
-						typhoon.Run([]string{componentName}, configFile)
+						typhoon.Run([]string{componentName}, configFile, reload)
 					}
 
 

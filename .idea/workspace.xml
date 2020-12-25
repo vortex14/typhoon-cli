@@ -4,7 +4,10 @@
     <list default="true" id="8f624ae2-7c3e-4855-83db-a3d525867ca5" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cli" beforeDir="false" afterPath="$PROJECT_DIR$/cli" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cli.go" beforeDir="false" afterPath="$PROJECT_DIR$/cli.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/typhoon/migrates/v1.1/v1.1.go" beforeDir="false" afterPath="$PROJECT_DIR$/typhoon/migrates/v1.1/v1.1.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/typhoon/typhoon.go" beforeDir="false" afterPath="$PROJECT_DIR$/typhoon/typhoon.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

@@ -75,19 +75,24 @@ func VisitAndReplace(path string, fi os.FileInfo, err error) error {
 	&Import{
 		Old: "from responses.strategies",
 		New: "from typhoon.components.fetcher.responses.strategies",
-	}, &Import{
+	},
+	&Import{
 		Old: "from executions.strategies.base_pre_fetch",
 		New: "from typhoon.components.fetcher.executions.strategies.base_pre_fetch",
-	}, &Import{
+	},
+	&Import{
 		Old: "from executable.pipeline_group",
 		New: "from typhoon.components.processor.executable.pipeline_group",
-	}, &Import{
+	},
+	&Import{
 		Old: "from executable.base_handler",
 		New: "from typhoon.components.processor.executable.base_handler",
-	}, &Import{
+	},
+	&Import{
 		Old: "from project.executable",
 		New: "from project.processor.executable",
-	}, &Import{
+	},
+	&Import{
 		Old: "from project.resource",
 		New: "from project.processor.resource",
 	},
@@ -102,10 +107,12 @@ func VisitAndReplace(path string, fi os.FileInfo, err error) error {
 	&Import{
 		Old: "from executions.base_consumer",
 		New: "from typhoon.components.result_transporter.executions.base_consumer",
-	}, &Import{
+	},
+	&Import{
 		Old: "from project.result_transporter.consumers import exceptions",
 		New: "from typhoon.extensions.result_transporter import exceptions",
-	}, &Import{
+	},
+	&Import{
 		Old: "from project.v1",
 		New: "from project.donor.v1",
 	},

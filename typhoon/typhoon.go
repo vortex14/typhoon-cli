@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/fatih/color"
+	"github.com/fsnotify/fsnotify"
 	"github.com/go-cmd/cmd"
 	"github.com/go-logfmt/logfmt"
 	"github.com/kelseyhightower/envconfig"
@@ -45,6 +46,7 @@ type Worker struct {
 	Name 		  string
 	ComponentPath string
 	ProjectPath	  string
+	Active bool
 }
 
 type TyphoonComponents = struct {
@@ -144,6 +146,113 @@ func goTemplate(dataT string, newPath string, data interface{}) {
 		return
 	}
 	f.Close()
+}
+
+var watcher *fsnotify.Watcher
+
+func watchDir(path string, fi os.FileInfo, err error) error {
+
+	// since fsnotify can watch all the files in a directory, watchers only need
+	// to be added to each nested directory
+	if fi.Mode().IsDir() {
+		return watcher.Add(path)
+	}
+
+	return nil
+}
+
+func WatchTest()  {
+	color.Green("watch for project ..")
+	watcher, _ = fsnotify.NewWatcher()
+	defer watcher.Close()
+
+	// starting at the root of the project, walk each file/directory searching for
+	// directories
+	if err := filepath.Walk("project", watchDir); err != nil {
+		fmt.Println("ERROR", err)
+	}
+
+	//
+	done := make(chan bool)
+
+	//
+	go func() {
+		for {
+			select {
+			// watch for events
+			case event := <-watcher.Events:
+				fmt.Printf("EVENT! %#v\n", event)
+
+				// watch for errors
+			case err := <-watcher.Errors:
+				fmt.Println("ERROR", err)
+			}
+		}
+	}()
+
+	<-done
+
+}
+
+
+func Watch(wg *sync.WaitGroup, tcomponents *TyphoonComponents, configFile string)  {
+	color.Green("watch for project ..")
+	watcher, _ = fsnotify.NewWatcher()
+	defer watcher.Close()
+
+
+
+	// starting at the root of the project, walk each file/directory searching for
+	// directories
+	if err := filepath.Walk("project", watchDir); err != nil {
+		fmt.Println("ERROR", err)
+	}
+
+	//
+	done := make(chan bool)
+
+	//
+	go func() {
+		for {
+			select {
+			// watch for events
+			case event := <-watcher.Events:
+
+				if strings.Contains(event.Name, ".pyc") || strings.Contains(event.String(), "CHMOD") {
+					continue
+				}
+
+				componentChanged := "processor"
+
+				for _, component := range tcomponents.Components {
+					if strings.Contains(event.Name, component) {
+						color.Yellow("reloading %s ... !", component)
+						componentChanged = component
+						break
+					}
+
+				}
+
+
+
+
+
+				component := tcomponents.ActiveComponents[componentChanged]
+				wg.Add(1)
+				closeComponent(wg, component)
+
+
+				initComponent(wg, tcomponents, componentChanged, configFile)
+
+				// watch for errors
+			case err := <-watcher.Errors:
+				color.Red("ERROR---->", err)
+			}
+		}
+	}()
+
+	<-done
+
 }
 
 
@@ -409,6 +518,27 @@ func (w *Worker) Logging(wg *sync.WaitGroup) {
 
 }
 
+func initComponent(wg *sync.WaitGroup, tcomponents *TyphoonComponents, component string, configFile string)  {
+	pathExecute := fmt.Sprintf("%s.py", component)
+	configArg := fmt.Sprintf("--config=%s", configFile)
+	typhoonComponent := &Worker{Command: "python3.8", Args: []string{pathExecute, configArg}}
+	typhoonComponent.Name = component
+	typhoonComponent.ComponentPath = fmt.Sprintf("%s/project/%s", tcomponents.PathProject, component )
+
+	typhoonComponent.ProjectPath = tcomponents.PathProject
+
+	color.Red("ProjectPath: %s. file execute : %s", typhoonComponent.ProjectPath, pathExecute)
+	typhoonComponent.Run(tcomponents.TyphoonPath)
+
+	typhoonComponent.Cmd.Start()
+	typhoonComponent.Cmd.Status()
+	wg.Add(1)
+	go typhoonComponent.Logging(wg)
+	typhoonComponent.Active = true
+
+	tcomponents.ActiveComponents[component] = typhoonComponent
+}
+
 func initComponents(wg *sync.WaitGroup, tcomponents *TyphoonComponents, configFile string)  {
 	tcomponents.ActiveComponents = make(map[string]*Worker)
 	defer wg.Done()
@@ -428,33 +558,19 @@ func initComponents(wg *sync.WaitGroup, tcomponents *TyphoonComponents, configFi
 
 	//var wg sync.WaitGroup
 	for _, component := range tcomponents.Components {
-		pathExecute := fmt.Sprintf("%s.py", component)
-		configArg := fmt.Sprintf("--config=%s", configFile)
-		typhoonComponent := &Worker{Command: "python3.8", Args: []string{pathExecute, configArg}}
-		typhoonComponent.Name = component
-		typhoonComponent.ComponentPath = fmt.Sprintf("%s/project/%s", tcomponents.PathProject, component )
-
-		typhoonComponent.ProjectPath = tcomponents.PathProject
-
-		color.Red("ProjectPath: %s. file execute : %s", typhoonComponent.ProjectPath, pathExecute)
-		typhoonComponent.Run(tcomponents.TyphoonPath)
-
-		typhoonComponent.Cmd.Start()
-		typhoonComponent.Cmd.Status()
-		wg.Add(1)
-		go typhoonComponent.Logging(wg)
-
-		tcomponents.ActiveComponents[component] = typhoonComponent
+		initComponent(wg, tcomponents, component, configFile)
 
 	}
 
-	//color.Yellow("%+f", tcomponents.ActiveComponents)
-	//wg.Wait()
 }
 
 func closeComponent(wg *sync.WaitGroup, component *Worker) {
 	defer wg.Done()
+
 	component.Status <- false
+	component.Active = false
+
+
 	color.Red("component %s was be closed", component.Name)
 	//time.Sleep(time.Second * 2)
 
@@ -463,8 +579,12 @@ func closeComponent(wg *sync.WaitGroup, component *Worker) {
 func closeComponents(wg *sync.WaitGroup, tcomponents *TyphoonComponents) {
 	defer wg.Done()
 	for _, component := range tcomponents.ActiveComponents {
-		wg.Add(1)
-		go closeComponent(wg, component)
+
+		if component.Active {
+			wg.Add(1)
+			go closeComponent(wg, component)
+		}
+
 
 	}
 }
@@ -515,7 +635,7 @@ func Check(typhoonComponents[]string)  {
 	}
 }
 
-func Run(typhoonComponents[]string, configFile string)  {
+func Run(typhoonComponents[]string, configFile string, reload string)  {
 
 
 	task := &Task{
@@ -578,8 +698,7 @@ func Run(typhoonComponents[]string, configFile string)  {
 	//
 	c := make(chan os.Signal)
 	signal.Notify(c, os.Interrupt)
-
-
+	go Watch(&task.wg, typhoonComponent, configFile)
 	select {
 	case sig := <-c:
 		fmt.Printf("Got %s signal. Aborting...\n", sig)
