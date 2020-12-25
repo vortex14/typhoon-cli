@@ -5,7 +5,6 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
-	"path/filepath"
 	"strings"
 )
 
@@ -72,7 +71,8 @@ func VisitAndReplace(path string, fi os.FileInfo, err error) error {
 	newImports = append(newImports, &Import{
 		Old: "from executions.strategies",
 		New: "from typhoon.components.fetcher.executions.strategies",
-	}, &Import{
+	},
+	&Import{
 		Old: "from responses.strategies",
 		New: "from typhoon.components.fetcher.responses.strategies",
 	}, &Import{
@@ -90,13 +90,16 @@ func VisitAndReplace(path string, fi os.FileInfo, err error) error {
 	}, &Import{
 		Old: "from project.resource",
 		New: "from project.processor.resource",
-	}, &Import{
-		Old: "from executable.text_pipelines.base_pipeline",
-		New: "from typhoon.components.processor.executable.text_pipelines.base_pipeline",
-	}, &Import{
+	},
+	&Import{
+		Old: "from executable.text_pipelines.base_pipeline import BasePipeline",
+		New: "from typhoon.components.processor.executable.text_pipelines.base_pipeline import BasePipeline",
+	},
+	&Import{
 		Old: "from project.consumers",
 		New: "from project.result_transporter.consumers",
-	}, &Import{
+	},
+	&Import{
 		Old: "from executions.base_consumer",
 		New: "from typhoon.components.result_transporter.executions.base_consumer",
 	}, &Import{
@@ -105,7 +108,8 @@ func VisitAndReplace(path string, fi os.FileInfo, err error) error {
 	}, &Import{
 		Old: "from project.v1",
 		New: "from project.donor.v1",
-	})
+	},
+	)
 
 	if err != nil {
 		return err
@@ -115,27 +119,26 @@ func VisitAndReplace(path string, fi os.FileInfo, err error) error {
 		return nil //
 	}
 
-	matched, err := filepath.Match("*.py", fi.Name())
-
-	if err != nil {
-		panic(err)
-		return err
+	if strings.Contains(path, ".pyc") || strings.Contains(path, ".json"){
+		return nil
 	}
 
-	if matched {
-		data, err := ioutil.ReadFile(path)
-		if err != nil {
-			panic(err)
-		}
-		for _, v := range newImports {
-			newContents := strings.Replace(string(data), v.Old, v.New, -1)
-			err = ioutil.WriteFile(path, []byte(newContents), 0)
-			if err != nil {
-				panic(err)
-			}
-		}
+	if !strings.Contains(path, "first_mongo_callback.py") {
+		return nil
+	}
 
+	data, err := ioutil.ReadFile(path)
+	newContents := string(data)
+	if err != nil {
+		panic(err)
+	}
 
+	for _, v := range newImports {
+		newContents = strings.Replace(newContents, v.Old, v.New, -1)
+	}
+	err = ioutil.WriteFile(path, []byte(newContents), 0)
+	if err != nil {
+		panic(err)
 	}
 
 	return nil

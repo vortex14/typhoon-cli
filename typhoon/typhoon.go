@@ -236,57 +236,8 @@ func V11TestMigrate(projectName string)  {
 	_ = filepath.Walk("project/donor", v1_1.VisitAndReplace)
 
 	_ = filepath.Walk("project/scheduler", v1_1.VisitAndReplace)
-
+	color.Yellow("Migrated.")
 	return
-
-	//t, err := template.ParseFiles("typhoon/component.gopy")
-	//if err != nil {
-	//	log.Print(err)
-	//	return
-	//}
-	//f, err := os.Create("fetcher.py")
-	//
-	//config := map[string]string{
-	//	"textColor":      "#abcdef",
-	//	"linkColorHover": "#ffaacc",
-	//}
-	////f.Write([]byte("terter ert tert e"))
-	//err = t.Execute(f, config)
-	//if err != nil {
-	//	log.Print("execute: ", err)
-	//	return
-	//}
-	//
-	//f, _ = os.Open("fetcher.py")
-	//io.Copy(os.Stdout, f)
-	//f.Close()
-
-
-	//tpl := template.Must(template.ParseGlob("migrates/component_run.gopy"))
-	//t := template.New("fetcher") // Create a template.
-	//t, _ = t.ParseFiles("component.gopy")  // Parse template file.
-	//f, err := os.Create("fetcher.py")
-	//
-	//w := bufio.NewWriter(f)
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
-	//defer f.Close()
-	//w.Flush()
-	//
-	//
-	//_ = t.Execute(w, component) // merge.
-	//
-	//color.Red("tEst :: %+f", component)
-	//tpl := template.Must(template.ParseFiles("component.gopy"))
-	//
-
-	//err := tpl.Execute(os.Stdout, &component)
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
-
-
 
 }
 
