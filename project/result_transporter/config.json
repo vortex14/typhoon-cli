@@ -1,0 +1,148 @@
+{
+    "auto_throttling": false,
+    "component_name": "result_transporter",
+    "finished_tasks": 0,
+    "is_running": false,
+    "memory_limit": 0.01,
+    "pause_time": 0,
+    "port": 11000,
+    "priority_depth_check_delay": 15,
+    "queues": {
+        "exceptions": {
+            "channel": "tasks",
+            "concurrent": 100,
+            "msg_timeout": 300,
+            "readable": true,
+            "share": true,
+            "topic": "exceptions_rt",
+            "writable": true
+        },
+        "fetcher_exceptions": {
+            "channel": "tasks",
+            "concurrent": 100,
+            "msg_timeout": 300,
+            "readable": true,
+            "share": true,
+            "topic": "exceptions_f",
+            "writable": false
+        },
+        "fetcher_priority": {
+            "channel": "tasks",
+            "concurrent": 100,
+            "msg_timeout": 300,
+            "readable": false,
+            "share": true,
+            "topic": "priority_f",
+            "writable": true
+        },
+        "priority": {
+            "channel": "tasks",
+            "concurrent": 100,
+            "msg_timeout": 300,
+            "readable": true,
+            "share": true,
+            "topic": "priority_rt",
+            "writable": false
+        },
+        "processor_exceptions": {
+            "channel": "tasks",
+            "concurrent": 100,
+            "msg_timeout": 300,
+            "readable": true,
+            "share": true,
+            "topic": "exceptions_p",
+            "writable": false
+        },
+        "processor_priority": {
+            "channel": "tasks",
+            "concurrent": 100,
+            "msg_timeout": 300,
+            "readable": false,
+            "share": true,
+            "topic": "priority_p",
+            "writable": true
+        },
+        "scheduler_exceptions": {
+            "channel": "tasks",
+            "concurrent": 100,
+            "msg_timeout": 300,
+            "readable": true,
+            "share": true,
+            "topic": "exceptions_s",
+            "writable": false
+        },
+        "scheduler_priority": {
+            "channel": "tasks",
+            "concurrent": 100,
+            "msg_timeout": 300,
+            "readable": false,
+            "share": true,
+            "topic": "priority_s",
+            "writable": true
+        }
+    },
+    "register_service": {
+        "host": "project",
+        "port": 5000
+    },
+    "services": {
+        "mongo": {
+            "debug": [
+                {
+                    "db_names": [
+                        "amazon_api"
+                    ],
+                    "details": {
+                        "authMechanism": "SCRAM-SHA-1",
+                        "authSource": "admin",
+                        "host": "mongo",
+                        "password": "TYPHOON-MONGODB4.0-zaDio10G0m",
+                        "port": 27017,
+                        "username": "admin"
+                    },
+                    "name": "main"
+                }
+            ],
+            "production": [
+                {
+                    "db_names": [
+                        "amazon_api"
+                    ],
+                    "details": {
+                        "authMechanism": "SCRAM-SHA-1",
+                        "authSource": "admin",
+                        "host": "mongo",
+                        "password": "TYPHOON-MONGODB4.0-zaDio10G0m",
+                        "port": 27017,
+                        "username": "admin"
+                    },
+                    "name": "main"
+                }
+            ]
+        },
+        "redis": {
+            "debug": [
+                {
+                    "details": {
+                        "host": "redis",
+                        "password": null,
+                        "port": 6379
+                    },
+                    "name": "main"
+                }
+            ],
+            "production": [
+                {
+                    "details": {
+                        "host": "redis",
+                        "password": null,
+                        "port": 6379
+                    },
+                    "name": "main"
+                }
+            ]
+        }
+    },
+    "task_timeout": 120,
+    "waiting_tasks": 0
+}

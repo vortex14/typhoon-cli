@@ -1,9 +1,9 @@
 from typhoon.run import ConfigurationComponent
-from typhoon.components.fetcher.resulttransporter import ResultTransporter
-from typhoon.components.result_transporter.api.api import ResultWorkerApi
-from typhoon.components.result_transporter.state.state import StateManager
+from typhoon.components.fetcher.fetcher import Fetcher
+from typhoon.components.fetcher.api.api import FetcherApi
+from typhoon.components.fetcher.state.state import StateManager
 
 
 if __name__ == "__main__":
-    component = ConfigurationComponent("fetcher", ResultTransporter, ResultWorkerApi, StateManager)
+    component = ConfigurationComponent("fetcher", Fetcher, FetcherApi, StateManager)
     component.run()

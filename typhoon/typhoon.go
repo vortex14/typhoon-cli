@@ -1,27 +1,24 @@
 package typhoon
 
 import (
-	"bufio"
 	"bytes"
 	"fmt"
 	"github.com/fatih/color"
 	"github.com/fsnotify/fsnotify"
 	"github.com/go-cmd/cmd"
 	"github.com/go-logfmt/logfmt"
-	"github.com/kelseyhightower/envconfig"
 	"io"
-	"io/ioutil"
 	"log"
 	"os"
-	"os/exec"
 	"os/signal"
 	"path/filepath"
 	"strings"
 	"sync"
 	"syscall"
-	"text/template"
 	"time"
-	v1_1 "typhoon-cli/typhoon/migrates/v1.1"
+	"typhoon-cli/components"
+	"typhoon-cli/interfaces"
+	"typhoon-cli/utils"
 )
 
 
@@ -49,7 +46,7 @@ type Worker struct {
 	Active bool
 }
 
-type TyphoonComponents = struct {
+type Components = struct {
 	Components 			[]string
 	ActiveComponents 	map[string] *Worker
 	PathProject 		string
@@ -76,76 +73,25 @@ func (w *Worker) Run(typhoonPath string) {
 	envCmd.Env = newEnv
 }
 
-type Settings struct {
-	Path string
-	Status string
-	Projects string
-
-}
 
 
-func LoadEnv()  {
+func CreateTransporterManifest(version string) error {
 
-	loadStatus := false
-	var pathProfile string
-	pathHome := os.Getenv("HOME")
+	//if "v1.1" == version {
+	//	//dir := &components.Directory{Path: "project/result_transporter/consumers"}
+	//	//dataDir := dir.GetDataFromDirectory("project/result_transporter/consumers")
+	//	v1_1.CreateTransporterManifest()
+	//	//for _, v := range dataDir {
+	//	//	color.Red("k %s, v %s", v.Path, v.Type)
+	//	//}
+	//} else {
+	//	color.Red("Version not found")
+	//	return nil
+	//}
 
-	pathsProfiles := []string{
-		fmt.Sprintf("%s/.bash_profile", pathHome),
-		fmt.Sprintf("%s/.bashrc", pathHome),
-		fmt.Sprintf("%s/.bashprofile", pathHome),
-		fmt.Sprintf("%s/.bash_rc", pathHome),
-	}
 
-	for _, _pathProfile := range pathsProfiles {
-		fmt.Sprintf("path: %s", _pathProfile)
 
-		if _, err := os.Stat(_pathProfile); !os.IsNotExist(err) {
-			pathProfile = _pathProfile
-			loadStatus = true
-		}
-	}
-
-	if !loadStatus {
-		color.Red("Not found bash profile !" )
-		os.Exit(1)
-	}
-
-	color.Yellow("bash profile path: : %s", pathProfile)
-
-	cmdSource := exec.Command("bash", "-c", "source " + pathProfile + "; env")
-
-	bs, err := cmdSource.CombinedOutput()
-	if err != nil {
-		log.Fatalln(err)
-	}
-	s := bufio.NewScanner(bytes.NewReader(bs))
-
-	for s.Scan() {
-		kv := strings.SplitN(s.Text(), "=", 2)
-		if strings.Contains(strings.ToLower(kv[0]), "typhoon") {
-			os.Setenv(kv[0], kv[1])
-		}
-	}
-
-}
-
-func goTemplate(dataT string, newPath string, data interface{}) {
-
-	tmpl, _ := template.New("test").Parse(dataT)
-
-	f, err := os.Create(newPath)
-	if err != nil {
-		log.Println("create file: ", err)
-		return
-	}
-
-	err = tmpl.Execute(f, &data)
-	if err != nil {
-		log.Print("execute: ", err)
-		return
-	}
-	f.Close()
+	return nil
 }
 
 var watcher *fsnotify.Watcher
@@ -195,7 +141,7 @@ func WatchTest()  {
 }
 
 
-func Watch(wg *sync.WaitGroup, tcomponents *TyphoonComponents, configFile string)  {
+func Watch(wg *sync.WaitGroup, tcomponents *Components, configFile string)  {
 	color.Green("watch for project ..")
 	watcher, _ = fsnotify.NewWatcher()
 	defer watcher.Close()
@@ -256,159 +202,32 @@ func Watch(wg *sync.WaitGroup, tcomponents *TyphoonComponents, configFile string
 }
 
 
-func V11TestMigrate(projectName string)  {
-	_, dataT := v1_1.GetComponentTemplate()
-	v1_1.MigrateComponents()
-
-	_, confT := v1_1.GetConfigTemplate()
-
-	goTemplate(confT, "config.local.yaml", map[string]string{
-		"projectName":   projectName,
-	})
-
-	if _, err := os.Stat("fetcher.py"); os.IsNotExist(err) {
-		fetcherConfig := map[string]string{
-			"component":   "fetcher",
-			"executeFile": "fetcher",
-			"componentClass": "Fetcher",
-			"apiClass": "FetcherApi",
-		}
-		goTemplate(dataT, "fetcher.py", &fetcherConfig)
-	}
-
-	if _, err := os.Stat("processor.py"); os.IsNotExist(err) {
-		processorConfig := map[string]string{
-			"component":   "processor",
-			"executeFile": "processor",
-			"componentClass": "Processor",
-			"apiClass": "ProcessorApi",
-		}
-		goTemplate(dataT, "processor.py", &processorConfig)
-	}
-
-	if _, err := os.Stat("donor.py"); os.IsNotExist(err) {
-
-		donorConfig := map[string]string{
-			"component":   "donor",
-			"executeFile": "donor",
-			"componentClass": "Donor",
-			"apiClass": "DonorApi",
-		}
-		goTemplate(dataT, "donor.py", &donorConfig)
-
-	}
-
-
-	if _, err := os.Stat("scheduler.py"); os.IsNotExist(err) {
-
-		donorConfig := map[string]string{
-			"component":   "scheduler",
-			"executeFile": "scheduler",
-			"componentClass": "Scheduler",
-			"apiClass": "SchedulerApi",
-		}
-		goTemplate(dataT, "scheduler.py", &donorConfig)
-
-	}
-
-	if _, err := os.Stat("scheduler.py"); os.IsNotExist(err) {
-
-		schConfig := map[string]string{
-			"component":   "scheduler",
-			"executeFile": "scheduler",
-			"componentClass": "Scheduler",
-			"apiClass": "SchedulerApi",
-		}
-		goTemplate(dataT, "scheduler.py", &schConfig)
-
-	}
-
-	if _, err := os.Stat("result_transporter.py"); os.IsNotExist(err) {
-
-		rtConfig := map[string]string{
-			"component":   "result_transporter",
-			"executeFile": "resulttransporter",
-			"componentClass": "ResultTransporter",
-			"apiClass": "ResultWorkerApi",
-		}
-		goTemplate(dataT, "result_transporter.py", &rtConfig)
-
-	}
-
-
-	_ = filepath.Walk("project/fetcher", v1_1.VisitAndReplace)
-
-	_ = filepath.Walk("project/processor", v1_1.VisitAndReplace)
-
-	_ = filepath.Walk("project/result_transporter", v1_1.VisitAndReplace)
-
-	_ = filepath.Walk("project/donor", v1_1.VisitAndReplace)
-
-	_ = filepath.Walk("project/scheduler", v1_1.VisitAndReplace)
-	color.Yellow("Migrated.")
-	return
-
-}
-
-
-func Migrate(version string, projectName string) error {
-	color.Yellow("Migrate project to %s", version)
-	if "v1.1" == version {
-		V11TestMigrate(projectName)
-	} else {
-		color.Red("Version not found")
-	}
-
-
+func Migrate(project interfaces.TyphoonProject) error {
+	project.Migrate()
 	return nil
 }
 
-func ReadEnv() (error, setting *Settings) {
-	LoadEnv()
-	var settings Settings
-	err := envconfig.Process("typhoon", &settings)
-	if err != nil {
-		log.Fatal(err.Error())
-	}
-	return nil, &settings
-}
+
 
 func CreateSymbolicLink() error {
-	_, settings := ReadEnv()
+	project := &components.Project{}
 
-	linkTyphoonPath := fmt.Sprintf("%s/pytyphoon/typhoon", settings.Path)
-	err := os.Symlink(linkTyphoonPath, "typhoon")
+	err := project.CreateSymbolicLink()
 
-	if err != nil{
-		fmt.Printf("err %s",  err)
-	}
-
-
-	return nil
+	return err
 }
 
-func ParseLogData(logFileName string) error {
-	currentPath, _ := os.Getwd()
-	logPath := fmt.Sprintf("%s/%s", currentPath, logFileName)
-	dat, err := ioutil.ReadFile(logPath)
+func ParseLogData(fileObject *interfaces.FileObject) error {
+	u := utils.Utils{}
+	err := u.ParseLog(fileObject)
 
-	color.Red("Log file path: %s", logPath)
+
 	if err != nil {
 
-		color.Red("Log file not found")
+		color.Red("Error %s", err)
 		os.Exit(0)
 
-
 	}
-
-	logDataMap := logfmt.NewDecoder(strings.NewReader(string(dat)))
-	for logDataMap.ScanRecord() {
-		for logDataMap.ScanKeyval() {
-			color.Yellow("%s = %s", logDataMap.Key(), logDataMap.Value())
-		}
-	}
-
-
 
 	return nil
 
@@ -518,7 +337,7 @@ func (w *Worker) Logging(wg *sync.WaitGroup) {
 
 }
 
-func initComponent(wg *sync.WaitGroup, tcomponents *TyphoonComponents, component string, configFile string)  {
+func initComponent(wg *sync.WaitGroup, tcomponents *Components, component string, configFile string)  {
 	pathExecute := fmt.Sprintf("%s.py", component)
 	configArg := fmt.Sprintf("--config=%s", configFile)
 	typhoonComponent := &Worker{Command: "python3.8", Args: []string{pathExecute, configArg}}
@@ -539,7 +358,7 @@ func initComponent(wg *sync.WaitGroup, tcomponents *TyphoonComponents, component
 	tcomponents.ActiveComponents[component] = typhoonComponent
 }
 
-func initComponents(wg *sync.WaitGroup, tcomponents *TyphoonComponents, configFile string)  {
+func initComponents(wg *sync.WaitGroup, tcomponents *Components, configFile string)  {
 	tcomponents.ActiveComponents = make(map[string]*Worker)
 	defer wg.Done()
 
@@ -576,7 +395,7 @@ func closeComponent(wg *sync.WaitGroup, component *Worker) {
 
 }
 
-func closeComponents(wg *sync.WaitGroup, tcomponents *TyphoonComponents) {
+func closeComponents(wg *sync.WaitGroup, tcomponents *Components) {
 	defer wg.Done()
 	for _, component := range tcomponents.ActiveComponents {
 
@@ -622,20 +441,21 @@ func handle() {
 	}
 }
 
-func Check(typhoonComponents[]string)  {
+func Check(project interfaces.TyphoonProject)  {
+
 	pathProject, err := os.Getwd()
 	if err != nil {
 		log.Println(err)
 	}
 
-	isProject := checkProject(typhoonComponents)
+	isProject := project.CheckProject()
 	if isProject == false {
 		color.Red("Project does not exists in the current directory :%s", pathProject )
 		os.Exit(1)
 	}
 }
 
-func Run(typhoonComponents[]string, configFile string, reload string)  {
+func Run(project interfaces.TyphoonProject)  {
 
 
 	task := &Task{
@@ -656,13 +476,19 @@ func Run(typhoonComponents[]string, configFile string, reload string)  {
 	//	os.Exit(1)
 	//}
 
-	isProject := checkProject(typhoonComponents)
+
+
+	isProject := project.CheckProject()
 	if isProject == false {
 		color.Red("Project does not exists in the current directory :%s", pathProject )
 		os.Exit(1)
 	}
 
-	if isExistDir("typhoon") {
+	typhoonDir := &components.Directory{
+		Path: "typhoon",
+	}
+
+	if typhoonDir.IsExistDir("typhoon") {
 		TyphoonPath = "typhoon"
 		goto toComponentInit
 	}
@@ -682,14 +508,14 @@ func Run(typhoonComponents[]string, configFile string, reload string)  {
 	toComponentInit:
 	//return
 
-	var typhoonComponent = &TyphoonComponents{
-		Components:  typhoonComponents,
+	var typhoonComponent = &Components{
+		Components:  project.GetComponents(),
 		PathProject: pathProject,
 		TyphoonPath: TyphoonPath,
 	}
 	color.Magenta("start components")
 	task.wg.Add(1)
-	go initComponents(&task.wg, typhoonComponent, configFile)
+	go initComponents(&task.wg, typhoonComponent, project.GetConfigFile())
 
 
 
@@ -698,7 +524,7 @@ func Run(typhoonComponents[]string, configFile string, reload string)  {
 	//
 	c := make(chan os.Signal)
 	signal.Notify(c, os.Interrupt)
-	go Watch(&task.wg, typhoonComponent, configFile)
+	go Watch(&task.wg, typhoonComponent, project.GetConfigFile())
 	select {
 	case sig := <-c:
 		fmt.Printf("Got %s signal. Aborting...\n", sig)
