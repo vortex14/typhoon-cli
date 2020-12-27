@@ -2,37 +2,25 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="8f624ae2-7c3e-4855-83db-a3d525867ca5" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/components/components.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/environment/environment.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/interfaces/interfaces.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/migrates/migrates.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/migrates/v1.1/v1.1.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/project/result_transporter/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/project/result_transporter/config.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/project/result_transporter/consumers/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/project/result_transporter/consumers/categories_mongo.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/project/result_transporter/consumers/consumer_manager.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/project/result_transporter/consumers/exceptions.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/project/result_transporter/consumers/mongo_prices.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/project/result_transporter/consumers/mongo_production.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/project/result_transporter/consumers/mongo_queue.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/utils/utlis.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/project/fetcher/tst.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/builders/builders.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/typhoon/component.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/typhoon/project.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/typhoon/typhoon.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cli" beforeDir="false" afterPath="$PROJECT_DIR$/cli" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cli.go" beforeDir="false" afterPath="$PROJECT_DIR$/cli.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/component.gopy" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/component.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/donor.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/example.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/fetcher.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/processor.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/result_transporter.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/scheduler.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/typhoon/components.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/typhoon/migrates/v1.1/component.gopy" beforeDir="false" afterPath="$PROJECT_DIR$/migrates/v1.1/component.gopy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/typhoon/migrates/v1.1/config.goyaml" beforeDir="false" afterPath="$PROJECT_DIR$/migrates/v1.1/config.goyaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/typhoon/migrates/v1.1/v1.1.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/typhoon/typhoon.go" beforeDir="false" afterPath="$PROJECT_DIR$/typhoon/typhoon.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/components.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/environment/environment.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/environment/environment.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/interfaces/interfaces.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/interfaces/interfaces.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/migrates/migrates.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/migrates/migrates.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/migrates/v1.1/component.gopy" beforeDir="false" afterPath="$PROJECT_DIR$/src/builders/v1.1/component.gopy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/migrates/v1.1/config.goyaml" beforeDir="false" afterPath="$PROJECT_DIR$/src/builders/v1.1/config.goyaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/migrates/v1.1/v1.1.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/migrates/v1.1/v1.1.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/project/tst.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/typhoon/typhoon.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/typhoon/ui.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/typhoon/ui.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/utlis.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils/utlis.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -77,11 +65,11 @@
       <recent name="$PROJECT_DIR$" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/project/fetcher" />
+      <recent name="$PROJECT_DIR$/src" />
+      <recent name="$PROJECT_DIR$/builders/v1.1" />
       <recent name="$PROJECT_DIR$" />
       <recent name="$PROJECT_DIR$/typhoon/migrates/v1.1" />
-      <recent name="$PROJECT_DIR$/typhoon/migrates" />
-      <recent name="$PROJECT_DIR$/typhoon" />
-      <recent name="$PROJECT_DIR$/ui" />
     </key>
   </component>
   <component name="RunManager">

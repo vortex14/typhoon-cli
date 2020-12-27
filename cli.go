@@ -7,10 +7,10 @@ import (
 	"os"
 	"sort"
 	"strings"
-	"typhoon-cli/components"
-	"typhoon-cli/environment"
-	"typhoon-cli/interfaces"
-	"typhoon-cli/typhoon"
+	"typhoon-cli/src/environment"
+	"typhoon-cli/src/interfaces"
+	"typhoon-cli/src/typhoon"
+	"typhoon-cli/src/utils"
 )
 
 func main() {
@@ -58,8 +58,9 @@ func main() {
 				Usage: "create symbolic link to typhoon",
 				Action: func(context *cli.Context) error {
 					color.Green("create symbolic link to typhoon ")
-					typhoon.CreateSymbolicLink()
-					return nil
+					project := typhoon.Project{}
+					err := project.CreateSymbolicLink()
+					return err
 				},
 
 			},
@@ -95,12 +96,12 @@ func main() {
 					},
 				},
 				Action: func(context *cli.Context) error {
-					project := components.Project{
+					project := typhoon.Project{
 						Version: context.String("new"),
 						Name: context.String("name"),
 					}
-					err := typhoon.Migrate(&project)
-					return err
+					project.Migrate()
+					return nil
 				},
 			},
 			{
@@ -141,12 +142,18 @@ func main() {
 						reload = false
 					}
 
-					project := &components.Project{
-						Components: typhoonComponents,
+					pathProject, err := os.Getwd()
+					if err != nil {
+						log.Println(err)
+					}
+
+					project := &typhoon.Project{
+						SelectedComponent: typhoonComponents,
 						ConfigFile: configFile,
 						AutoReload: reload,
+						Path: pathProject,
 					}
-					typhoon.Run(project)
+					project.Run()
 					return nil
 				},
 			},
@@ -171,12 +178,12 @@ func main() {
 				Action:  func(c *cli.Context) error {
 					componentName := c.String("component")
 					componentsName := c.String("components")
-
+					utils := utils.Utils{}
 					if len(componentsName) > 0 {
 						componentsArr := strings.Split(componentsName, ",")
 
 						for _, name := range componentsArr {
-							_, found := typhoon.Find(typhoonComponents, name)
+							_, found := utils.CheckSlice(typhoonComponents, name)
 							//color.Yellow("%t %s", found, name)
 							if !found {
 								color.Red("component %s isn't valid", name)
@@ -184,19 +191,19 @@ func main() {
 							}
 						}
 
-						project := &components.Project{
-							Components: componentsArr,
+						project := &typhoon.Project{
+							SelectedComponent: componentsArr,
 						}
 
-						typhoon.Check(project)
+						project.CheckProject()
 
 					} else {
 						color.Yellow("run: %s", componentName)
-						project := &components.Project{
-							Components: []string{componentName},
+						project := &typhoon.Project{
+							SelectedComponent: []string{componentName},
 						}
 
-						typhoon.Check(project)
+						project.CheckProject()
 					}
 
 
@@ -234,7 +241,14 @@ func main() {
 								Usage: "generate transporter yaml manifest",
 								Action: func(context *cli.Context) error {
 									version := context.String("version")
-									typhoon.CreateTransporterManifest(version)
+									project := &typhoon.Project{
+										Version: version,
+										BuilderOptions: &interfaces.BuilderOptions{
+											Component: "transporter",
+											Type: "manifest",
+										},
+									}
+									project.Build()
 									return nil
 								},
 							},
@@ -278,13 +292,14 @@ func main() {
 					configFile := c.String("config")
 					componentName := c.String("component")
 					componentsName := c.String("components")
+					utils := utils.Utils{}
 					//reload := c.String("reload")
 
 					if len(componentsName) > 0 {
 						componentsArr := strings.Split(componentsName, ",")
 
 						for _, name := range componentsArr {
-							_, found := typhoon.Find(typhoonComponents, name)
+							_, found := utils.CheckSlice(typhoonComponents, name)
 							color.Yellow("%s %s", found, name)
 							if !found {
 								color.Red("component %s isn't valid", name)
@@ -292,8 +307,8 @@ func main() {
 							}
 						}
 
-						project := &components.Project{
-							Components: componentsArr,
+						project := &typhoon.Project{
+							SelectedComponent: componentsArr,
 							AutoReload: true,
 							ConfigFile: configFile,
 						}
@@ -301,17 +316,17 @@ func main() {
 
 
 
-						typhoon.Run(project)
+						project.Run()
 
 					} else {
 						color.Yellow("run: %s , config: %s", componentName, configFile)
-						project := &components.Project{
-							Components: []string{componentName},
+						project := &typhoon.Project{
+							SelectedComponent: []string{componentName},
 							AutoReload: true,
 							ConfigFile: configFile,
 						}
 
-						typhoon.Run(project)
+						project.Run()
 					}
 
 
