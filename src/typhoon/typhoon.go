@@ -61,67 +61,6 @@ func WatchTest()  {
 }
 
 
-//func Watch(wg *sync.WaitGroup, tcomponents *Components, configFile string)  {
-//	color.Green("watch for project ..")
-//	watcher, _ = fsnotify.NewWatcher()
-//	defer watcher.Close()
-//
-//
-//
-//	// starting at the root of the project, walk each file/directory searching for
-//	// directories
-//	if err := filepath.Walk("project", watchDir); err != nil {
-//		fmt.Println("ERROR", err)
-//	}
-//
-//	//
-//	done := make(chan bool)
-//
-//	//
-//	go func() {
-//		for {
-//			select {
-//			// watch for events
-//			case event := <-watcher.Events:
-//
-//				if strings.Contains(event.Name, ".pyc") || strings.Contains(event.String(), "CHMOD") {
-//					continue
-//				}
-//
-//				componentChanged := "processor"
-//
-//				for _, component := range tcomponents.Components {
-//					if strings.Contains(event.Name, component) {
-//						color.Yellow("reloading %s ... !", component)
-//						componentChanged = component
-//						break
-//					}
-//
-//				}
-//
-//
-//
-//
-//
-//				component := tcomponents.ActiveComponents[componentChanged]
-//				wg.Add(1)
-//				closeComponent(wg, component)
-//
-//
-//				initComponent(wg, tcomponents, componentChanged, configFile)
-//
-//				// watch for errors
-//			case err := <-watcher.Errors:
-//				color.Red("ERROR---->", err)
-//			}
-//		}
-//	}()
-//
-//	<-done
-//
-//}
-//
-
 
 func ParseLogData(fileObject *interfaces.FileObject) error {
 	u := utils.Utils{}

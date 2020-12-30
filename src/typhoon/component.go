@@ -2,6 +2,7 @@ package typhoon
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"github.com/fatih/color"
 	"github.com/go-cmd/cmd"
@@ -10,9 +11,11 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"os/exec"
 	"strings"
 	"sync"
 	"syscall"
+	"time"
 	"typhoon-cli/src/interfaces"
 )
 
@@ -56,28 +59,103 @@ func (c *Component) Start(project interfaces.Project)  {
 	//c.Path = fmt.Sprintf("%s/project/%s", project.GetProjectPath(), c.Name )
 	c.Worker.Run(project)
 
-	color.Yellow("path Ex: %s, arg: %s, path: %s", pathExecute, configArg, c.Path)
-
 	c.Worker.Cmd.Start()
 	c.Worker.Cmd.Status()
 	c.Active = true
-	c.AddPromise()
+	//c.AddPromise()
 	go c.Logging()
 }
 
 
 func (c *Component) Close(project interfaces.Project)  {
 	defer project.PromiseDone()
-	c.Stop()
+	c.Stop(project)
 }
 
-func (c *Component) Stop()  {
+func exec_cmd(cmd *exec.Cmd) {
+	var waitStatus syscall.WaitStatus
+	err := cmd.Run()
+
+	if err != nil {
+			os.Stderr.WriteString(fmt.Sprintf("Error: %s\n", err.Error()))
+	}
+	if exitError, ok := err.(*exec.ExitError); ok {
+		waitStatus = exitError.Sys().(syscall.WaitStatus)
+		fmt.Printf("Error during killing (exit code: %s)\n", []byte(fmt.Sprintf("%d", waitStatus.ExitStatus())))
+	} else {
+		waitStatus = cmd.ProcessState.Sys().(syscall.WaitStatus)
+		fmt.Printf("Port successfully killed (exit code: %s)\n", []byte(fmt.Sprintf("%d", waitStatus.ExitStatus())))
+	}
+}
+
+func (c *Component) Stop(project interfaces.Project)  {
 	status := c.Worker.Cmd.Status()
 	color.Green("%s status.PID %s", status.PID, c.Name)
-	if !IsClosed(c.Worker.Status){
-		c.Worker.Status <- false
-	}
+	//if !IsClosed(c.Worker.Status){
+	c.Worker.Status <- false
+	//}
 	c.Active = false
+	port := project.GetComponentPort(c.Name)
+
+	//
+	//if runtime.GOOS == "windows" {
+	//	command := fmt.Sprintf("(Get-NetTCPConnection -LocalPort %s).OwningProcess -Force", port)
+	//	exec_cmd(exec.Command("Stop-Process", "-Id", command))
+	//} else {
+	//	command := fmt.Sprintf("lsof -i :%s", port)
+	//	exec_cmd(exec.Command("bash", "-c", command))
+	//}
+
+	command := fmt.Sprintf("lsof -i :%s", port)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
+	defer cancel()
+
+	if err := exec.CommandContext(ctx, "bash", "-c", command).Run(); err != nil {
+		color.Green("commands done !")
+		// This will fail after 100 milliseconds. The 5 second sleep
+		// will be interrupted.
+	}
+
+
+
+	//cmdSource := exec.Command("bash", "-c", command)
+	//var out bytes.Buffer
+	//cmdSource.Stdout = &out
+	//_ = cmdSource.Run()
+	//
+	//err := cmdSource.Wait()
+	//if err != nil {
+	//	color.Green("Yes: %s", err)
+	//}
+	//if err != nil {
+	//	log.Fatal(err)
+	//}
+	//fmt.Printf("in all caps: %q\n", out.String())
+
+	//err := cmdSource.Start()
+	//if err != nil {
+	//	color.Red("%s", err)
+	//}
+	//
+	//data, errs := cmdSource.Output()
+	//color.Red("test err %s", errs)
+	//color.Green("Port: %s flushed", string(rune(port)))
+
+	//
+	//_, err := cmdSource.CombinedOutput()
+	//if err != nil {
+	//	log.Fatal(err)
+	//}
+	//s := bufio.NewScanner(bytes.NewReader(bs))
+	//
+	//for s.Scan() {
+	//	kv := strings.SplitN(s.Text(), "=", 2)
+	//	if strings.Contains(strings.ToLower(kv[0]), "typhoon") {
+	//		os.Setenv(kv[0], kv[1])
+	//	}
+	//}
+
 
 
 	errKill := syscall.Kill(-status.PID, syscall.SIGKILL)
@@ -94,7 +172,7 @@ func (c *Component) Stop()  {
 
 func (c Component) Restart(project *Project)  {
 	color.Red("Restart component %s ...", c.Name)
-	c.Stop()
+	c.Stop(project)
 	c.Start(project)
 
 	project.components.ActiveComponents[c.Name] = &c
@@ -273,12 +351,14 @@ func IsClosed(ch <-chan bool) bool {
 
 func (c *Component) Logging()  {
 	Info := color.New(color.FgWhite, color.BgBlack, color.Bold).SprintFunc()
-	for c.Worker.Cmd.Stdout != nil || c.Worker.Cmd.Stderr != nil || c.Worker.Status != nil {
+	for {
 		select {
 		case line, open := <-c.Worker.Cmd.Stdout:
+
 			if !open {
 				continue
 			}
+
 
 
 
@@ -317,6 +397,7 @@ func (c *Component) Logging()  {
 			fmt.Printf(`
 ------------
 `)
+			continue
 		case line, open := <-c.Worker.Cmd.Stderr:
 			if !open {
 				continue
@@ -325,13 +406,13 @@ func (c *Component) Logging()  {
 			io.Copy(os.Stderr, bytes.NewBufferString(errLog))
 			//errLog = fmt.Sprintf("Component: %s; %s , %s", w.Name, errLog, line)
 			//color.Red(errLog)
+			color.Red(" %s error: %s",c.Name, line)
+			//err := c.Worker.Cmd.Stop()
 
-			err := c.Worker.Cmd.Stop()
-
-			if err != nil {
-				color.Red(" %s error: %s",c.Name, line)
+			//if err != nil {
+			//	color.Red(" %s error: %s",c.Name, line)
 				//fmt.Fprintln(os.Stderr, line)
-			}
+			//}
 			//close(w.Status)
 
 			//color.Red("Return from Logging. Component: %s", w.Name)
@@ -342,28 +423,33 @@ func (c *Component) Logging()  {
 			//}
 			continue
 		case status, ok := <-c.Worker.Status:
+
 			if ok != true || status == false {
 
 				err := c.Worker.Cmd.Stop()
 
 				if err != nil {
-					color.Red("Component: %s ,Err: %s",c.Name, err)
+					color.Red("Component: %s ,Err: %s", c.Name, err)
 				}
 
-
-
-				if !IsClosed(c.Worker.Status) {
-					close(c.Worker.Status)
-				}
+				//
+				//
+				//if !IsClosed(c.Worker.Status) {
+				//	close(c.Worker.Status)
+				//}
 
 				//c.Promise.Done()
 
-				color.Blue("promise done ... %s", c.Name)
+				color.Blue("%s logging done ... ", c.Name)
 
 				return
+
 			}
+			continue
 
 		}
 
 	}
+
+
 }

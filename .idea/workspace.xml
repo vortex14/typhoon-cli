@@ -2,25 +2,13 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="8f624ae2-7c3e-4855-83db-a3d525867ca5" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/project/fetcher/tst.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/builders/builders.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/typhoon/component.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/typhoon/project.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/typhoon/typhoon.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/typhoon/config.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cli" beforeDir="false" afterPath="$PROJECT_DIR$/cli" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cli.go" beforeDir="false" afterPath="$PROJECT_DIR$/cli.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/components.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/environment/environment.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/environment/environment.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/interfaces/interfaces.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/interfaces/interfaces.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/migrates/migrates.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/migrates/migrates.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/migrates/v1.1/component.gopy" beforeDir="false" afterPath="$PROJECT_DIR$/src/builders/v1.1/component.gopy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/migrates/v1.1/config.goyaml" beforeDir="false" afterPath="$PROJECT_DIR$/src/builders/v1.1/config.goyaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/migrates/v1.1/v1.1.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/migrates/v1.1/v1.1.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/project/tst.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/typhoon/typhoon.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/typhoon/ui.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/typhoon/ui.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/utlis.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils/utlis.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/interfaces/interfaces.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/interfaces/interfaces.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/typhoon/component.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/typhoon/component.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/typhoon/project.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/typhoon/project.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/typhoon/typhoon.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/typhoon/typhoon.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

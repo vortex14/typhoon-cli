@@ -54,6 +54,7 @@ type Project interface {
 	GetConfigFile() string
 	CreateSymbolicLink() error
 	GetVersion() string
+	GetComponentPort(name string) int
 	GetEnvSettings() *environment.Settings
 	GetBuilderOptions() *BuilderOptions
 	migrates.ProjectMigrate
@@ -73,8 +74,8 @@ type Component interface {
 	//CheckComponent(component string) bool
 	Start(project Project)
 	Close(project Project)
-	Stop()
-	Restart(project Project)
+	Stop(project Project)
+	//Restart(project *Project)
 	goPromise
 }
 

@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"github.com/fatih/color"
 	"github.com/fsnotify/fsnotify"
+	"gopkg.in/yaml.v2"
+	"io/ioutil"
 	"log"
 	"os"
 	"os/signal"
@@ -42,6 +44,7 @@ type Project struct {
 	task              *Task
 	EnvSettings       *environment.Settings
 	Watcher           fsnotify.Watcher
+	Config *ConfigProject
 }
 
 
@@ -54,6 +57,10 @@ func watchDirTeet(path string, fi os.FileInfo, err error) error {
 	}
 
 	return nil
+}
+
+func (p *Project) GetComponentPort(name string) int {
+	return p.Config.Config.GetComponentPort(name)
 }
 
 func (p *Project) WatchDir(path string, fi os.FileInfo, err error) error {
@@ -143,7 +150,7 @@ func (p *Project) Watch()  {
 				}
 
 
-				componentChanged := "processor"
+				componentChanged := ""
 
 				for _, component := range p.SelectedComponent {
 					if strings.Contains(event.Name, component) {
@@ -154,17 +161,26 @@ func (p *Project) Watch()  {
 
 				}
 
-				color.Yellow("Reload %s ...", componentChanged)
-				color.Yellow("event %+v",event)
+				if _, ok := p.components.ActiveComponents[componentChanged]; ok {
+
+					color.Yellow("Reload %s ...", componentChanged)
+					color.Yellow("event %+v",event)
+					component := p.components.ActiveComponents[componentChanged]
+
+					//p.AddPromise()
+					go component.Restart(p)
 
 
+					// "example" is not in the map
+				} else {
+					color.Yellow("%s isn't running", componentChanged)
+				}
 
-
-				component := p.components.ActiveComponents[componentChanged]
+				//
 
 
 				//p.AddPromise()
-				go component.Restart(p)
+				//go component.Restart(p)
 
 				//go component.Restart(p)
 
@@ -242,9 +258,10 @@ func (p *Project) initComponents()  {
 			Name: componentName,
 		}
 
-		component.Start(p)
-
 		p.components.ActiveComponents[componentName] = component
+
+
+		component.Start(p)
 
 	}
 
@@ -320,6 +337,25 @@ func (p *Project) CheckProject() {
 		color.Red("Config %s does not exists in project :%s", p.ConfigFile, configPath )
 		os.Exit(1)
 	}
+
+	var config ConfigProject
+	yamlFile, err := ioutil.ReadFile(configPath)
+	if err != nil {
+		log.Printf("config.yaml err   #%v ", err)
+		os.Exit(1)
+	} else {
+		err = yaml.Unmarshal(yamlFile, &config.Config)
+		if err != nil {
+			//log.Fatalf("Unmarshal: %v", err)
+			color.Red("Config load error: %s", err )
+			os.Exit(1)
+		}
+
+	}
+	config.ConfigFile = configPath
+
+	p.Config = &config
+
 
 
 
