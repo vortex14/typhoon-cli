@@ -27,6 +27,10 @@ func watchDir(path string, fi os.FileInfo, err error) error {
 	return nil
 }
 
+func CreateProject() {
+
+}
+
 func WatchTest()  {
 	color.Green("watch for project ..")
 	watcher, _ = fsnotify.NewWatcher()

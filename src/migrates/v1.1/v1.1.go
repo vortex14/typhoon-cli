@@ -23,6 +23,7 @@ type ProjectMigrate struct {
 
 func (m *ProjectMigrate) MigrateV11()  {
 	m.migrateComponents()
+	m.CreateDockerComposeConfigs()
 	u := utils.Utils{}
 	_, dataT := u.GetGoTemplate(&interfaces.FileObject{Path: m.Dir.Path, Name: "component.gopy"})
 
@@ -145,6 +146,25 @@ func (m *ProjectMigrate) MigrateV11()  {
 	_ = filepath.Walk("project/scheduler", m.VisitAndReplace)
 	color.Yellow("Migrated.")
 	return
+}
+
+func (m *ProjectMigrate) CreateDockerComposeConfigs()  {
+	u := utils.Utils{}
+	_, dataTDockerLocal := u.GetGoTemplate(&interfaces.FileObject{Path: m.Dir.Path, Name: "docker-compose.local.goyaml"})
+
+	dataConfig := map[string]string{
+		"projectName": m.Project.GetName(),
+		"tag": m.Project.GetTag(),
+	}
+
+	goTemplateComposeLocal := interfaces.GoTemplate{
+		Source: dataTDockerLocal,
+		ExportPath: "docker-compose.local.yaml",
+		Data: dataConfig,
+	}
+
+
+	u.GoRunTemplate(&goTemplateComposeLocal)
 }
 
 func (m *ProjectMigrate) migrateComponents()  {

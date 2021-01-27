@@ -13,18 +13,19 @@ auto_throttling: false
 is_running: false
 nsqlookupd_ip: http://localhost:4161
 nsqd_nodes:
-  - ip: localhost:4150
+  - ip: {{.nsqdAdd}}
 waiting_tasks: 0
 pause_time: 0
 max_processor_retries: 15
 max_failed: 5
 memory_limit: 0.01
 retrying_delay: 5
+{{ if .debug}}
 register_service:
   port: 12735
   host: localhost
   cluster: debug
-
+{{end}}
 
 ty_components:
   fetcher:
@@ -247,7 +248,7 @@ ty_components:
         msg_timeout: 0
         readable: false
         share: true
-        topic: dev_priority_p
+        topic: priority_p
         writable: true
       fetcher_deferred:
         channel: tasks
@@ -303,14 +304,14 @@ services:
     production:
     - name: main
       details:
-        host: localhost
+        host: {{.mongoHost}}
         port: 27017
       db_names:
       - *project_name
     debug:
     - name: main
       details:
-        host: localhost
+        host: {{.mongoHost}}
         port: 27017
       db_names:
         - *project_name
@@ -318,12 +319,12 @@ services:
     production:
     - name: main
       details:
-        host: localhost
-        port: 6380
+        host: {{.redisHost}}
+        port: {{.redisPort}}
         password:
     debug:
     - name: main
       details:
-        host: localhost
-        port: 6380
+        host: {{.redisHost}}
+        port: {{.redisPort}}
         password:

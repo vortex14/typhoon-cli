@@ -15,7 +15,8 @@ import (
 	"time"
 	"typhoon-cli/src/environment"
 	"typhoon-cli/src/interfaces"
-	v1_1 "typhoon-cli/src/migrates/v1.1"
+	v11 "typhoon-cli/src/migrates/v1.1"
+	"typhoon-cli/src/utils"
 )
 
 type components = struct {
@@ -35,6 +36,7 @@ type Task struct {
 type Project struct {
 	Path              string
 	Name              string
+	Tag 			  string
 	SelectedComponent []string
 	components        components
 	ConfigFile        string
@@ -69,6 +71,75 @@ func (p *Project) WatchDir(path string, fi os.FileInfo, err error) error {
 	}
 
 	return nil
+}
+
+func (p *Project) CreateProject() {
+	color.Yellow("creating project...")
+	u := utils.Utils{}
+	fileObject := &interfaces.FileObject{
+		Path: "../builders/v1.1/project",
+	}
+
+	err := u.CopyDir(p.Name, fileObject)
+
+
+	if err != nil {
+
+		color.Red("Error %s", err)
+		os.Exit(0)
+
+	}
+
+	_, confT := u.GetGoTemplate(&interfaces.FileObject{
+		Path: "../builders/v1.1",
+		Name: "config.goyaml",
+
+	})
+	goTemplate := interfaces.GoTemplate{
+		Source: confT,
+		ExportPath: p.Name +"/config.local.yaml",
+		Data: map[string]string{
+			"projectName": p.Name,
+			"nsqdAdd": "localhost:4150",
+			"redisHost": "localhost",
+			"mongoHost": "localhost",
+			"redisPort": "6380",
+			"debug": "true",
+		},
+	}
+
+	_= u.GoRunTemplate(&goTemplate)
+	goTemplateCompose := interfaces.GoTemplate{
+		Source: confT,
+		ExportPath: p.Name +"/config.prod.yaml",
+		Data: map[string]string{
+			"projectName": p.Name,
+			"nsqdAdd": "nsqd:4150",
+			"redisHost": "redis",
+			"redisPort": "6379",
+		},
+	}
+
+	_= u.GoRunTemplate(&goTemplateCompose)
+	//color.Green("Teplate status: %b", status)
+
+	_, dataTDockerLocal := u.GetGoTemplate(&interfaces.FileObject{Path: "../builders/v1.1", Name: "docker-compose.local.goyaml"})
+
+	dataConfig := map[string]string{
+		"projectName": p.GetName(),
+		"tag": p.GetTag(),
+	}
+
+	goTemplateComposeLocal := interfaces.GoTemplate{
+		Source: dataTDockerLocal,
+		ExportPath: p.Name +"/docker-compose.local.yaml",
+		Data: dataConfig,
+	}
+
+
+	u.GoRunTemplate(&goTemplateComposeLocal)
+	color.Green("Project %s created !", p.Name)
+
 }
 
 func (p *Project) GetEnvSettings() *environment.Settings {
@@ -214,12 +285,15 @@ func (p *Project) GetBuilderOptions() *interfaces.BuilderOptions {
 	return p.BuilderOptions
 }
 
+func (p *Project) GetTag() string {
+	return p.Tag
+}
 func (p *Project) Migrate()  {
 
 	color.Yellow("Migrate project to %s !", p.GetVersion())
 
 	if p.Version == "v1.1" {
-		prMigrates := v1_1.ProjectMigrate{
+		prMigrates := v11.ProjectMigrate{
 			Project: p,
 			Dir: &interfaces.FileObject{
 				Path: "../builders/v1.1",

@@ -49,7 +49,7 @@ func main() {
 					fileObject := interfaces.FileObject{
 						Path: logFile,
 					}
-					typhoon.ParseLogData(&fileObject)
+					_ = typhoon.ParseLogData(&fileObject)
 					return nil
 				},
 			},
@@ -89,6 +89,13 @@ func main() {
 
 					},
 					&cli.StringFlag{
+						Name:    "tag",
+						Aliases: []string{"t"},
+						Value:   "v1.0.0",
+						Usage:   "docker images tag",
+
+					},
+					&cli.StringFlag{
 						Name:    "name",
 						Aliases: []string{"p"},
 						Usage:   "Project name ",
@@ -99,6 +106,7 @@ func main() {
 					project := typhoon.Project{
 						Version: context.String("new"),
 						Name: context.String("name"),
+						Tag: context.String("tag"),
 					}
 					project.Migrate()
 					return nil
@@ -216,6 +224,40 @@ func main() {
 				Usage: "Watch for changing in typhoon project",
 				Action: func(context *cli.Context) error {
 					typhoon.WatchTest()
+					return nil
+				},
+			},
+			{
+				Name: "create",
+				Usage: "Create new Typhoon project",
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:    "new",
+						Aliases: []string{"n"},
+						Value:   "v1.1",
+						Usage:   "Project skeleton template version.",
+					},
+					&cli.StringFlag{
+						Name:    "tag",
+						Aliases: []string{"t"},
+						Value:   "v1.0.0",
+						Usage:   "docker images tag",
+					},
+					&cli.StringFlag{
+						Name:     "name",
+						Aliases:  []string{"p"},
+						Usage:    "Project name ",
+						Required: true,
+					},
+				},
+				Action: func(context *cli.Context) error {
+
+					project := typhoon.Project{
+						Version: context.String("new"),
+						Name: context.String("name"),
+						Tag: context.String("tag"),
+					}
+					project.CreateProject()
 					return nil
 				},
 			},

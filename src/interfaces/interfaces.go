@@ -47,6 +47,7 @@ type Project interface {
 	Run()
 	Close()
 	Watch()
+	GetTag() string
 	CheckProject()
 	GetName() string
 	GetProjectPath() string
