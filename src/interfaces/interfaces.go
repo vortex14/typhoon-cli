@@ -55,6 +55,7 @@ type Project interface {
 	GetConfigFile() string
 	CreateSymbolicLink() error
 	GetVersion() string
+	GetLogLevel() string
 	GetComponentPort(name string) int
 	GetEnvSettings() *environment.Settings
 	GetBuilderOptions() *BuilderOptions

@@ -134,6 +134,12 @@ func main() {
 						Usage:   "Load configuration from `FILE`",
 					},
 					&cli.StringFlag{
+						Name:    "level",
+						Aliases: []string{"l"},
+						Value: "DEBUG",
+						Usage:   "LOG LEVEL",
+					},
+					&cli.StringFlag{
 						Name:    "reload",
 						Aliases: []string{"r"},
 						Value: "true",
@@ -143,6 +149,7 @@ func main() {
 				Action:  func(c *cli.Context) error {
 					configFile := c.String("config")
 					reloadF := c.String("reload")
+					logLevel := c.String("level")
 					var reload bool
 					if reloadF == "true" {
 						reload = true
@@ -160,6 +167,7 @@ func main() {
 						ConfigFile: configFile,
 						AutoReload: reload,
 						Path: pathProject,
+						LogLevel: logLevel,
 					}
 					project.Run()
 					return nil

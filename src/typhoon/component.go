@@ -51,11 +51,13 @@ func (c *Component) WaitPromises()  {
 }
 
 func (c *Component) Start(project interfaces.Project)  {
-	color.Yellow("init %s", c.Name)
+	color.Yellow("initStart %s", c.Name)
 
 	pathExecute := fmt.Sprintf("%s.py", c.Name)
 	configArg := fmt.Sprintf("--config=%s", project.GetConfigFile())
-	c.Worker = &Worker{Command: "python3.8", Args: []string{pathExecute, configArg}}
+	logLevelArg := fmt.Sprintf("--level=%s", project.GetLogLevel())
+	projectNameArg := fmt.Sprintf("--project_name=%s", project.GetName())
+	c.Worker = &Worker{Command: "python3.8", Args: []string{pathExecute, configArg, logLevelArg, projectNameArg }}
 	//c.Path = fmt.Sprintf("%s/project/%s", project.GetProjectPath(), c.Name )
 	c.Worker.Run(project)
 

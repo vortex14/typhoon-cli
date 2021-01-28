@@ -37,6 +37,7 @@ type Project struct {
 	Path              string
 	Name              string
 	Tag 			  string
+	LogLevel		  string
 	SelectedComponent []string
 	components        components
 	ConfigFile        string
@@ -310,7 +311,7 @@ func (p *Project) Build()  {
 
 func (p *Project) initComponents()  {
 	p.components.ActiveComponents = make(map[string]*Component)
-
+	p.Name = p.Config.Config.ProjectName
 	defer p.PromiseDone()
 
 	fmt.Printf(`
@@ -381,7 +382,9 @@ func (p *Project) GetProjectPath() string {
 	}
 	return pathProject
 }
-
+func (p *Project) GetLogLevel() string {
+	return p.LogLevel
+}
 func (p *Project) CheckProject() {
 	var status = true
 	var statuses = make(map[string]bool)
