@@ -143,6 +143,103 @@ func (p *Project) CreateProject() {
 
 }
 
+func (p *Project) BuildHelmMinikubeResources()  {
+	color.Yellow("build helm minikube resources ...")
+
+	u := utils.Utils{}
+	fileObject := &interfaces.FileObject{
+		Path: "../builders/v1.1/helm/helm",
+	}
+
+	err := u.CopyDirAndReplaceLabel("helm", &interfaces.ReplaceLabel{Label: "{{PROJECT_NAME}}", Value: p.Name}, fileObject)
+
+
+	if err != nil {
+
+		color.Red("Error %s", err)
+		os.Exit(0)
+
+	}
+
+	_, dataTDeployLocal := u.GetGoTemplate(&interfaces.FileObject{Path: "../builders/v1.1/helm", Name: "helm_deploy.gosh"})
+
+	dataConfig := map[string]string{
+		"projectName": p.GetName(),
+	}
+
+	goTemplateHelmDeployLocal := interfaces.GoTemplate{
+		Source: dataTDeployLocal,
+		ExportPath: "helm_deploy.sh",
+		Data: dataConfig,
+	}
+
+
+	u.GoRunTemplate(&goTemplateHelmDeployLocal)
+
+	_, dataTDumpLocal := u.GetGoTemplate(&interfaces.FileObject{Path: "../builders/v1.1/helm", Name: "helm_dump.gosh"})
+
+	dataDumpConfig := map[string]string{
+		"projectName": p.GetName(),
+	}
+
+	goTemplateHelmDumpLocal := interfaces.GoTemplate{
+		Source: dataTDumpLocal,
+		ExportPath: "helm_dump.sh",
+		Data: dataDumpConfig,
+	}
+
+
+	u.GoRunTemplate(&goTemplateHelmDumpLocal)
+
+
+	_, dataTDeleteLocal := u.GetGoTemplate(&interfaces.FileObject{Path: "../builders/v1.1/helm", Name: "helm_delete.gosh"})
+
+	dataDeleteConfig := map[string]string{
+		"projectName": p.GetName(),
+	}
+
+	goTemplateHelmDeleteLocal := interfaces.GoTemplate{
+		Source: dataTDeleteLocal,
+		ExportPath: "helm_delete.sh",
+		Data: dataDeleteConfig,
+	}
+
+
+	u.GoRunTemplate(&goTemplateHelmDeleteLocal)
+
+
+	if err := os.Chmod("helm_delete.sh", 0755); err != nil {
+		color.Red("%s",err)
+	}
+
+	if err := os.Chmod("helm_deploy.sh", 0755); err != nil {
+		color.Red("%s",err)
+	}
+
+	if err := os.Chmod("helm_dump.sh", 0755); err != nil {
+		color.Red("%s",err)
+	}
+
+	_, confT := u.GetGoTemplate(&interfaces.FileObject{
+		Path: "../builders/v1.1",
+		Name: "config.minikube.goyaml",
+
+	})
+	goTemplate := interfaces.GoTemplate{
+		Source: confT,
+		ExportPath: "config.minikube.yaml",
+		Data: map[string]string{
+			"projectName": p.Name,
+		},
+	}
+
+	_= u.GoRunTemplate(&goTemplate)
+
+	color.Green("Generated")
+
+
+}
+
 func (p *Project) GetEnvSettings() *environment.Settings {
 	return p.EnvSettings
 }
@@ -308,6 +405,7 @@ func (p *Project) Migrate()  {
 func (p *Project) Build()  {
 	color.Yellow("builder run... options %+v", p.BuilderOptions)
 }
+
 
 func (p *Project) initComponents()  {
 	p.components.ActiveComponents = make(map[string]*Component)

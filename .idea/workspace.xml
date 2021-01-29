@@ -2,12 +2,13 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="8f624ae2-7c3e-4855-83db-a3d525867ca5" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/src/builders/v1.1/config.minikube.goyaml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cli" beforeDir="false" afterPath="$PROJECT_DIR$/cli" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cli.go" beforeDir="false" afterPath="$PROJECT_DIR$/cli.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/interfaces/interfaces.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/interfaces/interfaces.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/typhoon/component.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/typhoon/component.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/typhoon/project.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/typhoon/project.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/utils/utlis.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils/utlis.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -26,6 +27,14 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="GitSEFilterConfiguration">
+    <file-type-list>
+      <filtered-out-file-type name="LOCAL_BRANCH" />
+      <filtered-out-file-type name="REMOTE_BRANCH" />
+      <filtered-out-file-type name="TAG" />
+      <filtered-out-file-type name="COMMIT_BY_MESSAGE" />
+    </file-type-list>
+  </component>
   <component name="ProjectId" id="1lcL754g6Un7zLT8Xp1srBJ1aZ9" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
@@ -38,7 +47,7 @@
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="go.import.settings.migrated" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/src/builders/v1.1/project" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/src/builders/v1.1" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.tslint" value="true" />
     <property name="node.js.path.for.package.eslint" value="project" />
@@ -48,6 +57,7 @@
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src/builders/v1.1" />
       <recent name="$PROJECT_DIR$/src/builders/v1.1/project" />
       <recent name="$PROJECT_DIR$/project" />
       <recent name="$PROJECT_DIR$" />
@@ -91,16 +101,5 @@
       </map>
     </option>
     <option name="oldMeFiltersMigrated" value="true" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/typhoon/components/result_transporter/executions/base_consumer.py</url>
-          <line>41</line>
-          <option name="timeStamp" value="1" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
   </component>
 </project>

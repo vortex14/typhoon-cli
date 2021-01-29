@@ -19,6 +19,11 @@ type FileObject struct {
 	FileSystem
 }
 
+type ReplaceLabel struct {
+	Label string
+	Value string
+}
+
 
 
 type MapFileObjects map[string]*FileObject
