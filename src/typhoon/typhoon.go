@@ -38,6 +38,7 @@ func WatchTest()  {
 
 	// starting at the root of the project, walk each file/directory searching for
 	// directories
+
 	if err := filepath.Walk("project", watchDir); err != nil {
 		fmt.Println("ERROR", err)
 	}

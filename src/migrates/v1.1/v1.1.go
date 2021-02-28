@@ -33,6 +33,10 @@ func (m *ProjectMigrate) MigrateV11()  {
 		ExportPath: "config.local.yaml",
 		Data: map[string]string{
 			"projectName": m.Project.GetName(),
+			"nsqdAdd": "localhost:4150",
+			"redisHost": "localhost",
+			"redisPort": "6380",
+			"mongoHost": "localhost",
 		},
 	}
 

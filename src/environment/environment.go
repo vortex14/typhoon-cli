@@ -41,6 +41,7 @@ func (e *Environment) Load()  {
 		if _, err := os.Stat(_pathProfile); !os.IsNotExist(err) {
 			pathProfile = _pathProfile
 			loadStatus = true
+			break
 		}
 	}
 

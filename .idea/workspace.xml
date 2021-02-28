@@ -2,13 +2,11 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="8f624ae2-7c3e-4855-83db-a3d525867ca5" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/src/builders/v1.1/config.minikube.goyaml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cli" beforeDir="false" afterPath="$PROJECT_DIR$/cli" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cli.go" beforeDir="false" afterPath="$PROJECT_DIR$/cli.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/interfaces/interfaces.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/interfaces/interfaces.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/typhoon/project.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/typhoon/project.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/utils/utlis.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils/utlis.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/environment/environment.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/environment/environment.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/migrates/v1.1/v1.1.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/migrates/v1.1/v1.1.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/typhoon/typhoon.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/typhoon/typhoon.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -35,6 +33,10 @@
       <filtered-out-file-type name="COMMIT_BY_MESSAGE" />
     </file-type-list>
   </component>
+  <component name="KubernetesApiPersistence">
+    <option name="context" value="minikube" />
+    <option name="namespace" value="default" />
+  </component>
   <component name="ProjectId" id="1lcL754g6Un7zLT8Xp1srBJ1aZ9" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
@@ -46,8 +48,10 @@
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="configurable..is.expanded" value="false" />
+    <property name="configurable.GoLibrariesConfigurable.is.expanded" value="true" />
     <property name="go.import.settings.migrated" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/src/builders/v1.1" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.tslint" value="true" />
     <property name="node.js.path.for.package.eslint" value="project" />
