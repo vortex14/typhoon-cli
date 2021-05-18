@@ -143,6 +143,66 @@ func (p *Project) CreateProject() {
 
 }
 
+func (p *Project) BuildCIResources() {
+	color.Green("Build CI Resources for %s !", p.Name)
+	u := utils.Utils{}
+	_, confCi := u.GetGoTemplate(&interfaces.FileObject{
+		Path: "../builders/v1.1",
+		Name: ".gitlab-ci.yml",
+
+	})
+	goTemplate := interfaces.GoTemplate{
+		Source: confCi,
+		ExportPath: ".gitlab-ci.yml",
+	}
+
+	_= u.GoRunTemplate(&goTemplate)
+
+	_, dockerFile := u.GetGoTemplate(&interfaces.FileObject{
+		Path: "../builders/v1.1",
+		Name: "Dockerfile",
+
+	})
+	goTemplateDocker := interfaces.GoTemplate{
+		Source: dockerFile,
+		ExportPath: "Dockerfile",
+		Data: map[string]string{
+			"TYPHOON_IMAGE": p.Version,
+		},
+	}
+
+	_= u.GoRunTemplate(&goTemplateDocker)
+
+
+	_, helmFile := u.GetGoTemplate(&interfaces.FileObject{
+		Path: "../builders/v1.1",
+		Name: "helm-review-values.yml",
+
+	})
+	goTemplateHelmValues := interfaces.GoTemplate{
+		Source: helmFile,
+		ExportPath: "helm-review-values.yml",
+	}
+
+	_= u.GoRunTemplate(&goTemplateHelmValues)
+
+	_, configFile := u.GetGoTemplate(&interfaces.FileObject{
+		Path: "../builders/v1.1",
+		Name: "config-stage.goyaml",
+
+	})
+	goTemplateConfig := interfaces.GoTemplate{
+		Source: configFile,
+		ExportPath: "config.kube-stage.yaml",
+		Data: map[string]string{
+			"projectName": p.GetName(),
+		},
+	}
+
+	_= u.GoRunTemplate(&goTemplateConfig)
+
+}
+
 func (p *Project) BuildHelmMinikubeResources()  {
 	color.Yellow("build helm minikube resources ...")
 
