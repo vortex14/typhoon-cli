@@ -2,14 +2,49 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="8f624ae2-7c3e-4855-83db-a3d525867ca5" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/src/builders/v1.1/.gitlab-ci.yml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/builders/v1.1/Dockerfile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/builders/v1.1/config-stage.goyaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/builders/v1.1/helm-review-values.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cli" beforeDir="false" afterPath="$PROJECT_DIR$/cli" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build.sh" beforeDir="false" afterPath="$PROJECT_DIR$/build.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cli" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/cli.go" beforeDir="false" afterPath="$PROJECT_DIR$/cli.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/donor.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/fetcher.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/processor.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/project/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/builders/v1.1/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/project/fetcher/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/builders/v1.1/project/project/scheduler/schedule.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/project/fetcher/executions/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/project/fetcher/executions/simple_pre_fetch.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/project/fetcher/responses/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/project/fetcher/responses/db/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/project/fetcher/responses/db/response_handler.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/project/fetcher/responses/http/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/project/fetcher/responses/http/response_handler.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/project/fetcher/run.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/project/fetcher/tst.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/project/result_transporter/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/project/result_transporter/config.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/project/result_transporter/consumers/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/project/result_transporter/consumers/categories_mongo.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/project/result_transporter/consumers/consumer_manager.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/project/result_transporter/consumers/exceptions.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/project/result_transporter/consumers/mongo_prices.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/project/result_transporter/consumers/mongo_production.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/project/result_transporter/consumers/mongo_queue.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/result_transporter.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/scheduler.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/builders/v1.1/config.goyaml" beforeDir="false" afterPath="$PROJECT_DIR$/src/builders/v1.1/config.goyaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/builders/v1.1/project/project/donor/run.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/builders/v1.1/project/project/fetcher/run.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/builders/v1.1/project/project/processor/run.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/builders/v1.1/project/project/result_transporter/run.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/builders/v1.1/project/project/scheduler/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/builders/v1.1/project/project/scheduler/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/builders/v1.1/project/project/scheduler/run.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/typhoon/component.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/typhoon/component.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/typhoon/project.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/typhoon/project.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/utils/utlis.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils/utlis.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/typhoon" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -41,12 +76,15 @@
     <option name="namespace" value="default" />
   </component>
   <component name="ProjectId" id="1lcL754g6Un7zLT8Xp1srBJ1aZ9" />
-  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
+    <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
     <property name="DefaultGoTemplateProperty" value="Go File" />
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
@@ -54,6 +92,8 @@
     <property name="configurable..is.expanded" value="false" />
     <property name="configurable.GoLibrariesConfigurable.is.expanded" value="true" />
     <property name="go.import.settings.migrated" value="true" />
+    <property name="go.tried.to.enable.integration.vgo.integrator" value="true" />
+    <property name="go.vendoring.notification.had.been.shown" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.tslint" value="true" />
@@ -61,6 +101,7 @@
     <property name="node.js.path.for.package.tslint" value="project" />
     <property name="node.js.selected.package.eslint" value="(autodetect)" />
     <property name="node.js.selected.package.tslint" value="(autodetect)" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
@@ -82,9 +123,9 @@
       <module name="typhoon-cli" />
       <working_directory value="$PROJECT_DIR$" />
       <kind value="PACKAGE" />
-      <filePath value="$PROJECT_DIR$/cli.go" />
       <package value="typhoon-cli" />
       <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$/cli.go" />
       <method v="2" />
     </configuration>
     <recent_temporary>
@@ -108,5 +149,8 @@
       </map>
     </option>
     <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
   </component>
 </project>

@@ -148,6 +148,14 @@ ty_components:
         share: true
         writable: false
         readable: true
+      deferred:
+        concurrent: 20
+        msg_timeout: 300
+        channel: tasks
+        topic: deferred_s
+        share: true
+        writable: true
+        readable: true
       fetcher_priority:
         concurrent: 0
         msg_timeout: 0

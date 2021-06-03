@@ -91,6 +91,17 @@ func (p *Project) CreateProject() {
 
 	}
 
+	gitIgnore := &interfaces.FileObject{
+		Path: "../builders/v1.1",
+		Name: ".gitignore",
+	}
+	errCopyIgnore := u.CopyFile(p.Name + "/.gitignore", gitIgnore)
+	if errCopyIgnore != nil {
+		color.Red("Error copy %s", err)
+	}
+
+
+
 	_, confT := u.GetGoTemplate(&interfaces.FileObject{
 		Path: "../builders/v1.1",
 		Name: "config.goyaml",
@@ -104,7 +115,7 @@ func (p *Project) CreateProject() {
 			"nsqdAdd": "localhost:4150",
 			"redisHost": "localhost",
 			"mongoHost": "localhost",
-			"redisPort": "6380",
+			"redisPort": "6379",
 			"debug": "true",
 		},
 	}
@@ -375,6 +386,10 @@ func (p *Project) Watch()  {
 				}
 
 				if strings.Contains(event.Name, ".py~") {
+					continue
+				}
+
+				if strings.Contains(event.Name, "__pycache__") {
 					continue
 				}
 

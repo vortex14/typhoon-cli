@@ -33,6 +33,7 @@ type Worker struct {
 type Component struct {
 	Path string
 	Name string
+	isException bool
 	Active bool
 	Worker *Worker
 	Promise sync.WaitGroup
@@ -157,8 +158,6 @@ func (c *Component) Stop(project interfaces.Project)  {
 	//		os.Setenv(kv[0], kv[1])
 	//	}
 	//}
-
-
 
 	errKill := syscall.Kill(-status.PID, syscall.SIGKILL)
 	if errKill != nil {
@@ -353,14 +352,31 @@ func IsClosed(ch <-chan bool) bool {
 
 func (c *Component) Logging()  {
 	Info := color.New(color.FgWhite, color.BgBlack, color.Bold).SprintFunc()
+	c.isException = false
 	for {
 		select {
 		case line, open := <-c.Worker.Cmd.Stdout:
-
 			if !open {
 				continue
 			}
 
+
+			if strings.Contains(line, ">>>!") {
+				c.isException = true
+				color.Red("Component: %s. $s", c.Name, line)
+				continue
+			}
+
+			if strings.Contains(line, "!<<<") {
+				c.isException = false
+				color.Red("Component: %s. %s", c.Name, line)
+				continue
+			}
+
+			if c.isException {
+				color.Red("Component: %s. %s", c.Name, line)
+				continue
+			}
 
 
 

@@ -85,10 +85,41 @@ func (u *Utils) CopyDir(name string, object *interfaces.FileObject) error {
 			log.Println("create err", err)
 		}
 		f.WriteString(file.String())
+		_ = f.Close()
 
 		return nil
 	})
 	return nil
+}
+
+func (u *Utils) CopyFile(ExportPath string, object *interfaces.FileObject) error {
+	box := packr.NewBox(object.Path)
+	f, err := os.Create(ExportPath)
+	if err != nil {
+		log.Println("create err", err)
+	}
+
+	dat, err := box.FindString(object.Name)
+
+	if err != nil {
+
+		color.Red("Log file not found")
+		os.Exit(0)
+
+
+	}
+
+	_, errorWrite := f.WriteString(dat)
+	if errorWrite != nil {
+		color.Red("Can't write %s", ExportPath )
+		os.Exit(0)
+
+	}
+	_ = f.Close()
+
+	return nil
+
+
 }
 
 func (u *Utils) CopyDirAndReplaceLabel(name string, label *interfaces.ReplaceLabel ,object *interfaces.FileObject) error {
@@ -116,6 +147,7 @@ func (u *Utils) CopyDirAndReplaceLabel(name string, label *interfaces.ReplaceLab
 		data := file.String()
 		data = strings.ReplaceAll(data, label.Label, label.Value)
 		f.WriteString(data)
+		_ = f.Close()
 
 		return nil
 	})
