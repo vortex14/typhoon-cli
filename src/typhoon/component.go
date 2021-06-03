@@ -34,6 +34,7 @@ type Component struct {
 	Path string
 	Name string
 	isException bool
+	isDebug bool
 	Active bool
 	Worker *Worker
 	Promise sync.WaitGroup
@@ -353,6 +354,7 @@ func IsClosed(ch <-chan bool) bool {
 func (c *Component) Logging()  {
 	Info := color.New(color.FgWhite, color.BgBlack, color.Bold).SprintFunc()
 	c.isException = false
+	c.isDebug = false
 	for {
 		select {
 		case line, open := <-c.Worker.Cmd.Stdout:
@@ -360,21 +362,47 @@ func (c *Component) Logging()  {
 				continue
 			}
 
+			if strings.Contains(line, "@debug") {
+				fmt.Printf(`
+-DEBUG-----------
+`)
+				c.isDebug = true
+				continue
+			}
+			if strings.Contains(line, "/debug") {
+				c.isDebug = false
+				fmt.Printf(`
+-/DEBUG-----------
+
+
+`)
+				continue
+			}
+			if c.isDebug {
+				color.Green(line)
+				continue
+			}
+
 
 			if strings.Contains(line, ">>>!") {
 				c.isException = true
-				color.Red("Component: %s. $s", c.Name, line)
+				color.Red("Component %s has error.", c.Name)
+				color.Red(line)
 				continue
 			}
 
 			if strings.Contains(line, "!<<<") {
 				c.isException = false
-				color.Red("Component: %s. %s", c.Name, line)
+				color.Red(line)
+				fmt.Printf(`
+------------
+`)
 				continue
 			}
 
 			if c.isException {
-				color.Red("Component: %s. %s", c.Name, line)
+				color.Red(line)
+
 				continue
 			}
 
