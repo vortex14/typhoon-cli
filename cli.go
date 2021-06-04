@@ -403,6 +403,12 @@ func main() {
 
 					},
 					&cli.StringFlag{
+						Name:    "level",
+						Aliases: []string{"l"},
+						Value: "DEBUG",
+						Usage:   "LOG LEVEL",
+					},
+					&cli.StringFlag{
 						Name:    "components",
 						Aliases: []string{"cs"},
 						Usage:   "Run a few component",
@@ -424,6 +430,7 @@ func main() {
 					configFile := c.String("config")
 					componentName := c.String("component")
 					componentsName := c.String("components")
+					logLevel := c.String("level")
 					utils := utils.Utils{}
 					//reload := c.String("reload")
 
@@ -443,6 +450,7 @@ func main() {
 							SelectedComponent: componentsArr,
 							AutoReload: true,
 							ConfigFile: configFile,
+							LogLevel: logLevel,
 						}
 
 
