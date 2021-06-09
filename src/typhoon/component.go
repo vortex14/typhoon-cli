@@ -92,6 +92,7 @@ func exec_cmd(cmd *exec.Cmd) {
 	}
 }
 
+
 func (c *Component) Stop(project interfaces.Project)  {
 	status := c.Worker.Cmd.Status()
 	color.Green("%s status.PID %s", status.PID, c.Name)
@@ -161,11 +162,13 @@ func (c *Component) Stop(project interfaces.Project)  {
 	//}
 
 	errKill := syscall.Kill(-status.PID, syscall.SIGKILL)
-	if errKill != nil {
-		color.Red("Error kill :%s, component: %s", errKill, c.Name)
-	} else {
+	if errKill == nil {
 		color.Green("%s killed", c.Name)
+		//color.Red("Error kill :%s, component: %s", errKill, c.Name)
 	}
+
+
+
 
 
 	color.Red("component %s was be closed", c.Name)

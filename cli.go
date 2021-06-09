@@ -174,6 +174,34 @@ func main() {
 				},
 			},
 			{
+				Name:    "down",
+				Aliases: []string{"u"},
+				Usage:   "down typhoon project",
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:    "config",
+						Aliases: []string{"c"},
+						Value: "config.local.yaml",
+						Usage:   "Load configuration from `FILE`",
+					},
+				},
+				Action:  func(c *cli.Context) error {
+					configFile := c.String("config")
+					pathProject, err := os.Getwd()
+					if err != nil {
+						log.Println(err)
+					}
+
+					project := &typhoon.Project{
+						SelectedComponent: typhoonComponents,
+						ConfigFile: configFile,
+						Path: pathProject,
+					}
+					project.Down()
+					return nil
+				},
+			},
+			{
 				Name: "check",
 				Aliases: []string{"rc"},
 				Usage:   "Check health component of dir",

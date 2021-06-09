@@ -1,6 +1,7 @@
 package typhoon
 
 import (
+	"context"
 	"fmt"
 	"github.com/fatih/color"
 	"github.com/fsnotify/fsnotify"
@@ -8,6 +9,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"os/exec"
 	"os/signal"
 	"path/filepath"
 	"strings"
@@ -451,6 +453,31 @@ func (p *Project) Close()  {
 
 
 	}
+
+
+
+}
+
+func (p *Project) Down() {
+	p.LoadConfig()
+	commandDropProject := fmt.Sprintf("kill -9 $(ps aux | grep \"%s\" | awk '{print $2}')", p.GetName())
+	color.Red("Running: %s: ",commandDropProject)
+	ctxP, cancelP := context.WithTimeout(context.Background(), 100*time.Second)
+	defer cancelP()
+
+	if err := exec.CommandContext(ctxP, "bash", "-c", commandDropProject).Run(); err != nil {
+		color.Yellow("Project components killed!")
+		// This will fail after 100 milliseconds. The 5 second sleep
+		// will be interrupted.
+	}
+
+	commandDropTyphoon := fmt.Sprintf("kill -9 $(ps aux | grep \"%s\" | awk '{print $2}')", "typhoon")
+	ctxT, cancelT := context.WithTimeout(context.Background(), 100*time.Second)
+	defer cancelT()
+
+	if err := exec.CommandContext(ctxT, "bash", "-c", commandDropTyphoon).Run(); err != nil {
+
+	}
 }
 
 
@@ -537,7 +564,11 @@ func (p *Project) CreateSymbolicLink() error {
 }
 
 func (p *Project) GetName() string {
-	return p.Name
+	projectName := p.Name
+	if len(projectName) == 0 {
+		projectName = p.Config.Config.ProjectName
+	}
+	return projectName
 }
 
 func (p *Project) GetComponents() []string {
@@ -558,6 +589,33 @@ func (p *Project) GetProjectPath() string {
 func (p *Project) GetLogLevel() string {
 	return p.LogLevel
 }
+
+func (p *Project) LoadConfig() {
+	configPath := fmt.Sprintf("%s/%s", p.Path, p.ConfigFile)
+	if _, err := os.Stat(configPath); os.IsNotExist(err) {
+		color.Red("Config %s does not exists in project :%s", p.ConfigFile, configPath )
+		os.Exit(1)
+	}
+
+	var config ConfigProject
+	yamlFile, err := ioutil.ReadFile(configPath)
+	if err != nil {
+		log.Printf("config.yaml err   #%v ", err)
+		os.Exit(1)
+	} else {
+		err = yaml.Unmarshal(yamlFile, &config.Config)
+		if err != nil {
+			//log.Fatalf("Unmarshal: %v", err)
+			color.Red("Config load error: %s", err )
+			os.Exit(1)
+		}
+
+	}
+	config.ConfigFile = configPath
+
+	p.Config = &config
+}
+
 func (p *Project) CheckProject() {
 	var status = true
 	var statuses = make(map[string]bool)
@@ -582,29 +640,7 @@ func (p *Project) CheckProject() {
 		color.Yellow("component %s is: %t", componentStatus, statusComponent)
 	}
 
-	configPath := fmt.Sprintf("%s/%s", p.Path, p.ConfigFile)
-	if _, err := os.Stat(configPath); os.IsNotExist(err) {
-		color.Red("Config %s does not exists in project :%s", p.ConfigFile, configPath )
-		os.Exit(1)
-	}
-
-	var config ConfigProject
-	yamlFile, err := ioutil.ReadFile(configPath)
-	if err != nil {
-		log.Printf("config.yaml err   #%v ", err)
-		os.Exit(1)
-	} else {
-		err = yaml.Unmarshal(yamlFile, &config.Config)
-		if err != nil {
-			//log.Fatalf("Unmarshal: %v", err)
-			color.Red("Config load error: %s", err )
-			os.Exit(1)
-		}
-
-	}
-	config.ConfigFile = configPath
-
-	p.Config = &config
+	p.LoadConfig()
 
 
 
