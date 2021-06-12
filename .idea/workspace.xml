@@ -3,9 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="8f624ae2-7c3e-4855-83db-a3d525867ca5" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cli.go" beforeDir="false" afterPath="$PROJECT_DIR$/cli.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/typhoon/component.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/typhoon/component.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/typhoon/project.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/typhoon/project.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
