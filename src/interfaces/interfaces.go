@@ -4,6 +4,7 @@ import (
 	"typhoon-cli/src/builders"
 	"typhoon-cli/src/environment"
 	"typhoon-cli/src/migrates"
+	"typhoon-cli/src/typhoon/config"
 )
 
 type GoTemplate struct {
@@ -16,6 +17,7 @@ type FileObject struct {
 	Type string
 	Path string
 	Name string
+	Data string
 	FileSystem
 }
 
@@ -52,20 +54,21 @@ type Project interface {
 	Run()
 	Close()
 	Watch()
-	GetTag() string
 	CheckProject()
+	GetTag() string
 	GetName() string
-	GetProjectPath() string
-	GetComponents() []string
-	GetConfigFile() string
-	CreateSymbolicLink() error
 	GetVersion() string
 	GetLogLevel() string
-	GetComponentPort(name string) int
-	GetEnvSettings() *environment.Settings
-	GetBuilderOptions() *BuilderOptions
-	migrates.ProjectMigrate
+	GetConfigFile() string
+	GetProjectPath() string
 	builders.ProjectBuilder
+	migrates.ProjectMigrate
+	GetComponents() []string
+	CreateSymbolicLink() error
+	GetComponentPort(name string) int
+	LoadConfig() *config.ConfigProject
+	GetBuilderOptions() *BuilderOptions
+	GetEnvSettings() *environment.Settings
 	goPromise
 }
 

@@ -6,10 +6,10 @@ import (
 	"github.com/go-logfmt/logfmt"
 	"github.com/gobuffalo/packd"
 	"github.com/gobuffalo/packr"
-	"path/filepath"
 	"io/ioutil"
 	"log"
 	"os"
+	"path/filepath"
 	"strings"
 	"text/template"
 	"typhoon-cli/src/interfaces"
@@ -19,6 +19,8 @@ type Utils struct {}
 
 func (u *Utils) GoRunTemplate(goTemplate *interfaces.GoTemplate) bool {
 	tmpl, _ := template.New("new").Parse(goTemplate.Source)
+	fmt.Printf("%+v\n", tmpl)
+
 	status := true
 	f, err := os.Create(goTemplate.ExportPath)
 	if err != nil {
@@ -120,6 +122,41 @@ func (u *Utils) CopyFile(ExportPath string, object *interfaces.FileObject) error
 	return nil
 
 
+}
+
+func (u *Utils) DumpToFile(object *interfaces.FileObject) error {
+	f, err := os.Create(object.Path)
+	if err != nil {
+		log.Println("create err", err)
+	}
+
+
+	_, errorWrite := f.WriteString(object.Data)
+	if errorWrite != nil {
+		color.Red("Can't write %s", object.Path )
+		os.Exit(0)
+
+	}
+	_ = f.Close()
+
+	return nil
+
+
+}
+
+func (u *Utils) CopyFileAndReplaceLabel(name string, label *interfaces.ReplaceLabel, object *interfaces.FileObject) error {
+	box := packr.NewBox(object.Path)
+	template, _ := box.FindString("grafana-template.gojson")
+
+	f, err := os.Create(name)
+	if err != nil {
+		log.Println("create err", err)
+	}
+	data := strings.ReplaceAll(template, label.Label, label.Value)
+	f.WriteString(data)
+	_ = f.Close()
+
+	return nil
 }
 
 func (u *Utils) CopyDirAndReplaceLabel(name string, label *interfaces.ReplaceLabel ,object *interfaces.FileObject) error {

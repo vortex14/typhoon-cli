@@ -9,6 +9,7 @@ require (
 	github.com/go-logfmt/logfmt v0.5.0
 	github.com/gobuffalo/packd v1.0.0
 	github.com/gobuffalo/packr v1.30.1
+	github.com/grafana-tools/sdk v0.0.0-20210521150820-354cd37a4b4e
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/rivo/tview v0.0.0-20210521091241-1fd4a5b7aab3
 	github.com/urfave/cli v1.22.5 // indirect

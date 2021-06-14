@@ -16,8 +16,10 @@ import (
 	"sync"
 	"time"
 	"typhoon-cli/src/environment"
+	"typhoon-cli/src/integrations/grafana"
 	"typhoon-cli/src/interfaces"
 	v11 "typhoon-cli/src/migrates/v1.1"
+	"typhoon-cli/src/typhoon/config"
 	"typhoon-cli/src/utils"
 )
 
@@ -49,7 +51,7 @@ type Project struct {
 	task              *Task
 	EnvSettings       *environment.Settings
 	Watcher           fsnotify.Watcher
-	Config *ConfigProject
+	Config *config.ConfigProject
 }
 
 
@@ -213,6 +215,57 @@ func (p *Project) BuildCIResources() {
 	}
 
 	_= u.GoRunTemplate(&goTemplateConfig)
+
+}
+
+func (p *Project) CreateBaseGrafanaConfig()  {
+	color.Green("Creating base grafana properties into typhoon project config.yaml ...")
+	configProject := p.LoadConfig()
+	configProject.Config.Grafana = config.GrafanaConfig{
+		Name: "Typhoon project dashboard",
+		Id: "A1B1C1D1G1",
+		Token: "Bearer Token",
+
+	}
+
+}
+
+func (p *Project) CreateGrafanaMonitoringTemplates() {
+	p.LoadConfig()
+	color.Yellow("Creating Grafana monitoring template ...")
+	u := utils.Utils{}
+
+	fileObject := &interfaces.FileObject{
+		Path: "../builders/v1.1",
+		Name: "grafana-template.gojson",
+	}
+	validProjectName := strings.ReplaceAll(p.GetName(), "-", "_")
+	err := u.CopyFileAndReplaceLabel("monitoring-grafana.json",&interfaces.ReplaceLabel{Label: "{{.projectName}}", Value: validProjectName}, fileObject)
+
+	if err != nil {
+
+		color.Red("Error %s", err)
+		os.Exit(0)
+
+	}
+
+}
+
+func (p *Project) RemoveGrafanaDashboard(configDashboard string) {
+	color.Red("Remove Grafana Dashboard")
+	dashboard := grafana.DashBoard{
+		ConfigName: configDashboard,
+		Project: p,
+	}
+	dashboard.RemoveGrafanaDashboard()
+}
+
+func (p *Project ) ImportGrafanaConfig(configDashboard string) {
+	dashboard := grafana.DashBoard{
+		ConfigName: configDashboard,
+		Project: p,
+	}
+	dashboard.ImportGrafanaConfig()
 
 }
 
@@ -568,6 +621,8 @@ func (p *Project) GetName() string {
 	if len(projectName) == 0 {
 		projectName = p.Config.Config.ProjectName
 	}
+
+	color.Red("%#v\n", p.Config.ConfigFile)
 	return projectName
 }
 
@@ -590,14 +645,14 @@ func (p *Project) GetLogLevel() string {
 	return p.LogLevel
 }
 
-func (p *Project) LoadConfig() {
+func (p *Project) LoadConfig() (configProject *config.ConfigProject) {
 	configPath := fmt.Sprintf("%s/%s", p.Path, p.ConfigFile)
 	if _, err := os.Stat(configPath); os.IsNotExist(err) {
 		color.Red("Config %s does not exists in project :%s", p.ConfigFile, configPath )
 		os.Exit(1)
 	}
 
-	var config ConfigProject
+	var config config.ConfigProject
 	yamlFile, err := ioutil.ReadFile(configPath)
 	if err != nil {
 		log.Printf("config.yaml err   #%v ", err)
@@ -614,6 +669,7 @@ func (p *Project) LoadConfig() {
 	config.ConfigFile = configPath
 
 	p.Config = &config
+	return p.Config
 }
 
 func (p *Project) CheckProject() {

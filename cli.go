@@ -7,7 +7,10 @@ import (
 	"os"
 	"sort"
 	"strings"
+	"typhoon-cli/src/dirs/grafana"
 	"typhoon-cli/src/environment"
+	"typhoon-cli/src/integrations/gitlab"
+	"typhoon-cli/src/integrations/helm"
 	"typhoon-cli/src/interfaces"
 	"typhoon-cli/src/typhoon"
 	"typhoon-cli/src/utils"
@@ -300,84 +303,17 @@ func main() {
 			{
 				Name: "ci-templates",
 				Usage: "CI Templates",
-				Subcommands: []*cli.Command{
-					&cli.Command{
-						Name:   "init",
-						Usage: "Create Ci base templates",
-						Subcommands: []*cli.Command{
-							&cli.Command{
-								Flags: []cli.Flag{
-									&cli.StringFlag{
-										Name:    "typhoon-image",
-										Aliases: []string{"v"},
-										Value:   "typhoon-s1.ru/typhoon-lite/typhoon:2020.04.13-2",
-										Usage:   "Create for available version",
-									},
-									&cli.StringFlag{
-										Name:    "name",
-										Aliases: []string{"n"},
-										Value:   "test-kube-project",
-										Usage:   "Project name",
-									},
-								},
-								Name: "templates",
-								Usage: "create ci templates for k8 cluster",
-								Action: func(context *cli.Context) error {
-									version := context.String("typhoon-image")
-									name := context.String("name")
-									project := &typhoon.Project{
-										Version: version,
-										Name: name,
-									}
-									project.BuildCIResources()
-									return nil
-								},
-							},
-						},
-
-					},
-				},
+				Subcommands: gitlab.Commands,
+			},
+			{
+				Name: "grafana",
+				Usage: "Grafana integration",
+				Subcommands: grafana.Commands,
 			},
 			{
 				Name: "helm",
 				Usage: "Helm integration",
-				Subcommands: []*cli.Command{
-					&cli.Command{
-						Name:   "init",
-						Usage: "Create helm resources",
-						Subcommands: []*cli.Command{
-							&cli.Command{
-								Flags: []cli.Flag{
-									&cli.StringFlag{
-										Name:    "version",
-										Aliases: []string{"v"},
-										Value:   "v1.1",
-										Usage:   "Create for available version",
-									},
-									&cli.StringFlag{
-										Name:    "name",
-										Aliases: []string{"n"},
-										Value:   "test-kube-project",
-										Usage:   "Project name",
-									},
-								},
-								Name: "minikube",
-								Usage: "create helm manifest for minikube",
-								Action: func(context *cli.Context) error {
-									version := context.String("version")
-									name := context.String("name")
-									project := &typhoon.Project{
-										Version: version,
-										Name: name,
-									}
-									project.BuildHelmMinikubeResources()
-									return nil
-								},
-							},
-						},
-
-					},
-				},
+				Subcommands: helm.Commands,
 			},
 			{
 

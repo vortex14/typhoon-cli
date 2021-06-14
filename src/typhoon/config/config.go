@@ -1,4 +1,4 @@
-package typhoon
+package config
 
 
 type Queue struct {
@@ -15,6 +15,19 @@ type ConfigProject struct {
 	ConfigFile string
 
 	Config Config
+}
+
+type GrafanaConfig struct {
+	Endpoint string `yaml:"endpoint"`
+	Token string `yaml:"token"`
+	Name string `yaml:"name"`
+	Id string `yaml:"id"`
+}
+
+type Discovery struct {
+	Port    int    `yaml:"port"`
+	Host    string `yaml:"host"`
+	Cluster string `yaml:"cluster"`
 }
 
 type Config struct {
@@ -34,37 +47,34 @@ type Config struct {
 	NsqdNodes               []struct {
 		IP string `yaml:"ip"`
 	} `yaml:"nsqd_nodes"`
+	Grafana GrafanaConfig
 	WaitingTasks        int     `yaml:"waiting_tasks"`
 	PauseTime           int     `yaml:"pause_time"`
 	MaxProcessorRetries int     `yaml:"max_processor_retries"`
 	MaxFailed           int     `yaml:"max_failed"`
 	MemoryLimit         float64 `yaml:"memory_limit"`
 	RetryingDelay       int     `yaml:"retrying_delay"`
-	RegisterService     struct {
-		Port    int    `yaml:"port"`
-		Host    string `yaml:"host"`
-		Cluster string `yaml:"cluster"`
-	} `yaml:"register_service"`
+	RegisterService  	Discovery `yaml:"register_service"`
 	TyComponents struct {
 		Fetcher struct {
 			Port   int `yaml:"port"`
 			Queues struct {
-				Priority Queue `yaml:"priority"`
+				Priority          Queue `yaml:"priority"`
 				ProcessorPriority Queue `yaml:"processor_priority"`
-				Deferred Queue`yaml:"deferred"`
-				Retries Queue `yaml:"retries"`
-				Exceptions Queue `yaml:"exceptions"`
+				Deferred          Queue `yaml:"deferred"`
+				Retries           Queue `yaml:"retries"`
+				Exceptions        Queue `yaml:"exceptions"`
 			} `yaml:"queues"`
 		} `yaml:"fetcher"`
 		ResultTransporter struct {
 			Port   int `yaml:"port"`
 			Queues struct {
-				Priority Queue `yaml:"priority"`
-				SchedulerPriority Queue `yaml:"scheduler_priority"`
-				FetcherPriority Queue `yaml:"fetcher_priority"`
-				ProcessorPriority Queue `yaml:"processor_priority"`
-				Exceptions Queue `yaml:"exceptions"`
-				FetcherExceptions Queue `yaml:"fetcher_exceptions"`
+				Priority            Queue `yaml:"priority"`
+				SchedulerPriority   Queue `yaml:"scheduler_priority"`
+				FetcherPriority     Queue `yaml:"fetcher_priority"`
+				ProcessorPriority   Queue `yaml:"processor_priority"`
+				Exceptions          Queue `yaml:"exceptions"`
+				FetcherExceptions   Queue `yaml:"fetcher_exceptions"`
 				ProcessorExceptions Queue `yaml:"processor_exceptions"`
 				SchedulerExceptions Queue `yaml:"scheduler_exceptions"`
 			} `yaml:"queues"`
@@ -72,35 +82,35 @@ type Config struct {
 		Scheduler struct {
 			Port   int `yaml:"port"`
 			Queues struct {
-				Priority Queue `yaml:"priority"`
-				FetcherPriority Queue `yaml:"fetcher_priority"`
+				Priority          Queue `yaml:"priority"`
+				FetcherPriority   Queue `yaml:"fetcher_priority"`
 				ProcessorPriority Queue `yaml:"processor_priority"`
 				ProcessorDeferred Queue `yaml:"processor_deferred"`
-				FetcherDeferred Queue `yaml:"fetcher_deferred"`
-				Exceptions Queue `yaml:"exceptions"`
+				FetcherDeferred   Queue `yaml:"fetcher_deferred"`
+				Exceptions        Queue `yaml:"exceptions"`
 			} `yaml:"queues"`
 		} `yaml:"scheduler"`
 		Processor struct {
 			Port   int `yaml:"port"`
 			Queues struct {
-				Priority Queue `yaml:"priority"`
-				SchedulerPriority Queue `yaml:"scheduler_priority"`
+				Priority                  Queue `yaml:"priority"`
+				SchedulerPriority         Queue `yaml:"scheduler_priority"`
 				ResultTransporterPriority Queue `yaml:"result_transporter_priority"`
-				FetcherRetries Queue `yaml:"fetcher_retries"`
-				Deferred Queue `yaml:"deferred"`
-				Exceptions Queue `yaml:"exceptions"`
+				FetcherRetries            Queue `yaml:"fetcher_retries"`
+				Deferred                  Queue `yaml:"deferred"`
+				Exceptions                Queue `yaml:"exceptions"`
 			} `yaml:"queues"`
 		} `yaml:"processor"`
 		Donor struct {
 			Port   int `yaml:"port"`
 			Queues struct {
-				Priority Queue `yaml:"priority"`
-				FetcherDeferred Queue `yaml:"fetcher_deferred"`
-				FetcherPriority Queue `yaml:"fetcher_priority"`
-				ProcessorDeferred Queue `yaml:"processor_deferred"`
-				ProcessorPriority Queue `yaml:"processor_priority"`
+				Priority                  Queue `yaml:"priority"`
+				FetcherDeferred           Queue `yaml:"fetcher_deferred"`
+				FetcherPriority           Queue `yaml:"fetcher_priority"`
+				ProcessorDeferred         Queue `yaml:"processor_deferred"`
+				ProcessorPriority         Queue `yaml:"processor_priority"`
 				ResultTransporterPriority Queue `yaml:"result_transporter_priority"`
-				SchedulerPriority Queue `yaml:"scheduler_priority"`
+				SchedulerPriority         Queue `yaml:"scheduler_priority"`
 			} `yaml:"queues"`
 		} `yaml:"donor"`
 	} `yaml:"ty_components"`
