@@ -152,7 +152,7 @@ var Commands = []*cli.Command{
 			},
 
 		},
-	}
+}
 
 
 

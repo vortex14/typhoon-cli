@@ -219,14 +219,29 @@ func (p *Project) BuildCIResources() {
 }
 
 func (p *Project) CreateBaseGrafanaConfig()  {
-	color.Green("Creating base grafana properties into typhoon project config.yaml ...")
+	color.Yellow("Creating base grafana properties into typhoon project config.yaml")
 	configProject := p.LoadConfig()
 	configProject.Config.Grafana = config.GrafanaConfig{
 		Name: "Typhoon project dashboard",
-		Id: "A1B1C1D1G1",
-		Token: "Bearer Token",
-
+		Id: "0000000",
+		Token: "eyJrIjoiTGZqYUY3NWFsVk92MUc5TFFnTXlkYTg3WFJPME4wQVIiLCJuIjoidHlwaG9vbiIsImlkIjoxfQ==",
+		Endpoint: "http://localhost:3000",
 	}
+
+	configDumpData, _ := yaml.Marshal(&configProject.Config)
+
+	u := &utils.Utils{}
+	err := u.DumpToFile(&interfaces.FileObject{
+		Name: p.ConfigFile,
+		Data: string(configDumpData),
+		Path: configProject.ConfigFile,
+	})
+
+	if err != nil {
+		return
+	}
+
+	color.Green("%s updated.", p.ConfigFile)
 
 }
 

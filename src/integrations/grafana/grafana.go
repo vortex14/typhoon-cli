@@ -3,7 +3,6 @@ package grafana
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"github.com/fatih/color"
 	"github.com/grafana-tools/sdk"
 	"gopkg.in/yaml.v2"
@@ -25,6 +24,7 @@ type Config struct {
 	Name string
 	Endpoint string
 	token string
+	DashBoardUrl string
 }
 
 func (d *DashBoard) getClient(configProject *config.ConfigProject) (context.Context, *sdk.Client) {
@@ -56,17 +56,19 @@ func (d *DashBoard) ImportGrafanaConfig()  {
 		Overwrite: false,
 	}
 	configProject.Config.Grafana.Id = board.UID
+	configProject.Config.Grafana.DashboardUrl = configProject.Config.Grafana.Endpoint + "/d/" + configProject.Config.Grafana.Id
 	_, err := c.SetDashboard(ctx, board, params)
 	if err != nil {
 		color.Red("Error %s. board: %s", err, board.Title)
-		//os.Exit(1)
+		os.Exit(1)
 	}
-	color.Yellow("config file name: %s", configProject.ConfigFile)
-	color.Green("config %+v", configProject.Config.Grafana)
+	//color.Yellow("config file name: %s", configProject.ConfigFile)
+	//color.Green("config %+v", configProject.Config.Grafana)
 
 	configDumpData, err := yaml.Marshal(&configProject.Config)
 	if err != nil {
 		log.Fatalf("error: %v", err)
+		return
 	}
 	u := &utils.Utils{}
 	err = u.DumpToFile(&interfaces.FileObject{
@@ -75,18 +77,38 @@ func (d *DashBoard) ImportGrafanaConfig()  {
 		Path: configProject.ConfigFile,
 	})
 	if err != nil {
+		log.Fatalf("error: %v", err)
 		return
 	}
-	fmt.Printf("--- m dump:\n%s\n\n", string(configDumpData))
+	color.Green("%s created !", configProject.Config.Grafana.Name)
+	//fmt.Printf("--- m dump:\n%s\n\n", string(configDumpData))
 }
 
 func (d *DashBoard) RemoveGrafanaDashboard()  {
 	configProject := d.Project.LoadConfig()
 	ctx, c := d.getClient(configProject)
-	_, err := c.DeleteDashboardByUID(ctx, "5DEF1A09")
+	_, err := c.DeleteDashboardByUID(ctx, configProject.Config.Grafana.Id)
 	if err != nil {
 		color.Red("%+v", err)
 		os.Exit(1)
+	}
+	color.Green("%s was be removed.", configProject.Config.Grafana.Name)
+	configProject.Config.Grafana.Id = ""
+	configDumpData, err := yaml.Marshal(&configProject.Config)
+	if err != nil {
+		log.Fatalf("error: %v", err)
+		return
+	}
+	configProject.Config.Grafana.DashboardUrl = ""
+	u := &utils.Utils{}
+	err = u.DumpToFile(&interfaces.FileObject{
+		Name: d.ConfigName,
+		Data: string(configDumpData),
+		Path: configProject.ConfigFile,
+	})
+	if err != nil {
+		log.Fatalf("error: %v", err)
+		return
 	}
 	//_, data := c.GetAllFolders(ctx)
 	//color.Red("%+v", data)

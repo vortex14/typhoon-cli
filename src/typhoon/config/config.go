@@ -22,6 +22,7 @@ type GrafanaConfig struct {
 	Token string `yaml:"token"`
 	Name string `yaml:"name"`
 	Id string `yaml:"id"`
+	DashboardUrl string `yaml:"dashboard_url"`
 }
 
 type Discovery struct {
