@@ -32,7 +32,7 @@ var Commands = []*cli.Command{
 					name := context.String("name")
 					project := &typhoon.Project{
 						Version: version,
-						Name: name,
+						Name:    name,
 					}
 					project.BuildCIResources()
 					return nil

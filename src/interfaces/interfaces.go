@@ -50,6 +50,18 @@ type goPromise interface {
 	WaitPromises()
 }
 
+
+type Service interface {
+	TestConnect() bool
+}
+
+
+
+
+type Services struct {
+
+}
+
 type Project interface {
 	Run()
 	Close()

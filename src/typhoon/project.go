@@ -20,6 +20,7 @@ import (
 	"typhoon-cli/src/interfaces"
 	v11 "typhoon-cli/src/migrates/v1.1"
 	"typhoon-cli/src/typhoon/config"
+	"typhoon-cli/src/typhoon/services"
 	"typhoon-cli/src/utils"
 )
 
@@ -35,6 +36,7 @@ type Task struct {
 	wg     sync.WaitGroup
 	ticker *time.Ticker
 }
+
 
 
 type Project struct {
@@ -76,6 +78,12 @@ func (p *Project) WatchDir(path string, fi os.FileInfo, err error) error {
 	}
 
 	return nil
+}
+
+func (p *Project) RunTestServices() {
+
+	typhoonServices := services.Services{Project: p}
+	typhoonServices.RunTestServices()
 }
 
 func (p *Project) CreateProject() {

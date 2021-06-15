@@ -7,9 +7,10 @@ import (
 	"os"
 	"sort"
 	"strings"
+	"typhoon-cli/src/dirs/gitlab"
 	"typhoon-cli/src/dirs/grafana"
+	"typhoon-cli/src/dirs/tests"
 	"typhoon-cli/src/environment"
-	"typhoon-cli/src/integrations/gitlab"
 	"typhoon-cli/src/integrations/helm"
 	"typhoon-cli/src/interfaces"
 	"typhoon-cli/src/typhoon"
@@ -301,9 +302,14 @@ func main() {
 				},
 			},
 			{
-				Name: "ci-templates",
-				Usage: "CI Templates",
+				Name:        "ci-templates",
+				Usage:       "CI Templates",
 				Subcommands: gitlab.Commands,
+			},
+			{
+				Name: "tests",
+				Usage: "Typhoon tests",
+				Subcommands: tests.Commands,
 			},
 			{
 				Name: "grafana",

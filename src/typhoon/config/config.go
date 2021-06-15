@@ -31,6 +31,24 @@ type Discovery struct {
 	Cluster string `yaml:"cluster"`
 }
 
+type ServiceRedis struct {
+	Name    string `yaml:"name"`
+	Details struct {
+		Host     string      `yaml:"host"`
+		Port     int         `yaml:"port"`
+		Password interface{} `yaml:"password"`
+	} `yaml:"details"`
+}
+
+type ServiceMongo struct {
+	Name    string `yaml:"name"`
+	Details struct {
+		Host string `yaml:"host"`
+		Port int    `yaml:"port"`
+	} `yaml:"details"`
+	DbNames []string `yaml:"db_names"`
+}
+
 type Config struct {
 	ProjectName             string `yaml:"project_name"`
 	Debug                   bool   `yaml:"debug"`
@@ -117,40 +135,12 @@ type Config struct {
 	} `yaml:"ty_components"`
 	Services struct {
 		Mongo struct {
-			Production []struct {
-				Name    string `yaml:"name"`
-				Details struct {
-					Host string `yaml:"host"`
-					Port int    `yaml:"port"`
-				} `yaml:"details"`
-				DbNames []string `yaml:"db_names"`
-			} `yaml:"production"`
-			Debug []struct {
-				Name    string `yaml:"name"`
-				Details struct {
-					Host string `yaml:"host"`
-					Port int    `yaml:"port"`
-				} `yaml:"details"`
-				DbNames []string `yaml:"db_names"`
-			} `yaml:"debug"`
+			Production [] ServiceMongo  `yaml:"production"`
+			Debug [] ServiceMongo `yaml:"debug"`
 		} `yaml:"mongo"`
 		Redis struct {
-			Production []struct {
-				Name    string `yaml:"name"`
-				Details struct {
-					Host     string      `yaml:"host"`
-					Port     int         `yaml:"port"`
-					Password interface{} `yaml:"password"`
-				} `yaml:"details"`
-			} `yaml:"production"`
-			Debug []struct {
-				Name    string `yaml:"name"`
-				Details struct {
-					Host     string      `yaml:"host"`
-					Port     int         `yaml:"port"`
-					Password interface{} `yaml:"password"`
-				} `yaml:"details"`
-			} `yaml:"debug"`
+			Production []ServiceRedis `yaml:"production"`
+			Debug []ServiceRedis`yaml:"debug"`
 		} `yaml:"redis"`
 	} `yaml:"services"`
 }
