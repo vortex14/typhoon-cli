@@ -55,11 +55,21 @@ type Service interface {
 	TestConnect() bool
 }
 
+type Services struct {}
 
+type GrafanaInterface interface {
+	ImportGrafanaConfig(configDashboard string)
+	RemoveGrafanaDashboard(configDashboard string)
+	CreateBaseGrafanaConfig()
+	CreateGrafanaMonitoringTemplates()
+}
 
+type HelmInterface interface {
+	BuildHelmMinikubeResources()
+}
 
-type Services struct {
-
+type GitlabInterface interface {
+	BuildCIResources()
 }
 
 type Project interface {
