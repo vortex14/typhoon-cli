@@ -36,6 +36,9 @@ type FileSystem interface {
 	IsExistDir (path string) bool
 }
 
+type TestData interface {
+	GetFields()
+}
 
 type Environment interface {
 	Load()
@@ -62,6 +65,12 @@ type GrafanaInterface interface {
 	RemoveGrafanaDashboard(configDashboard string)
 	CreateBaseGrafanaConfig()
 	CreateGrafanaMonitoringTemplates()
+}
+
+
+type DockerInterface interface {
+	BuildImage()
+	ListContainers()
 }
 
 type HelmInterface interface {

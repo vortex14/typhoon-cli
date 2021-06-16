@@ -7,6 +7,7 @@ import (
 	"os"
 	"sort"
 	"strings"
+	"typhoon-cli/src/dirs/docker"
 	"typhoon-cli/src/dirs/gitlab"
 	"typhoon-cli/src/dirs/grafana"
 	"typhoon-cli/src/dirs/tests"
@@ -315,6 +316,11 @@ func main() {
 				Name: "grafana",
 				Usage: "Grafana integration",
 				Subcommands: grafana.Commands,
+			},
+			{
+				Name: "docker",
+				Usage: "Docker integration",
+				Subcommands: docker.Commands,
 			},
 			{
 				Name: "helm",

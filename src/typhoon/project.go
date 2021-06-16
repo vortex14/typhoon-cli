@@ -16,10 +16,12 @@ import (
 	"sync"
 	"time"
 	"typhoon-cli/src/environment"
+	"typhoon-cli/src/integrations/docker"
 	"typhoon-cli/src/integrations/grafana"
 	"typhoon-cli/src/interfaces"
 	v11 "typhoon-cli/src/migrates/v1.1"
 	"typhoon-cli/src/typhoon/config"
+	"typhoon-cli/src/typhoon/data"
 	"typhoon-cli/src/typhoon/services"
 	"typhoon-cli/src/utils"
 )
@@ -44,6 +46,7 @@ type Project struct {
 	Name              string
 	Tag 			  string
 	LogLevel		  string
+	DockerImageName   string
 	SelectedComponent []string
 	components        components
 	ConfigFile        string
@@ -84,6 +87,10 @@ func (p *Project) RunTestServices() {
 
 	typhoonServices := services.Services{Project: p}
 	typhoonServices.RunTestServices()
+}
+
+func (p *Project) TestFunc()  {
+	data.TestFunc()
 }
 
 func (p *Project) CreateProject() {
@@ -224,6 +231,16 @@ func (p *Project) BuildCIResources() {
 
 	_= u.GoRunTemplate(&goTemplateConfig)
 
+}
+
+func (p *Project) DockerBuild()  {
+	projectDocker := docker.Docker{Project: p}
+	projectDocker.BuildImage()
+}
+
+func (p *Project) DockerListContainers()  {
+	projectDocker := docker.Docker{Project: p}
+	projectDocker.ListContainers()
 }
 
 func (p *Project) CreateBaseGrafanaConfig()  {
