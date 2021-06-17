@@ -51,17 +51,36 @@ func (d *DashBoard) ImportGrafanaConfig()  {
 	board.UID = string(out[:8])
 	board.Title = configProject.Config.Grafana.Name
 	color.Green("Creating dashboard %s", board.Title)
+
+	folderUID := configProject.Config.Grafana.FolderId
+	var FolderId int
+	if len(folderUID) > 0 {
+		data, _ := c.GetFolderByUID(ctx, folderUID)
+		if data.ID == 0 {
+			color.Red("Folder not found. UUID %s", folderUID)
+			os.Exit(1)
+			return
+		}
+
+		FolderId = data.ID
+	} else {
+		FolderId = sdk.DefaultFolderId
+	}
+
+
 	params := sdk.SetDashboardParams{
-		FolderID:  sdk.DefaultFolderId,
+		FolderID:  FolderId,
 		Overwrite: false,
 	}
 	configProject.Config.Grafana.Id = board.UID
-	configProject.Config.Grafana.DashboardUrl = configProject.Config.Grafana.Endpoint + "/d/" + configProject.Config.Grafana.Id
+	configProject.Config.Grafana.DashboardUrl = configProject.Config.Grafana.Endpoint + "d/" + configProject.Config.Grafana.Id
 	_, err := c.SetDashboard(ctx, board, params)
 	if err != nil {
 		color.Red("Error %s. board: %s", err, board.Title)
 		os.Exit(1)
 	}
+
+
 	//color.Yellow("config file name: %s", configProject.ConfigFile)
 	//color.Green("config %+v", configProject.Config.Grafana)
 
