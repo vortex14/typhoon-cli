@@ -27,7 +27,7 @@ type Config struct {
 	DashBoardUrl string
 }
 
-func (d *DashBoard) getClient(configProject *config.ConfigProject) (context.Context, *sdk.Client) {
+func (d *DashBoard) getClient(configProject *config.Project) (context.Context, *sdk.Client) {
 	c := sdk.NewClient(configProject.Config.Grafana.Endpoint, configProject.Config.Grafana.Token, sdk.DefaultHTTPClient)
 	ctx := context.Background()
 	return ctx, c
@@ -71,6 +71,7 @@ func (d *DashBoard) ImportGrafanaConfig()  {
 	params := sdk.SetDashboardParams{
 		FolderID:  FolderId,
 		Overwrite: false,
+
 	}
 	configProject.Config.Grafana.Id = board.UID
 	configProject.Config.Grafana.DashboardUrl = configProject.Config.Grafana.Endpoint + "d/" + configProject.Config.Grafana.Id

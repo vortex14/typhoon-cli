@@ -10,9 +10,9 @@ import (
 	"typhoon-cli/src/dirs/docker"
 	"typhoon-cli/src/dirs/gitlab"
 	"typhoon-cli/src/dirs/grafana"
+	"typhoon-cli/src/dirs/helm"
 	"typhoon-cli/src/dirs/tests"
 	"typhoon-cli/src/environment"
-	"typhoon-cli/src/integrations/helm"
 	"typhoon-cli/src/interfaces"
 	"typhoon-cli/src/typhoon"
 	"typhoon-cli/src/utils"
@@ -322,8 +322,8 @@ func main() {
 				Subcommands: docker.Commands,
 			},
 			{
-				Name: "helm",
-				Usage: "Helm integration",
+				Name:        "helm",
+				Usage:       "Helm integration",
 				Subcommands: helm.Commands,
 			},
 			{

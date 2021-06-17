@@ -66,7 +66,7 @@ func (u *Utils) CopyDir(name string, object *interfaces.FileObject) error {
 	box := packr.NewBox(object.Path)
 	errC := os.MkdirAll(name, 0755)
 	if errC != nil{
-		color.Red("%s",errC)
+		color.Red("CopyDir Error : %s",errC)
 	}
 	box.Walk(func(s string, file packd.File) error {
 		//color.Yellow("s: %s, file: %+f \n", s, file)
@@ -208,4 +208,10 @@ func (u *Utils) CheckSlice(slice []string, val string) (int, bool) {
 		}
 	}
 	return -1, false
+}
+
+func (u *Utils) RemoveFiles(paths []string)  {
+	for _, path := range paths {
+		_ = os.RemoveAll(path)
+	}
 }

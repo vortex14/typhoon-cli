@@ -18,6 +18,7 @@ import (
 	"typhoon-cli/src/environment"
 	"typhoon-cli/src/integrations/docker"
 	"typhoon-cli/src/integrations/grafana"
+	"typhoon-cli/src/integrations/helm"
 	"typhoon-cli/src/interfaces"
 	v11 "typhoon-cli/src/migrates/v1.1"
 	"typhoon-cli/src/typhoon/config"
@@ -56,7 +57,7 @@ type Project struct {
 	task              *Task
 	EnvSettings       *environment.Settings
 	Watcher           fsnotify.Watcher
-	Config *config.ConfigProject
+	Config *config.Project
 }
 
 func (p *Project) GetDockerImageName() string {
@@ -328,101 +329,16 @@ func (p *Project ) ImportGrafanaConfig(configDashboard string) {
 
 }
 
+func (p *Project) RemoveHelmMinikubeManifests()  {
+	helmResources := helm.Resources{}
+	helmResources.RemoveHelmMinikubeManifests()
+}
+
 func (p *Project) BuildHelmMinikubeResources()  {
-	color.Yellow("build helm minikube resources ...")
-
-	u := utils.Utils{}
-	fileObject := &interfaces.FileObject{
-		Path: "../builders/v1.1/helm/helm",
+	helmResources := helm.Resources{
+		Project: p,
 	}
-
-	err := u.CopyDirAndReplaceLabel("helm", &interfaces.ReplaceLabel{Label: "{{PROJECT_NAME}}", Value: p.Name}, fileObject)
-
-
-	if err != nil {
-
-		color.Red("Error %s", err)
-		os.Exit(0)
-
-	}
-
-	_, dataTDeployLocal := u.GetGoTemplate(&interfaces.FileObject{Path: "../builders/v1.1/helm", Name: "helm_deploy.gosh"})
-
-	dataConfig := map[string]string{
-		"projectName": p.GetName(),
-	}
-
-	goTemplateHelmDeployLocal := interfaces.GoTemplate{
-		Source: dataTDeployLocal,
-		ExportPath: "helm_deploy.sh",
-		Data: dataConfig,
-	}
-
-
-	u.GoRunTemplate(&goTemplateHelmDeployLocal)
-
-	_, dataTDumpLocal := u.GetGoTemplate(&interfaces.FileObject{Path: "../builders/v1.1/helm", Name: "helm_dump.gosh"})
-
-	dataDumpConfig := map[string]string{
-		"projectName": p.GetName(),
-	}
-
-	goTemplateHelmDumpLocal := interfaces.GoTemplate{
-		Source: dataTDumpLocal,
-		ExportPath: "helm_dump.sh",
-		Data: dataDumpConfig,
-	}
-
-
-	u.GoRunTemplate(&goTemplateHelmDumpLocal)
-
-
-	_, dataTDeleteLocal := u.GetGoTemplate(&interfaces.FileObject{Path: "../builders/v1.1/helm", Name: "helm_delete.gosh"})
-
-	dataDeleteConfig := map[string]string{
-		"projectName": p.GetName(),
-	}
-
-	goTemplateHelmDeleteLocal := interfaces.GoTemplate{
-		Source: dataTDeleteLocal,
-		ExportPath: "helm_delete.sh",
-		Data: dataDeleteConfig,
-	}
-
-
-	u.GoRunTemplate(&goTemplateHelmDeleteLocal)
-
-
-	if err := os.Chmod("helm_delete.sh", 0755); err != nil {
-		color.Red("%s",err)
-	}
-
-	if err := os.Chmod("helm_deploy.sh", 0755); err != nil {
-		color.Red("%s",err)
-	}
-
-	if err := os.Chmod("helm_dump.sh", 0755); err != nil {
-		color.Red("%s",err)
-	}
-
-	_, confT := u.GetGoTemplate(&interfaces.FileObject{
-		Path: "../builders/v1.1",
-		Name: "config.minikube.goyaml",
-
-	})
-	goTemplate := interfaces.GoTemplate{
-		Source: confT,
-		ExportPath: "config.minikube.yaml",
-		Data: map[string]string{
-			"projectName": p.Name,
-		},
-	}
-
-	_= u.GoRunTemplate(&goTemplate)
-
-	color.Green("Generated")
-
-
+	helmResources.BuildHelmMinikubeResources()
 }
 
 func (p *Project) GetEnvSettings() *environment.Settings {
@@ -680,8 +596,6 @@ func (p *Project) GetName() string {
 	if len(projectName) == 0 {
 		projectName = p.Config.Config.ProjectName
 	}
-
-	color.Red("%#v\n", p.Config.ConfigFile)
 	return projectName
 }
 
@@ -705,14 +619,14 @@ func (p *Project) GetLogLevel() string {
 	return p.LogLevel
 }
 
-func (p *Project) LoadConfig() (configProject *config.ConfigProject) {
+func (p *Project) LoadConfig() (configProject *config.Project) {
 	configPath := fmt.Sprintf("%s/%s", p.GetProjectPath(), p.ConfigFile)
 	if _, err := os.Stat(configPath); os.IsNotExist(err) {
 		color.Red("Config %s does not exists in project :%s", p.ConfigFile, configPath )
 		os.Exit(1)
 	}
 
-	var config config.ConfigProject
+	var config config.Project
 	yamlFile, err := ioutil.ReadFile(configPath)
 	if err != nil {
 		log.Printf("config.yaml err   #%v ", err)

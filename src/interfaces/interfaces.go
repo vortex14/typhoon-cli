@@ -77,6 +77,7 @@ type DockerInterface interface {
 
 type HelmInterface interface {
 	BuildHelmMinikubeResources()
+	RemoveHelmMinikubeManifests()
 }
 
 type GitlabInterface interface {
@@ -100,7 +101,7 @@ type Project interface {
 	CreateSymbolicLink() error
 	GetDockerImageName() string
 	GetComponentPort(name string) int
-	LoadConfig() *config.ConfigProject
+	LoadConfig() *config.Project
 	GetBuilderOptions() *BuilderOptions
 	GetEnvSettings() *environment.Settings
 	goPromise

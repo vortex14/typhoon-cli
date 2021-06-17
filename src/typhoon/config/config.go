@@ -11,7 +11,7 @@ type Queue struct {
 	Readable   bool   `yaml:"readable"`
 }
 
-type ConfigProject struct {
+type Project struct {
 	ConfigFile string
 
 	Config Config
