@@ -71,6 +71,8 @@ type GrafanaInterface interface {
 type DockerInterface interface {
 	BuildImage()
 	ListContainers()
+	ProjectBuild()
+	RunComponent(component string) error
 }
 
 type HelmInterface interface {
@@ -96,6 +98,7 @@ type Project interface {
 	migrates.ProjectMigrate
 	GetComponents() []string
 	CreateSymbolicLink() error
+	GetDockerImageName() string
 	GetComponentPort(name string) int
 	LoadConfig() *config.ConfigProject
 	GetBuilderOptions() *BuilderOptions

@@ -2,3 +2,6 @@
 *.pyc
 .idea
 vendor
+test
+typhoon-cli
+cli

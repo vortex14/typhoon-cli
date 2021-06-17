@@ -19,8 +19,6 @@ type Utils struct {}
 
 func (u *Utils) GoRunTemplate(goTemplate *interfaces.GoTemplate) bool {
 	tmpl, _ := template.New("new").Parse(goTemplate.Source)
-	fmt.Printf("%+v\n", tmpl)
-
 	status := true
 	f, err := os.Create(goTemplate.ExportPath)
 	if err != nil {

@@ -19,7 +19,6 @@ import (
 )
 
 func main() {
-
 	typhoonComponents := []string{"fetcher", "result_transporter", "donor", "processor", "scheduler"}
 
 	app := &cli.App{

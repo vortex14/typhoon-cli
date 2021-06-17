@@ -7,14 +7,17 @@ import (
 	"errors"
 	"fmt"
 	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
 	"github.com/docker/docker/pkg/archive"
 	"github.com/fatih/color"
 	"io"
+	"os"
 	"strings"
 	"time"
 	"typhoon-cli/src/environment"
 	"typhoon-cli/src/interfaces"
+	"typhoon-cli/src/utils"
 )
 
 type Docker struct {
@@ -60,24 +63,45 @@ func (d *Docker) print(rd io.Reader) error {
 	return nil
 }
 
-func (d *Docker) imageBuild(client *client.Client) error {
-	envSetting := environment.Environment{}
-	_, env := envSetting.GetSettings()
+func (d *Docker) build(workDir string, options *archive.TarOptions, opts types.ImageBuildOptions) error {
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+	if err != nil {
+		fmt.Println(err.Error())
+		return err
+	}
 
-	color.Green("PatH: %s", env.Path)
+
+
+	color.Green("PatH: %s", workDir)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*120)
 	defer cancel()
 
-	tar, err := archive.TarWithOptions(fmt.Sprintf("%s/", env.Path), &archive.TarOptions{
+	tar, err := archive.TarWithOptions(fmt.Sprintf("%s/", workDir), options)
+	if err != nil {
+		return err
+	}
+
+	res, err := cli.ImageBuild(ctx, tar, opts)
+	if err != nil {
+		color.Red("Error!")
+		return err
+	}
+
+	defer res.Body.Close()
+	_ = d.print(res.Body)
+
+	return nil
+}
+
+func (d *Docker) BuildImage()  {
+	color.Yellow("Typhoon docker build ...")
+
+	options := &archive.TarOptions{
 		ExcludePatterns: []string{
 			"extensions/tests/*",
 			".git",
 			"chrome",
-		}},
-	)
-	if err != nil {
-		return err
-	}
+	}}
 
 	opts := types.ImageBuildOptions{
 		Dockerfile: "Dockerfile",
@@ -85,48 +109,16 @@ func (d *Docker) imageBuild(client *client.Client) error {
 		Remove:     true,
 
 	}
-	res, err := client.ImageBuild(ctx, tar, opts)
+
+	envSetting := environment.Environment{}
+	_, env := envSetting.GetSettings()
+
+	err := d.build(env.Path, options, opts)
 	if err != nil {
-		color.Red("Error!")
-		return err
-	}
-
-	defer res.Body.Close()
-
-	d.print(res.Body)
-
-	//if err != nil {
-	//	return err
-	//}
-	return nil
-}
-
-func (d *Docker) BuildImage()  {
-	color.Yellow("Typhoon docker build ...")
-
-	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
-	if err != nil {
-		fmt.Println(err.Error())
+		color.Red(err.Error())
 		return
 	}
 
-
-	err = d.imageBuild(cli)
-	if err != nil {
-		fmt.Println(err.Error())
-		return
-	}
-
-
-	//opts := types.ImageBuildOptions{
-	//	Dockerfile:  "Dockerfile",
-	//	Tags:        []string{dockerRegistryUserID + "/node-hello"},
-	//	Remove:      true,
-	//}
-	//res, err := dockerClient.ImageBuild(ctx, tar, opts)
-	//if err != nil {
-	//	return err
-	//}
 }
 
 func (d *Docker) ListContainers()  {
@@ -143,4 +135,77 @@ func (d *Docker) ListContainers()  {
 	for _, container := range containers {
 		fmt.Printf("%s %s\n", container.ID[:10], container.Image)
 	}
+}
+
+func (d *Docker) RunComponent(component string) error {
+	d.Project.LoadConfig()
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*120)
+	defer cancel()
+
+	if err != nil {
+		//fmt.Println(err.Error())
+		//color.Red("Error: %s", err)
+		return err
+	}
+
+	containerConfig := &container.Config{
+		Image: fmt.Sprintf("typhoon-lite-%s", d.Project.GetName()),
+		Cmd: []string{"python", "donor.py --config=config.local.yaml --level=DEBUG"},
+	}
+
+
+	_, err = cli.ContainerCreate(ctx, containerConfig, nil, nil, nil, "typhoon")
+
+	if err != nil {
+		color.Red("ContainerCreate: %s", err)
+		return err
+	}
+
+	return nil
+}
+
+func (d *Docker) ProjectBuild()  {
+	u := utils.Utils{}
+
+	_, dockerFile := u.GetGoTemplate(&interfaces.FileObject{
+		Path: "../builders/v1.1",
+		Name: "ProjectDockerfile",
+
+	})
+	goTemplateDocker := interfaces.GoTemplate{
+		Source: dockerFile,
+		ExportPath: "Dockerfile",
+		Data: map[string]string{
+			"TYPHOON_IMAGE": d.Project.GetDockerImageName(),
+		},
+	}
+
+	err := u.GoRunTemplate(&goTemplateDocker)
+	if !err {
+		color.Red("creation Dockerfile was fail")
+		os.Exit(1)
+	}
+
+	color.Green("Dockerfile created!")
+
+	color.Yellow("Typhoon project docker build ...")
+
+	options := &archive.TarOptions{}
+	projectConfig := d.Project.LoadConfig()
+	opts := types.ImageBuildOptions{
+		Dockerfile: "Dockerfile",
+		Tags:       []string{"typhoon-lite-" + projectConfig.Config.ProjectName},
+		Remove:     true,
+
+	}
+
+	_ = d.build(d.Project.GetProjectPath(), options, opts)
+	//if err != nil {
+	//	fmt.Println(err.Error())
+	//	return
+	//}
+
+
+
 }

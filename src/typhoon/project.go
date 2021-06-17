@@ -59,6 +59,9 @@ type Project struct {
 	Config *config.ConfigProject
 }
 
+func (p *Project) GetDockerImageName() string {
+	return p.DockerImageName
+}
 
 func watchDirTeet(path string, fi os.FileInfo, err error) error {
 
@@ -238,9 +241,25 @@ func (p *Project) DockerBuild()  {
 	projectDocker.BuildImage()
 }
 
+func (p *Project) DockerRunComponent()  {
+	projectDocker := docker.Docker{
+		Project: p,
+	}
+
+	projectDocker.RunComponent("test")
+}
+
 func (p *Project) DockerListContainers()  {
 	projectDocker := docker.Docker{Project: p}
 	projectDocker.ListContainers()
+}
+
+func (p *Project) DockerProjectBuild()  {
+	projectDocker := docker.Docker{
+		Project: p,
+	}
+	projectDocker.ProjectBuild()
+
 }
 
 func (p *Project) CreateBaseGrafanaConfig()  {
@@ -678,6 +697,7 @@ func (p *Project) GetProjectPath() string {
 	pathProject, err := os.Getwd()
 	if err != nil {
 		log.Println(err)
+		os.Exit(1)
 	}
 	return pathProject
 }
@@ -686,7 +706,7 @@ func (p *Project) GetLogLevel() string {
 }
 
 func (p *Project) LoadConfig() (configProject *config.ConfigProject) {
-	configPath := fmt.Sprintf("%s/%s", p.Path, p.ConfigFile)
+	configPath := fmt.Sprintf("%s/%s", p.GetProjectPath(), p.ConfigFile)
 	if _, err := os.Stat(configPath); os.IsNotExist(err) {
 		color.Red("Config %s does not exists in project :%s", p.ConfigFile, configPath )
 		os.Exit(1)

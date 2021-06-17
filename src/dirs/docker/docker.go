@@ -1,4 +1,5 @@
 package docker
+
 import (
 	"github.com/urfave/cli/v2"
 	"typhoon-cli/src/typhoon"
@@ -29,6 +30,34 @@ var Commands = []*cli.Command{
 					return nil
 				},
 			},
+			&cli.Command{
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:    "name",
+						Aliases: []string{"n"},
+						Value:   "typhoon-lite:latest",
+						Usage:   "Pass image name",
+					},
+					&cli.StringFlag{
+						Name:    "config",
+						Aliases: []string{"c"},
+						Value: "config.local.yaml",
+						Usage:   "Load configuration from `FILE`",
+					},
+				},
+				Name: "project",
+				Usage: "Build image for project",
+				Action: func(context *cli.Context) error {
+					imageName := context.String("name")
+					configFile := context.String("config")
+					project := &typhoon.Project{
+						DockerImageName: imageName,
+						ConfigFile: configFile,
+					}
+					project.DockerProjectBuild()
+					return nil
+				},
+			},
 		},
 	},
 	&cli.Command{
@@ -41,6 +70,33 @@ var Commands = []*cli.Command{
 				Action: func(context *cli.Context) error {
 					project := &typhoon.Project{}
 					project.DockerListContainers()
+					return nil
+				},
+			},
+		},
+	},
+	&cli.Command{
+		Name:   "run",
+		Usage: "Create new Typhoon build",
+		Subcommands: []*cli.Command{
+			&cli.Command{
+				Name: "component",
+				Usage: "Run Typhoon component in docker container",
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:    "config",
+						Aliases: []string{"c"},
+						Value: "config.local.yaml",
+						Usage:   "Load configuration from `FILE`",
+					},
+				},
+				Action: func(context *cli.Context) error {
+					configFile := context.String("config")
+					project := &typhoon.Project{
+						ConfigFile: configFile,
+					}
+
+					project.DockerRunComponent()
 					return nil
 				},
 			},
