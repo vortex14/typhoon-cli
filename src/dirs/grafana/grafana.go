@@ -1,8 +1,10 @@
 package grafana
 
 import (
+	"github.com/fatih/color"
 	"github.com/urfave/cli/v2"
 	"os"
+	"typhoon-cli/src/integrations/grafana"
 	"typhoon-cli/src/typhoon"
 )
 
@@ -41,7 +43,13 @@ var Commands = []*cli.Command{
 					ConfigFile: config,
 					Path: pathProject,
 				}
-				project.ImportGrafanaConfig(configDashboard)
+
+				dashboard := grafana.DashBoard{
+					ConfigName: configDashboard,
+					Project: project,
+				}
+				dashboard.ImportGrafanaConfig()
+
 				return nil
 			},
 		},
@@ -79,7 +87,12 @@ var Commands = []*cli.Command{
 					ConfigFile: config,
 					Path: pathProject,
 				}
-				project.RemoveGrafanaDashboard(configDashboard)
+				color.Red("Remove Grafana Dashboard")
+				dashboard := grafana.DashBoard{
+					ConfigName: configDashboard,
+					Project: project,
+				}
+				dashboard.RemoveGrafanaDashboard()
 				return nil
 			},
 		},
@@ -110,7 +123,8 @@ var Commands = []*cli.Command{
 					ConfigFile: config,
 					Path: pathProject,
 				}
-				project.CreateBaseGrafanaConfig()
+				dashboard := grafana.DashBoard{Project: project}
+				dashboard.CreateBaseGrafanaConfig()
 				return nil
 			},
 		},
@@ -144,7 +158,11 @@ var Commands = []*cli.Command{
 							ConfigFile: config,
 							Path: pathProject,
 						}
-						project.CreateGrafanaMonitoringTemplates()
+
+						dashboard := grafana.DashBoard{
+							Project: project,
+						}
+						dashboard.CreateGrafanaMonitoringTemplates()
 						return nil
 					},
 				},

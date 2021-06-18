@@ -26,6 +26,7 @@ type ReplaceLabel struct {
 	Value string
 }
 
+type ReplaceLabels []ReplaceLabel
 
 
 type MapFileObjects map[string]*FileObject
@@ -61,8 +62,8 @@ type Service interface {
 type Services struct {}
 
 type GrafanaInterface interface {
-	ImportGrafanaConfig(configDashboard string)
-	RemoveGrafanaDashboard(configDashboard string)
+	ImportGrafanaConfig()
+	RemoveGrafanaDashboard()
 	CreateBaseGrafanaConfig()
 	CreateGrafanaMonitoringTemplates()
 }

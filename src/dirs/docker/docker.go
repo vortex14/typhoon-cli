@@ -2,6 +2,7 @@ package docker
 
 import (
 	"github.com/urfave/cli/v2"
+	"typhoon-cli/src/integrations/docker"
 	"typhoon-cli/src/typhoon"
 )
 
@@ -26,7 +27,8 @@ var Commands = []*cli.Command{
 					project := &typhoon.Project{
 						DockerImageName: imageName,
 					}
-					project.DockerBuild()
+					projectDocker := docker.Docker{Project: project}
+					projectDocker.BuildImage()
 					return nil
 				},
 			},
@@ -54,7 +56,10 @@ var Commands = []*cli.Command{
 						DockerImageName: imageName,
 						ConfigFile: configFile,
 					}
-					project.DockerProjectBuild()
+					projectDocker := docker.Docker{
+						Project: project,
+					}
+					projectDocker.ProjectBuild()
 					return nil
 				},
 			},
@@ -69,7 +74,8 @@ var Commands = []*cli.Command{
 				Usage: "Show list containers",
 				Action: func(context *cli.Context) error {
 					project := &typhoon.Project{}
-					project.DockerListContainers()
+					projectDocker := docker.Docker{Project: project}
+					projectDocker.ListContainers()
 					return nil
 				},
 			},
@@ -95,8 +101,44 @@ var Commands = []*cli.Command{
 					project := &typhoon.Project{
 						ConfigFile: configFile,
 					}
+					projectDocker := docker.Docker{
+						Project: project,
+					}
 
-					project.DockerRunComponent()
+					err := projectDocker.RunComponent("test")
+					if err != nil {
+						return err
+					}
+					return nil
+				},
+			},
+		},
+	},
+	&cli.Command{
+		Name:   "remove",
+		Usage: "Remove Docker resources",
+		Subcommands: []*cli.Command{
+			&cli.Command{
+				Name: "files",
+				Usage: "Run Typhoon component in docker container",
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:    "config",
+						Aliases: []string{"c"},
+						Value: "config.local.yaml",
+						Usage:   "Load configuration from `FILE`",
+					},
+				},
+				Action: func(context *cli.Context) error {
+					configFile := context.String("config")
+					project := &typhoon.Project{
+						ConfigFile: configFile,
+					}
+					projectDocker := docker.Docker{
+						Project: project,
+					}
+
+					projectDocker.RemoveResources()
 					return nil
 				},
 			},

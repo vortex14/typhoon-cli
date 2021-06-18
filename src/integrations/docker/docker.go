@@ -208,4 +208,15 @@ func (d *Docker) ProjectBuild()  {
 
 
 
+
+
+}
+
+func (d *Docker) RemoveResources()  {
+	u := utils.Utils{}
+	u.RemoveFiles([]string{
+		"Dockerfile",
+	})
+
+	color.Green("Removed")
 }

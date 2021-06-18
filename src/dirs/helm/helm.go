@@ -3,6 +3,7 @@ package helm
 
 import (
 	"github.com/urfave/cli/v2"
+	"typhoon-cli/src/integrations/helm"
 	"typhoon-cli/src/typhoon"
 )
 
@@ -43,7 +44,10 @@ var Commands = []*cli.Command{
 						ConfigFile: config,
 						Name:    name,
 					}
-					project.BuildHelmMinikubeResources()
+					helmResources := helm.Resources{
+						Project: project,
+					}
+					helmResources.BuildHelmMinikubeResources()
 					return nil
 				},
 			},
@@ -78,15 +82,8 @@ var Commands = []*cli.Command{
 				Name: "minikube",
 				Usage: "remove helm manifest for minikube",
 				Action: func(context *cli.Context) error {
-					version := context.String("version")
-					name := context.String("name")
-					config := context.String("config")
-					project := &typhoon.Project{
-						Version: version,
-						ConfigFile: config,
-						Name:    name,
-					}
-					project.RemoveHelmMinikubeManifests()
+					helmResources := helm.Resources{}
+					helmResources.RemoveHelmMinikubeManifests()
 					return nil
 				},
 			},

@@ -16,9 +16,6 @@ import (
 	"sync"
 	"time"
 	"typhoon-cli/src/environment"
-	"typhoon-cli/src/integrations/docker"
-	"typhoon-cli/src/integrations/grafana"
-	"typhoon-cli/src/integrations/helm"
 	"typhoon-cli/src/interfaces"
 	v11 "typhoon-cli/src/migrates/v1.1"
 	"typhoon-cli/src/typhoon/config"
@@ -235,110 +232,6 @@ func (p *Project) BuildCIResources() {
 
 	_= u.GoRunTemplate(&goTemplateConfig)
 
-}
-
-func (p *Project) DockerBuild()  {
-	projectDocker := docker.Docker{Project: p}
-	projectDocker.BuildImage()
-}
-
-func (p *Project) DockerRunComponent()  {
-	projectDocker := docker.Docker{
-		Project: p,
-	}
-
-	projectDocker.RunComponent("test")
-}
-
-func (p *Project) DockerListContainers()  {
-	projectDocker := docker.Docker{Project: p}
-	projectDocker.ListContainers()
-}
-
-func (p *Project) DockerProjectBuild()  {
-	projectDocker := docker.Docker{
-		Project: p,
-	}
-	projectDocker.ProjectBuild()
-
-}
-
-func (p *Project) CreateBaseGrafanaConfig()  {
-	color.Yellow("Creating base grafana properties into typhoon project config.yaml")
-	configProject := p.LoadConfig()
-	configProject.Config.Grafana = config.GrafanaConfig{
-		Name: "Typhoon project dashboard",
-		Id: "0000000",
-		Token: "eyJrIjoiTGZqYUY3NWFsVk92MUc5TFFnTXlkYTg3WFJPME4wQVIiLCJuIjoidHlwaG9vbiIsImlkIjoxfQ==",
-		Endpoint: "http://localhost:3000",
-	}
-
-	configDumpData, _ := yaml.Marshal(&configProject.Config)
-
-	u := &utils.Utils{}
-	err := u.DumpToFile(&interfaces.FileObject{
-		Name: p.ConfigFile,
-		Data: string(configDumpData),
-		Path: configProject.ConfigFile,
-	})
-
-	if err != nil {
-		return
-	}
-
-	color.Green("%s updated.", p.ConfigFile)
-
-}
-
-func (p *Project) CreateGrafanaMonitoringTemplates() {
-	p.LoadConfig()
-	color.Yellow("Creating Grafana monitoring template ...")
-	u := utils.Utils{}
-
-	fileObject := &interfaces.FileObject{
-		Path: "../builders/v1.1",
-		Name: "grafana-template.gojson",
-	}
-	validProjectName := strings.ReplaceAll(p.GetName(), "-", "_")
-	err := u.CopyFileAndReplaceLabel("monitoring-grafana.json",&interfaces.ReplaceLabel{Label: "{{.projectName}}", Value: validProjectName}, fileObject)
-
-	if err != nil {
-
-		color.Red("Error %s", err)
-		os.Exit(0)
-
-	}
-
-}
-
-func (p *Project) RemoveGrafanaDashboard(configDashboard string) {
-	color.Red("Remove Grafana Dashboard")
-	dashboard := grafana.DashBoard{
-		ConfigName: configDashboard,
-		Project: p,
-	}
-	dashboard.RemoveGrafanaDashboard()
-}
-
-func (p *Project ) ImportGrafanaConfig(configDashboard string) {
-	dashboard := grafana.DashBoard{
-		ConfigName: configDashboard,
-		Project: p,
-	}
-	dashboard.ImportGrafanaConfig()
-
-}
-
-func (p *Project) RemoveHelmMinikubeManifests()  {
-	helmResources := helm.Resources{}
-	helmResources.RemoveHelmMinikubeManifests()
-}
-
-func (p *Project) BuildHelmMinikubeResources()  {
-	helmResources := helm.Resources{
-		Project: p,
-	}
-	helmResources.BuildHelmMinikubeResources()
 }
 
 func (p *Project) GetEnvSettings() *environment.Settings {

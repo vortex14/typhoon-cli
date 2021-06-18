@@ -10,6 +10,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"strings"
 	"typhoon-cli/src/interfaces"
 	"typhoon-cli/src/typhoon/config"
 	"typhoon-cli/src/utils"
@@ -132,4 +133,50 @@ func (d *DashBoard) RemoveGrafanaDashboard()  {
 	}
 	//_, data := c.GetAllFolders(ctx)
 	//color.Red("%+v", data)
+}
+
+func (d *DashBoard) CreateGrafanaMonitoringTemplates()  {
+	d.Project.LoadConfig()
+	color.Yellow("Creating Grafana monitoring template ...")
+	u := utils.Utils{}
+
+	fileObject := &interfaces.FileObject{
+		Path: "../builders/v1.1",
+		Name: "grafana-template.gojson",
+	}
+	validProjectName := strings.ReplaceAll(d.Project.GetName(), "-", "_")
+	err := u.CopyFileAndReplaceLabel("monitoring-grafana.json",&interfaces.ReplaceLabel{Label: "{{.projectName}}", Value: validProjectName}, fileObject)
+
+	if err != nil {
+
+		color.Red("Error %s", err)
+		os.Exit(0)
+
+	}
+}
+
+func (d *DashBoard) CreateBaseGrafanaConfig()  {
+	color.Yellow("Creating base grafana properties into typhoon project config.yaml")
+	configProject := d.Project.LoadConfig()
+	configProject.Config.Grafana = config.GrafanaConfig{
+		Name: "Typhoon project dashboard",
+		Id: "0000000",
+		Token: "eyJrIjoiTGZqYUY3NWFsVk92MUc5TFFnTXlkYTg3WFJPME4wQVIiLCJuIjoidHlwaG9vbiIsImlkIjoxfQ==",
+		Endpoint: "http://localhost:3000",
+	}
+
+	configDumpData, _ := yaml.Marshal(&configProject.Config)
+
+	u := &utils.Utils{}
+	err := u.DumpToFile(&interfaces.FileObject{
+		Name: d.Project.GetConfigFile(),
+		Data: string(configDumpData),
+		Path: configProject.ConfigFile,
+	})
+
+	if err != nil {
+		return
+	}
+
+	color.Green("%s updated.", d.Project.GetConfigFile())
 }
