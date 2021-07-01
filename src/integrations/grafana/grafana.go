@@ -180,3 +180,22 @@ func (d *DashBoard) CreateBaseGrafanaConfig()  {
 
 	color.Green("%s updated.", d.Project.GetConfigFile())
 }
+
+func (d *DashBoard) CreateGrafanaNSQMonitoringTemplates()  {
+	d.Project.LoadConfig()
+	color.Yellow("Creating NSQ Grafana monitoring templates ...")
+	u := utils.Utils{}
+
+	fileObject := &interfaces.FileObject{
+		Path: "../builders/v1.1",
+		Name: "grafana-nsq-template.gojson",
+	}
+	err := u.CopyFileAndReplaceLabel("grafana-nsq-monitoring.json",&interfaces.ReplaceLabel{Label: "{{.projectName}}", Value: d.Project.GetName()}, fileObject)
+
+	if err != nil {
+
+		color.Red("Error %s", err)
+		os.Exit(0)
+
+	}
+}

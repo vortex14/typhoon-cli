@@ -166,7 +166,40 @@ var Commands = []*cli.Command{
 						return nil
 					},
 				},
+				&cli.Command{
+					Flags: []cli.Flag{
+						&cli.StringFlag{
+							Name:    "version",
+							Aliases: []string{"v"},
+							Value:   "v1.1",
+							Usage:   "Create for available version",
+						},
+						&cli.StringFlag{
+							Name:    "config",
+							Aliases: []string{"c"},
+							Value: "config.local.yaml",
+							Usage:   "Load configuration from `FILE`",
+						},
+					},
+					Name: "nsq-monitoring",
+					Usage: "create base template for nsq monitoring of project",
+					Action: func(context *cli.Context) error {
+						version := context.String("version")
+						config := context.String("config")
+						pathProject, _ := os.Getwd()
+						project := &typhoon.Project{
+							Version: version,
+							ConfigFile: config,
+							Path: pathProject,
+						}
 
+						dashboard := grafana.DashBoard{
+							Project: project,
+						}
+						dashboard.CreateGrafanaNSQMonitoringTemplates()
+						return nil
+					},
+				},
 			},
 
 		},

@@ -32,7 +32,6 @@ func main() {
 			typhoon logging --file=test-log.log
 `		,
 		Description: "For running typhoon lite in command line",
-		HelpName: "test thelp",
 		EnableBashCompletion: true,
 		Usage: "cli app",
 		Commands: []*cli.Command{
@@ -269,7 +268,7 @@ func main() {
 			},
 			{
 				Name: "create",
-				Usage: "Create new Typhoon project",
+				Usage: "Create a new Typhoon project",
 				Flags: []cli.Flag{
 					&cli.StringFlag{
 						Name:    "new",
@@ -310,6 +309,11 @@ func main() {
 				Name: "tests",
 				Usage: "Typhoon tests",
 				Subcommands: tests.Commands,
+			},
+			{
+				Name: "import",
+				Usage: "Typhoon import",
+				Subcommands: typhoon.Commands,
 			},
 			{
 				Name: "grafana",

@@ -10,6 +10,7 @@ import (
 
 type ServiceRedis struct {
 	Config *config.Config
+	connection *redis.Client
 }
 
 func (r *ServiceRedis) connect(service *config.ServiceRedis) bool {
@@ -21,6 +22,8 @@ func (r *ServiceRedis) connect(service *config.ServiceRedis) bool {
 		Password: "",               // no password set
 		DB:       0,                // use default DB
 	})
+
+	r.connection = rdb
 	_, err := rdb.Ping(ctx).Result()
 	if err != nil {
 		color.Red("%s", err)
@@ -41,4 +44,10 @@ func (r *ServiceRedis) TestConnect() bool {
 	}
 
 	return status
+}
+
+func (r *ServiceRedis) Set(key string, value interface{})  {
+	var ctx = context.Background()
+	_ = r.connection.Set(ctx, key, value, 0)
+	//color.Yellow("%s", output)
 }

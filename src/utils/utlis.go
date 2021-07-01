@@ -144,7 +144,7 @@ func (u *Utils) DumpToFile(object *interfaces.FileObject) error {
 
 func (u *Utils) CopyFileAndReplaceLabel(name string, label *interfaces.ReplaceLabel, object *interfaces.FileObject) error {
 	box := packr.NewBox(object.Path)
-	template, _ := box.FindString("grafana-template.gojson")
+	template, _ := box.FindString(object.Name)
 
 	f, err := os.Create(name)
 	if err != nil {

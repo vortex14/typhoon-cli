@@ -2,6 +2,8 @@ package typhoon
 
 import (
 	"context"
+	"crypto/md5"
+	"encoding/hex"
 	"fmt"
 	"github.com/fatih/color"
 	"github.com/fsnotify/fsnotify"
@@ -16,6 +18,7 @@ import (
 	"sync"
 	"time"
 	"typhoon-cli/src/environment"
+	"typhoon-cli/src/integrations/redis"
 	"typhoon-cli/src/interfaces"
 	v11 "typhoon-cli/src/migrates/v1.1"
 	"typhoon-cli/src/typhoon/config"
@@ -88,6 +91,28 @@ func (p *Project) RunTestServices() {
 
 	typhoonServices := services.Services{Project: p}
 	typhoonServices.RunTestServices()
+}
+
+func (p *Project) ImportResponseData(url string, sourceFile string)  {
+	p.LoadConfig()
+
+	currentPath, _ := os.Getwd()
+	importPath := fmt.Sprintf("%s/%s", currentPath, sourceFile)
+	dat, err := ioutil.ReadFile(importPath)
+	if err != nil {
+		color.Red("%s", err)
+		os.Exit(1)
+	}
+	color.Green("url: %s", url)
+	taskid := md5.Sum([]byte(url))
+	redisPath := fmt.Sprintf("%s:%s", p.GetName(), hex.EncodeToString(taskid[:]))
+
+	redisService := redis.ServiceRedis{Config: &p.Config.Config}
+
+	_ = redisService.TestConnect()
+	redisService.Set(redisPath, string(dat))
+
+	color.Green(redisPath)
 }
 
 func (p *Project) TestFunc()  {
