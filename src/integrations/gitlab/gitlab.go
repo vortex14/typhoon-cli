@@ -1,17 +1,14 @@
 package gitlab
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/cheggaaa/pb/v3"
 	"github.com/fatih/color"
 	"github.com/hashicorp/go-retryablehttp"
 	"github.com/mitchellh/mapstructure"
 	"github.com/xanzy/go-gitlab"
-	"net/http"
 	"net/url"
 	"os"
-	"strconv"
 	"strings"
 	"typhoon-cli/src/interfaces"
 )
@@ -108,60 +105,6 @@ func (s *Server) GetClient() (*gitlab.Client, error) {
 
 func pathEscape(s string) string {
 	return strings.Replace(url.PathEscape(s), ".", "%2E", -1)
-}
-
-func (s *Server) runPipeline(project *interfaces.ClusterProject) {
-
-	meta := s.Cluster.GetMeta()
-
-
-	for m := range meta {
-		color.Red("%s", m)
-	}
-
-	variables := []*gitlab.PipelineVariable{
-		{
-			Key: "CONTOUR_ID",
-			Value: "rc16mo",
-			VariableType: "file",
-		},
-		{
-			Key: "FALLBACK_ENV_ID",
-			Value: "rc16mo",
-			VariableType: "file",
-		},
-	}
-
-	postData := struct {
-		Ref string `json:"ref"`
-		Variables []*gitlab.PipelineVariable `json:"variables"`
-	}{
-		Ref: project.Branch,
-		Variables: variables,
-	}
-
-	projectId := strconv.Itoa(project.GitlabId)
-
-	data, _ := json.Marshal(postData)
-	color.Yellow("%s", data)
-	gitlabClient, _ := s.GetClient()
-
-
-
-	u := fmt.Sprintf("projects/%s/pipeline", pathEscape(projectId))
-
-	req, _ := gitlabClient.NewRequest(http.MethodPost, u, postData, nil)
-
-	//color.Yellow("%+v", body)
-
-	resp, err := gitlabClient.Do(req, nil)
-
-	if err != nil {
-		color.Red("%s", err)
-		os.Exit(1)
-	}
- 	color.Green("%+v", resp)
-
 }
 
 func (s *Server) GetVariables() []*gitlab.PipelineVariable {
