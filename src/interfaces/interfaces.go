@@ -21,6 +21,41 @@ type FileObject struct {
 	FileSystem
 }
 
+type ClusterProject struct {
+	Name string
+	path string
+	Branch string
+	Git string
+	Remote string
+	GitlabId int
+}
+
+type GitlabProject struct {
+	Name string
+	Git string
+	Id int
+}
+
+type GitlabServer interface {
+	GetAllProjectsList() []*GitlabProject
+	SyncGitlabProjects()
+	Deploy()
+	HistoryPipelines()
+}
+
+type Cluster interface {
+	Add()
+	Create()
+	Deploy()
+	GetEnvSettings() *environment.Settings
+	GetProjects() [] *ClusterProject
+	GetConfigName() string
+	SaveConfig()
+	GetName() string
+	GetClusterConfigPath() string
+	GetMeta() map[string] interface{}
+}
+
 type ReplaceLabel struct {
 	Label string
 	Value string

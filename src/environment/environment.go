@@ -16,6 +16,9 @@ type Settings struct {
 	Path string
 	Status string
 	Projects string
+	Clusters string
+	Gitlab string
+	GitlabToken string
 
 }
 
@@ -36,7 +39,7 @@ func (e *Environment) Load()  {
 	}
 
 	for _, _pathProfile := range pathsProfiles {
-		fmt.Sprintf("path: %s", _pathProfile)
+		//fmt.Sprintf("path: %s", _pathProfile)
 
 		if _, err := os.Stat(_pathProfile); !os.IsNotExist(err) {
 			pathProfile = _pathProfile
@@ -49,8 +52,6 @@ func (e *Environment) Load()  {
 		color.Red("Not found bash profile !" )
 		os.Exit(1)
 	}
-
-	color.Yellow("bash profile path: : %s", pathProfile)
 	e.ProfilePath = pathProfile
 
 	cmdSource := exec.Command("bash", "-c", "source " + pathProfile + "; env")

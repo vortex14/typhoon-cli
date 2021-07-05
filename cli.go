@@ -316,6 +316,11 @@ func main() {
 				Subcommands: typhoon.Commands,
 			},
 			{
+				Name: "cluster",
+				Usage: "Typhoon cluster",
+				Subcommands: typhoon.ClusterCommands,
+			},
+			{
 				Name: "grafana",
 				Usage: "Grafana integration",
 				Subcommands: grafana.Commands,

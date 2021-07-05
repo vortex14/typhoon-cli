@@ -1,6 +1,5 @@
 .idea
 *.pyc
-.idea
 vendor
 test
 typhoon-cli

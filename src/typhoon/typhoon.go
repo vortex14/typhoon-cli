@@ -4,15 +4,14 @@ import (
 	"fmt"
 	"github.com/fatih/color"
 	"github.com/fsnotify/fsnotify"
+	"github.com/urfave/cli/v2"
 	"os"
 	"path/filepath"
+	"typhoon-cli/src/integrations/gitlab"
 	"typhoon-cli/src/interfaces"
 	"typhoon-cli/src/utils"
 )
 
-import (
-	"github.com/urfave/cli/v2"
-)
 
 var Commands = []*cli.Command{
 	&cli.Command{
@@ -94,6 +93,162 @@ var Commands = []*cli.Command{
 	},
 }
 
+
+
+var ClusterCommands = []*cli.Command{
+	&cli.Command{
+		Flags: []cli.Flag{
+			&cli.StringFlag{
+				Name:    "name",
+				Aliases: []string{"n"},
+				Value:   "test",
+				Usage:   "Cluster name",
+			},
+			&cli.StringFlag{
+				Name:    "description",
+				Aliases: []string{"d"},
+				Value:   "Test cluster",
+				Usage:   "Cluster description",
+			},
+			&cli.StringFlag{
+				Name:    "config",
+				Aliases: []string{"c"},
+				Value:   "cluster.local.yaml",
+				Usage:   "Cluster config yaml",
+			},
+		},
+		Name: "create",
+		Usage: "Create a new Typhoon cluster",
+		Action: func(context *cli.Context) error {
+			name := context.String("name")
+			configName := context.String("config")
+			description := context.String("description")
+			cluster := Cluster{
+				Name: name,
+				Description: description,
+				Config: configName,
+			}
+			cluster.Create()
+			return nil
+		},
+	},
+	&cli.Command{
+		Flags: []cli.Flag{
+			&cli.StringFlag{
+				Name:    "name",
+				Aliases: []string{"n"},
+				Value:   "test",
+				Usage:   "Cluster name",
+			},
+			&cli.StringFlag{
+				Name:    "config",
+				Aliases: []string{"c"},
+				Value:   "cluster.local.yaml",
+				Usage:   "Cluster config yaml",
+			},
+		},
+		Name: "add",
+		Usage: "Add the project to Typhoon cluster",
+		Action: func(context *cli.Context) error {
+			clusterName := context.String("name")
+			configClusterName := context.String("config")
+			cluster := Cluster{
+				Config: configClusterName,
+				Name: clusterName,
+			}
+			cluster.Add()
+			return nil
+		},
+	},
+	&cli.Command{
+		Flags: []cli.Flag{
+			&cli.StringFlag{
+				Name:    "name",
+				Aliases: []string{"n"},
+				Value:   "test",
+				Usage:   "Cluster name",
+			},
+			&cli.StringFlag{
+				Name:    "config",
+				Aliases: []string{"c"},
+				Value:   "cluster.local.yaml",
+				Usage:   "Cluster config yaml",
+			},
+		},
+		Name: "sync-gitlab",
+		Usage: "Typhoon sync cluster with gitlab projects",
+		Action: func(context *cli.Context) error {
+			clusterName := context.String("name")
+			configClusterName := context.String("config")
+			cluster := Cluster{
+				Config: configClusterName,
+				Name: clusterName,
+			}
+
+			gitLabServer := gitlab.Server{
+				Cluster: &cluster,
+			}
+
+			gitLabServer.SyncGitlabProjects()
+
+			return nil
+		},
+	},
+	&cli.Command{
+		Flags: []cli.Flag{
+			&cli.StringFlag{
+				Name:    "name",
+				Aliases: []string{"n"},
+				Value:   "test",
+				Usage:   "Cluster name",
+			},
+			&cli.StringFlag{
+				Name:    "config",
+				Aliases: []string{"c"},
+				Value:   "cluster.local.yaml",
+				Usage:   "Cluster config yaml",
+			},
+		},
+		Subcommands: []*cli.Command{
+			&cli.Command{
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:    "name",
+						Aliases: []string{"n"},
+						Value:   "test",
+						Usage:   "Cluster name",
+					},
+					&cli.StringFlag{
+						Name:    "config",
+						Aliases: []string{"c"},
+						Value:   "cluster.local.yaml",
+						Usage:   "Cluster config yaml",
+					},
+				},
+				Name: "gitlab",
+				Usage: "Deploy Typhoon cluster to Gitlab",
+				Action: func(context *cli.Context) error {
+					clusterName := context.String("name")
+					configClusterName := context.String("config")
+					cluster := Cluster{
+						Config: configClusterName,
+						Name: clusterName,
+					}
+
+					gitLabServer := gitlab.Server{
+						Cluster: &cluster,
+					}
+
+					gitLabServer.Deploy()
+
+					return nil
+				},
+			},
+		},
+		Name: "deploy",
+		Usage: "Typhoon deploy the cluster into env",
+	},
+}
 
 
 
