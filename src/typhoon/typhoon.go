@@ -161,6 +161,16 @@ var ClusterCommands = []*cli.Command{
 		},
 	},
 	&cli.Command{
+		Flags: []cli.Flag{},
+		Name: "show",
+		Usage: "Show all Typhoon clusters",
+		Action: func(context *cli.Context) error {
+			cluster := Cluster{}
+			cluster.Show()
+			return nil
+		},
+	},
+	&cli.Command{
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:    "name",

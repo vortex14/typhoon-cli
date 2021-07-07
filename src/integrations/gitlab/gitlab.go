@@ -6,9 +6,11 @@ import (
 	"github.com/fatih/color"
 	"github.com/hashicorp/go-retryablehttp"
 	"github.com/mitchellh/mapstructure"
+	"github.com/olekukonko/tablewriter"
 	"github.com/xanzy/go-gitlab"
 	"net/url"
 	"os"
+	"strconv"
 	"strings"
 	"typhoon-cli/src/interfaces"
 )
@@ -137,11 +139,23 @@ func (s *Server) HistoryPipelines()  {
 	//s.GetPipelineHistory(gitlabClient, project.GitlabId)
 }
 
+func (s *Server) renderTableOutput(data [][]string)  {
+	table := tablewriter.NewWriter(os.Stdout)
+	table.SetHeader([]string{"№", "Projects", "Pipeline"})
+	table.AppendBulk(data)
+	table.Render()
+}
+
 func (s *Server) Deploy()  {
 
 	gitlabClient, _ := s.GetClient()
-
+	var tableData [][]string
 	clusterProjects := s.Cluster.GetProjects()
+
+	count := len(clusterProjects)
+	bar := pb.StartNew(count)
+	bar.SetMaxWidth(100)
+
 	countGitlabIds := 0
 	for _, project := range clusterProjects {
 		if project.GitlabId > 0 {
@@ -155,8 +169,15 @@ func (s *Server) Deploy()  {
 
 	variables := s.GetVariables()
 
-	for _, project := range clusterProjects {
-		color.Green("branch: %s , %s id: %d",project.Branch, project.Name, project.GitlabId)
+	for i, project := range clusterProjects {
+
+		description := fmt.Sprintf("Run %d pipeline for: %s", i+1, project.Name)
+
+		tmpl := `{{string . "title"}} - {{ bar . "<" "-" (cycle . "↖" "↗" "↘" "↙" ) "." ">"}}  {{percent .}} {{etime .}}`
+
+		bar.SetTemplateString(tmpl)
+
+		bar.Set("title", description)
 
 		pipeline, response, errorPipeline := gitlabClient.Pipelines.CreatePipeline(project.GitlabId, &gitlab.CreatePipelineOptions{
 			Ref:       &project.Branch,
@@ -170,8 +191,11 @@ func (s *Server) Deploy()  {
 			color.Red("%+v", response)
 			os.Exit(1)
 		}
-		color.Yellow("created pipeline: %s %s for %s", project.Name, pipeline.WebURL, project.Git)
 
-		//return
+		tableData = append(tableData, []string{strconv.Itoa(i+1),  project.Name,  pipeline.WebURL})
+		bar.Increment()
 	}
+	bar.Finish()
+
+	s.renderTableOutput(tableData)
 }

@@ -4,6 +4,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/gdamore/tcell/v2"
 	"github.com/go-git/go-git/v5"
+	"github.com/olekukonko/tablewriter"
 	"github.com/rivo/tview"
 	"github.com/xanzy/go-gitlab"
 	"gopkg.in/yaml.v2"
@@ -11,17 +12,22 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 	"typhoon-cli/src/environment"
 	"typhoon-cli/src/interfaces"
 	"typhoon-cli/src/utils"
 )
 
-
+type ClusterLabel struct {
+	Kind string
+	Version string
+}
 
 type Cluster struct {
 	Name string
 	Config string
 	Description string
+	Typhoon ClusterLabel
 	Meta map[string]interface{}
 	clusterPath string
 	clusterConfigPath string
@@ -166,7 +172,7 @@ func (c *Cluster) SaveConfig()  {
 
 	})
 
-	color.Yellow("Config %s updated. ", c.clusterConfigPath)
+	//color.Yellow("Config %s updated. ", c.clusterConfigPath)
 }
 
 func (c *Cluster) LoadConfig(settings *environment.Settings) *Cluster {
@@ -187,6 +193,7 @@ func (c *Cluster) LoadConfig(settings *environment.Settings) *Cluster {
 	c.Description = configClusterLoad.Description
 	c.Projects = configClusterLoad.Projects
 	c.Meta = configClusterLoad.Meta
+	c.Typhoon = configClusterLoad.Typhoon
 
 
 	return &configClusterLoad
@@ -214,7 +221,39 @@ func (c *Cluster) GetName() string  {
 	return c.Name
 }
 
+func (c *Cluster) renderTable(data [][]string)  {
+	table := tablewriter.NewWriter(os.Stdout)
+	table.SetHeader([]string{"Name", "Sign", "Rating"})
+	table.AppendBulk(data)
+	table.Render()
+}
+
+func (c *Cluster) Show()  {
+	data := [][]string{
+		[]string{"A", "The Good", "500"},
+		[]string{"B", "The Very very Bad Man", "288"},
+		[]string{"C", "The Ugly", "120"},
+		[]string{"D", "The Gopher", "800"},
+	}
+
+	c.renderTable(data)
+
+
+	time.Sleep(2 * time.Second)
+
+	data2 := [][]string{
+		[]string{"A", "!!", "500"},
+		[]string{"B", "The Very very Bad Man", "288"},
+		[]string{"C", "The Ugly", "120"},
+		[]string{"D", "The Gopher", "800"},
+	}
+	c.renderTable(data2)
+
+
+}
+
 func (c *Cluster) Deploy()  {
+	var tableData [][]string
 	settings := c.GetEnvSettings()
 	color.Green("Deploy ... to %s", settings.Gitlab)
 	gitlabClient, err := gitlab.NewClient(settings.GitlabToken, gitlab.WithBaseURL(settings.Gitlab))
@@ -230,18 +269,21 @@ func (c *Cluster) Deploy()  {
 	})
 
 
+
+
+
+
 	if err != nil {
 		color.Red("%s", err)
 		return
 	}
 
-	for _, project := range projects {
-		color.Green("%s: %s", project.Name, project.WebURL)
+	for i, project := range projects {
+		tableData = append(tableData, []string{string(i), project.Name, project.WebURL})
 	}
 
-	//settings, _, _ := gitc.Settings.GetSettings()
 
-	color.Green("%+v", len(projects))
+	c.renderTable(tableData)
 
 }
 
@@ -344,7 +386,7 @@ func (c *Cluster) Add()  {
 
 	grid.AddItem(inputField, 0, 0, 1, 2, 0, 0, true)
 
-	grid.AddItem(box, 0, 3,2,1,3,0, false)
+	grid.AddItem(box, 0, 2,2,2,3,0, false)
 
 	table.Select(1, 1).SetFixed(1, 3).SetDoneFunc(func(key tcell.Key) {
 		if key == tcell.KeyEnter {

@@ -45,15 +45,16 @@ type GitlabServer interface {
 
 type Cluster interface {
 	Add()
+	Show()
 	Create()
 	Deploy()
-	GetEnvSettings() *environment.Settings
-	GetProjects() [] *ClusterProject
-	GetConfigName() string
 	SaveConfig()
 	GetName() string
+	GetConfigName() string
 	GetClusterConfigPath() string
+	GetProjects() [] *ClusterProject
 	GetMeta() map[string] interface{}
+	GetEnvSettings() *environment.Settings
 }
 
 type ReplaceLabel struct {

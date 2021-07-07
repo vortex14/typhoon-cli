@@ -26,6 +26,7 @@ require (
 	github.com/moby/sys/mount v0.2.0 // indirect
 	github.com/morikuni/aec v1.0.0 // indirect
 	github.com/nsqio/go-nsq v1.0.8 // indirect
+	github.com/olekukonko/tablewriter v0.0.0-20170122224234-a0225b3f23b5
 	github.com/rivo/tview v0.0.0-20210521091241-1fd4a5b7aab3
 	github.com/schollz/progressbar/v3 v3.8.2
 	github.com/segmentio/nsq-go v1.2.4
