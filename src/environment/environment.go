@@ -15,11 +15,12 @@ import (
 type Settings struct {
 	Path string
 	Status string
-	Projects string
-	Clusters string
 	Gitlab string
+	Clusters string
+	Projects string
 	GitlabToken string
-
+	GrafanaToken string
+	GrafanaEndpoint string
 }
 
 type Environment struct {

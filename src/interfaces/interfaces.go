@@ -28,6 +28,7 @@ type ClusterProject struct {
 	Git string
 	Remote string
 	GitlabId int
+	Config string
 }
 
 type GitlabProject struct {

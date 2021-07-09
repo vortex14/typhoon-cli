@@ -526,11 +526,19 @@ func (p *Project) GetConfigFile() string {
 }
 
 func (p *Project) GetProjectPath() string {
-	pathProject, err := os.Getwd()
-	if err != nil {
-		log.Println(err)
-		os.Exit(1)
+	var pathProject string
+	if len(p.Path) > 0 {
+		pathProject = p.Path
+	} else {
+		ProjectCurrent, err := os.Getwd()
+		if err != nil {
+			log.Println(err)
+			os.Exit(1)
+		} else {
+			pathProject = ProjectCurrent
+		}
 	}
+
 	return pathProject
 }
 func (p *Project) GetLogLevel() string {

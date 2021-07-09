@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"typhoon-cli/src/integrations/gitlab"
+	"typhoon-cli/src/integrations/grafana"
 	"typhoon-cli/src/interfaces"
 	"typhoon-cli/src/utils"
 )
@@ -258,6 +259,111 @@ var ClusterCommands = []*cli.Command{
 		Name: "deploy",
 		Usage: "Typhoon deploy the cluster into env",
 	},
+	&cli.Command{
+		Subcommands: []*cli.Command{
+			&cli.Command{
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:    "name",
+						Aliases: []string{"n"},
+						Value:   "test",
+						Usage:   "Cluster name",
+					},
+					&cli.StringFlag{
+						Name:    "config",
+						Aliases: []string{"c"},
+						Value:   "cluster.local.yaml",
+						Usage:   "Cluster config yaml",
+					},
+				},
+				Name: "init",
+				Subcommands: []*cli.Command{
+					&cli.Command{
+						Flags: []cli.Flag{
+							&cli.StringFlag{
+								Name:    "name",
+								Aliases: []string{"n"},
+								Value:   "test",
+								Usage:   "Cluster name",
+							},
+							&cli.StringFlag{
+								Name:    "config",
+								Aliases: []string{"c"},
+								Value:   "cluster.local.yaml",
+								Usage:   "Cluster config yaml",
+							},
+						},
+						Name: "monitoring",
+						Usage: "create base template for monitoring of project",
+						Action: func(context *cli.Context) error {
+							clusterName := context.String("name")
+							configClusterName := context.String("config")
+							cluster := Cluster{
+								Config: configClusterName,
+								Name: clusterName,
+							}
+							projects := cluster.GetProjects()
+							envSettings := cluster.GetEnvSettings()
+							for _, projectCluster := range projects {
+								project := &Project{
+									ConfigFile: projectCluster.Config,
+									Path: envSettings.Projects + "/" + projectCluster.Name,
+								}
+								dashboard := grafana.DashBoard{
+									Project: project,
+								}
+								dashboard.CreateGrafanaMonitoringTemplates()
+							}
+							return nil
+						},
+					},
+					&cli.Command{
+						Flags: []cli.Flag{
+							&cli.StringFlag{
+								Name:    "name",
+								Aliases: []string{"n"},
+								Value:   "test",
+								Usage:   "Cluster name",
+							},
+							&cli.StringFlag{
+								Name:    "config",
+								Aliases: []string{"c"},
+								Value:   "cluster.local.yaml",
+								Usage:   "Cluster config yaml",
+							},
+						},
+						Name: "nsq-monitoring",
+						Usage: "create base template for nsq monitoring of project",
+						Action: func(context *cli.Context) error {
+							clusterName := context.String("name")
+							configClusterName := context.String("config")
+							cluster := Cluster{
+								Config: configClusterName,
+								Name: clusterName,
+							}
+							projects := cluster.GetProjects()
+							envSettings := cluster.GetEnvSettings()
+							for _, projectCluster := range projects {
+								project := &Project{
+									ConfigFile: projectCluster.Config,
+									Path: envSettings.Projects + "/" + projectCluster.Name,
+								}
+								dashboard := grafana.DashBoard{
+									Project: project,
+								}
+								dashboard.CreateGrafanaNSQMonitoringTemplates()
+							}
+							return nil
+						},
+					},
+				},
+				Usage: "Create grafana base template monitoring for each project of the cluster",
+			},
+		},
+		Name: "grafana",
+		Usage: "Integration of Typhoon cluster with Grafana",
+	},
+
 }
 
 
