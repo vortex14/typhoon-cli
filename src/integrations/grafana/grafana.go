@@ -19,6 +19,8 @@ import (
 )
 
 type DashBoard struct {
+	Id string
+	FolderId string
 	ConfigName string
 	Project interfaces.Project
 }
@@ -37,6 +39,7 @@ type ResponseImportDashboard struct {
 	Description      string `json:"description"`
 	Path             string `json:"path"`
 	Removed          bool   `json:"removed"`
+	Message			 string `json:"message"`
 }
 
 
@@ -89,26 +92,29 @@ type Config struct {
 }
 
 func (d *DashBoard) getClient(configProject *config.Project) (context.Context, *sdk.Client) {
-	c := sdk.NewClient(configProject.Config.Grafana.Endpoint, configProject.Config.Grafana.Token, sdk.DefaultHTTPClient)
+	settings := d.Project.GetEnvSettings()
+	c := sdk.NewClient(settings.GrafanaEndpoint, settings.GrafanaToken, sdk.DefaultHTTPClient)
 	ctx := context.Background()
 	return ctx, c
-
 }
 
 func (d *DashBoard) ImportGrafanaConfigLowLevel(jsonConfig []byte) *ResponseImportDashboard {
-
-
 	configProject := d.Project.LoadConfig()
+	settings := d.Project.GetEnvSettings()
 	ctx, c := d.getClient(configProject)
-	bearer := fmt.Sprintf("Bearer %s", configProject.Config.Grafana.Token)
-	url := configProject.Config.Grafana.Endpoint
+	bearer := fmt.Sprintf("Bearer %s", settings.GrafanaToken)
+	url := settings.GrafanaEndpoint
 	importUrl := fmt.Sprintf("%s/api/dashboards/import", url)
-	color.Yellow("URL: %s", importUrl)
-
 	var configData DashboardGrafana
 	_ = json.Unmarshal(jsonConfig, &configData)
+
 	folderID := d.getFolderId(ctx, c, configProject.Config.Grafana.FolderId)
+
 	configData.FolderId = folderID
+	if len(configProject.Config.Grafana.Name) == 0 {
+		color.Red("Not found title for Grafana Dashboard. %s", configProject.Config.ProjectName)
+		configProject.Config.Grafana.Name = fmt.Sprintf("Dashboard of %s", configProject.Config.ProjectName)
+	}
 	configData.Dashboard.Title = configProject.Config.Grafana.Name
 
 	requestBody, _ := json.Marshal(configData)
@@ -126,10 +132,13 @@ func (d *DashBoard) ImportGrafanaConfigLowLevel(jsonConfig []byte) *ResponseImpo
 	body, _ := ioutil.ReadAll(resp.Body)
 	var response ResponseImportDashboard
 	_ = json.Unmarshal(body, &response)
-
+	if !response.Imported {
+		color.Red("%+v", response)
+		os.Exit(1)
+	}
 
 	configProject.Config.Grafana.Id = strings.Split(strings.Split(response.ImportedURL, "d/")[1], "/")[0]
-	configProject.Config.Grafana.DashboardUrl = configProject.Config.Grafana.Endpoint + response.ImportedURL
+	configProject.Config.Grafana.DashboardUrl = settings.GrafanaEndpoint + response.ImportedURL
 	color.Yellow("%+v", response)
 	configDumpData, err := yaml.Marshal(&configProject.Config)
 	if err != nil {
@@ -176,7 +185,7 @@ func (d *DashBoard) getFolderId(ctx context.Context, c *sdk.Client,folderUID str
 }
 func (d *DashBoard) ImportGrafanaConfig()  {
 	_ = d.Project.LoadConfig()
-	rawBoard, _ := ioutil.ReadFile(d.ConfigName)
+	rawBoard, _ := ioutil.ReadFile(d.Project.GetProjectPath() + "/" +d.ConfigName)
 
 	_ = d.ImportGrafanaConfigLowLevel(rawBoard)
 }
@@ -186,17 +195,17 @@ func (d *DashBoard) RemoveGrafanaDashboard()  {
 	ctx, c := d.getClient(configProject)
 	_, err := c.DeleteDashboardByUID(ctx, configProject.Config.Grafana.Id)
 	if err != nil {
-		color.Red("%+v", err)
+		color.Red("%s", err.Error())
 		os.Exit(1)
 	}
 	color.Green("%s was be removed.", configProject.Config.Grafana.Name)
 	configProject.Config.Grafana.Id = ""
+	configProject.Config.Grafana.DashboardUrl = ""
 	configDumpData, err := yaml.Marshal(&configProject.Config)
 	if err != nil {
 		log.Fatalf("error: %v", err)
 		return
 	}
-	configProject.Config.Grafana.DashboardUrl = ""
 	u := &utils.Utils{}
 	err = u.DumpToFile(&interfaces.FileObject{
 		Name: d.ConfigName,
@@ -240,8 +249,6 @@ func (d *DashBoard) CreateBaseGrafanaConfig()  {
 	configProject.Config.Grafana = config.GrafanaConfig{
 		Name: "Typhoon project dashboard",
 		Id: "0000000",
-		Token: "eyJrIjoiTGZqYUY3NWFsVk92MUc5TFFnTXlkYTg3WFJPME4wQVIiLCJuIjoidHlwaG9vbiIsImlkIjoxfQ==",
-		Endpoint: "http://localhost:3000",
 	}
 
 	configDumpData, _ := yaml.Marshal(&configProject.Config)

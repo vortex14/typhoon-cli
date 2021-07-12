@@ -12,18 +12,15 @@ type Queue struct {
 }
 
 type Project struct {
-	ConfigFile string
-
 	Config Config
+	ConfigFile string
 }
 
 type GrafanaConfig struct {
-	Endpoint string `yaml:"endpoint"`
-	Token string `yaml:"token"`
-	Name string `yaml:"name"`
-	Id string `yaml:"id"`
-	FolderId string `yaml:"folder_id"`
-	DashboardUrl string `yaml:"dashboard_url"`
+	Id string `yaml:"id,omitempty"`
+	Name string `yaml:"name,omitempty"`
+	FolderId string `yaml:"folder_id,omitempty"`
+	DashboardUrl string `yaml:"dashboard_url,omitempty"`
 }
 
 type Discovery struct {

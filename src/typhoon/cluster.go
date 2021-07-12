@@ -3,7 +3,6 @@ package typhoon
 import (
 	"github.com/fatih/color"
 	"github.com/gdamore/tcell/v2"
-	"github.com/go-git/go-git/v5"
 	"github.com/olekukonko/tablewriter"
 	"github.com/rivo/tview"
 	"github.com/xanzy/go-gitlab"
@@ -18,17 +17,13 @@ import (
 	"typhoon-cli/src/utils"
 )
 
-type ClusterLabel struct {
-	Kind string
-	Version string
-}
 
 type Cluster struct {
 	Name string
 	Config string
 	Description string
-	Typhoon ClusterLabel
-	Meta map[string]interface{}
+	Typhoon interfaces.ClusterLabel
+	Meta interfaces.ClusterMeta
 	clusterPath string
 	clusterConfigPath string
 	Projects []*interfaces.ClusterProject
@@ -124,19 +119,19 @@ func (c *Cluster) renderClusterList(table *tview.Table, projects []string, setti
 			SetTextColor(tcell.ColorYellow).
 			SetAlign(tview.AlignCenter).SetMaxWidth(40))
 
-	for r := 1; r < len(projects); r++ {
+	for r := 0; r < len(projects); r++ {
 		for c := 0; c < 2; c++ {
 			color := tcell.ColorWhite
+			rowNumber := r + 1
 			var value string
-			projectName := projects[r-1]
+			projectName := projects[r]
 
 			if c == 0 {
-				value = strconv.Itoa(r)
+				value = strconv.Itoa(rowNumber)
 			} else if c == 1 {
 				value = projectName
 			}
-
-			table.SetCell(r, c, tview.NewTableCell(value).SetTextColor(color))
+			table.SetCell(rowNumber, c, tview.NewTableCell(value).SetTextColor(color))
 		}
 	}
 }
@@ -252,7 +247,7 @@ func (c *Cluster) Show()  {
 
 }
 
-func (c *Cluster) Deploy()  {
+func (c *Cluster) Deploy() {
 	var tableData [][]string
 	settings := c.GetEnvSettings()
 	color.Green("Deploy ... to %s", settings.Gitlab)
@@ -268,11 +263,6 @@ func (c *Cluster) Deploy()  {
 		},
 	})
 
-
-
-
-
-
 	if err != nil {
 		color.Red("%s", err)
 		return
@@ -282,13 +272,12 @@ func (c *Cluster) Deploy()  {
 		tableData = append(tableData, []string{string(i), project.Name, project.WebURL})
 	}
 
-
 	c.renderTable(tableData)
 
 }
 
-func (c *Cluster) GetMeta() map[string]interface{} {
-	return c.Meta
+func (c *Cluster) GetMeta() *interfaces.ClusterMeta {
+	return &c.Meta
 }
 
 func (c *Cluster) Add()  {
@@ -315,12 +304,15 @@ func (c *Cluster) Add()  {
 	app := tview.NewApplication()
 	table := tview.NewTable().SetBorders(true)
 
-
 	var selectedBranch string
 	var selectedProjectName string
+	var selectedRemote string
+	var selectedGitUrl string
+
 	c.clusterConfigPath = settings.Clusters + "/" + c.Name + "/" + c.Config
 
 	allProjects := c.getAllProjects(settings)
+
 	c.renderClusterList(table, allProjects, settings)
 
 	grid := tview.NewGrid().
@@ -365,13 +357,17 @@ func (c *Cluster) Add()  {
 
 	box.Box.SetBorder(true)
 	box.Box.SetTitle(c.Config)
-	list := tview.NewList().SetSelectedFunc(func(i int, remote string, git string, r rune) {
+
+	configsList := tview.NewList().SetSelectedFunc(func(i int, selectedConfig string, additional string, r rune) {
 		c.Projects = append(c.Projects, &interfaces.ClusterProject{
-			Remote: remote,
-			Git: git,
-			Branch: selectedBranch,
-			//Path: projectPath + "/" + cell.Text,
 			Name: selectedProjectName,
+			Config: selectedConfig,
+			Labels: interfaces.ClusterProjectLabels{
+				Git: interfaces.GitLabel{
+					Url:    selectedGitUrl,
+					Remote: selectedRemote,
+					Branch: selectedBranch,
+				}},
 		})
 		data, _ := yaml.Marshal(c)
 		c.SaveConfig()
@@ -380,9 +376,24 @@ func (c *Cluster) Add()  {
 		app.SetFocus(table)
 	})
 
-	pages.AddPage("modal", list, true, false)
+	RemoteList := tview.NewList().SetSelectedFunc(func(i int, remote string, git string, r rune) {
+		selectedRemote = remote
+		selectedGitUrl = git
+		if configsList.GetItemCount() == 0 {
+			pages.SwitchToPage("remotes")
+		} else {
+			pages.SwitchToPage("configs")
+			app.SetFocus(configsList)
+		}
+	})
 
-	list.SetRect(100,100,100,200)
+
+
+	pages.AddPage("remotes", RemoteList, true, false)
+
+	pages.AddPage("configs", configsList, true, false)
+
+	RemoteList.SetRect(100,100,100,200)
 
 	grid.AddItem(inputField, 0, 0, 1, 2, 0, 0, true)
 
@@ -399,30 +410,43 @@ func (c *Cluster) Add()  {
 		}
 	}).SetSelectedFunc(func(row int, column int) {
 		cell := table.GetCell(row, column)
-		projectPath := settings.Projects + "/" + cell.Text
-		if cell.Color == tcell.ColorRed || c.isExistProject(cell.Text) {
+		projectName := cell.Text
+		projectPath := settings.Projects + "/" + projectName
+		if cell.Color == tcell.ColorRed || c.isExistProject(projectName) {
 			cell.SetTextColor(tcell.ColorWhite)
 			
-			c.removeProject(cell.Text)
+			c.removeProject(projectName)
 			c.SaveConfig()
 			data, _ := yaml.Marshal(c)
 			box.SetText(string(data))
 			
 		} else {
-			repo, err := git.PlainOpen(projectPath)
+
+			project := Project{
+				Name: projectName,
+				Path: projectPath,
+			}
+
+			remotes, err := project.GetRemotes()
+			configs := project.GetConfigs()
+
 			if err != nil {
 				cell.BackgroundColor = tcell.ColorSkyblue
 				return
 			}
-			remotes,_ := repo.Remotes()
-			list.Clear()
+
+			RemoteList.Clear()
 
 			for _, remote := range remotes {
-				list.AddItem(remote.Config().Name, remote.Config().URLs[0] ,'*' , nil)
+				RemoteList.AddItem(remote.Config().Name, remote.Config().URLs[0] ,'*' , nil)
 			}
 
- 			repoData,errH := repo.Head()
- 			projectBranch := repoData.Name().Short()
+			configsList.Clear()
+			for _, config := range configs {
+				configsList.AddItem(config, "" ,'*' , nil)
+			}
+
+ 			errH, projectBranch := project.GetBranch()
  			if errH != nil {
  				cell.BackgroundColor = tcell.ColorSkyblue
 				return
@@ -433,7 +457,7 @@ func (c *Cluster) Add()  {
 
 			cell.SetTextColor(tcell.ColorRed)
 
-			pages.SwitchToPage("modal")
+			pages.SwitchToPage("remotes")
 		}
 	})
 

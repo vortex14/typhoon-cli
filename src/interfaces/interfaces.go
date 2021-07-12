@@ -1,6 +1,7 @@
 package interfaces
 
 import (
+	"github.com/xanzy/go-gitlab"
 	"typhoon-cli/src/builders"
 	"typhoon-cli/src/environment"
 	"typhoon-cli/src/migrates"
@@ -13,6 +14,50 @@ type GoTemplate struct {
 	Data interface{}
 }
 
+
+type ClusterLabel struct {
+	Kind string
+	Version string
+}
+
+type ClusterGitlab struct {
+	Endpoint string `yaml:"endpoint,omitempty"`
+	Variables []*gitlab.PipelineVariable `yaml:"variables,omitempty"`
+}
+
+type ClusterGrafana struct {
+	Endpoint string `yaml:"endpoint,omitempty"`
+	FolderId string `yaml:"folder_id,omitempty"`
+}
+
+type ClusterDocker struct {
+
+}
+
+type ClusterMeta struct {
+	Gitlab ClusterGitlab `yaml:"gitlab,omitempty"`
+	Grafana ClusterGrafana `yaml:"grafana,omitempty"`
+	Docker ClusterDocker `yaml:"docker,omitempty"`
+}
+
+type GitlabLabel struct {
+	Id int `yaml:"id,omitempty"`
+}
+
+type GitlabClusterLabel struct {
+	Url int `yaml:"url,omitempty"`
+}
+
+type GitLabel struct {
+	Url string `yaml:"url,omitempty"`
+	Remote string `yaml:"remote,omitempty"`
+	Branch string `yaml:"branch,omitempty"`
+}
+
+type DockerLabel struct {
+	
+}
+
 type FileObject struct {
 	Type string
 	Path string
@@ -21,20 +66,24 @@ type FileObject struct {
 	FileSystem
 }
 
+type ClusterProjectLabels struct {
+	Git GitLabel	   `yaml:"git,omitempty"`
+	Gitlab GitlabLabel `yaml:"gitlab,omitempty"`
+	Docker DockerLabel `yaml:"docker,omitempty"`
+	Grafana []*config.GrafanaConfig `yaml:"grafana,omitempty"`
+}
+
 type ClusterProject struct {
 	Name string
 	path string
-	Branch string
-	Git string
-	Remote string
-	GitlabId int
 	Config string
+	Labels ClusterProjectLabels
 }
 
 type GitlabProject struct {
-	Name string
-	Git string
-	Id int
+	Name string `yaml:"name,omitempty"`
+	Git string `yaml:"git,omitempty"`
+	Id int	`yaml:"id,omitempty"`
 }
 
 type GitlabServer interface {
@@ -54,8 +103,46 @@ type Cluster interface {
 	GetConfigName() string
 	GetClusterConfigPath() string
 	GetProjects() [] *ClusterProject
-	GetMeta() map[string] interface{}
+	GetMeta() *ClusterMeta
 	GetEnvSettings() *environment.Settings
+}
+
+
+type Server interface {
+	CheckNodeHealth() bool
+	Restart() error
+	GetSSHClient()
+	DeployCluster(cluster *Cluster) error
+	DeployProject(project *Project) error
+	RunCommand()
+	GetRunningClusters() []*Cluster
+	CreateSystemdService()
+	StopSystemdService()
+	RunAnsiblePlaybook()
+	CreateSSHAccessUserRecord()
+	PrepareTyphoonNode()
+	UpdateTyphoonNode()
+	StopAllProjects()
+	StopAllClusters()
+	CheckFreeDiskSpace()
+}
+
+
+type K8sCluster interface {
+	PortForward()
+}
+
+type CloudManagement interface {
+	Deploy()
+}
+
+type Group interface {
+	CheckNodesHealth() bool
+	GetServers() []*Server
+	GetActiveServers() []*Server
+	RestartServers([]*Server)
+	StopServers([]*Server)
+
 }
 
 type ReplaceLabel struct {
@@ -140,6 +227,7 @@ type Project interface {
 	GetDockerImageName() string
 	GetComponentPort(name string) int
 	LoadConfig() *config.Project
+	GetLabels() *ClusterProjectLabels
 	GetBuilderOptions() *BuilderOptions
 	GetEnvSettings() *environment.Settings
 	goPromise

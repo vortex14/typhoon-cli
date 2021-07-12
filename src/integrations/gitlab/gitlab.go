@@ -5,7 +5,6 @@ import (
 	"github.com/cheggaaa/pb/v3"
 	"github.com/fatih/color"
 	"github.com/hashicorp/go-retryablehttp"
-	"github.com/mitchellh/mapstructure"
 	"github.com/olekukonko/tablewriter"
 	"github.com/xanzy/go-gitlab"
 	"net/url"
@@ -67,21 +66,22 @@ func (s *Server) GetAllProjectsList() []*interfaces.GitlabProject {
 
 
 func (s *Server) SyncGitlabProjects()  {
-
 	scrapedAllProjects := s.GetAllProjectsList()
 	clusterProjects := s.Cluster.GetProjects()
-
+	meta := s.Cluster.GetMeta()
+	settings := s.Cluster.GetEnvSettings()
 	foundCount := 0
 
 	for _, project := range clusterProjects {
 		for _, gitLabProject := range scrapedAllProjects {
-			if gitLabProject.Git == project.Git {
+			if gitLabProject.Git == project.Labels.Git.Url {
 				foundCount += 1
-				project.GitlabId = gitLabProject.Id
+				project.Labels.Gitlab.Id = gitLabProject.Id
 			}
 		}
 
 	}
+	meta.Gitlab.Endpoint = settings.Gitlab
 	s.Cluster.SaveConfig()
 	color.Green("A total of %d projects were found on gitlab. Found %d out of %d projects for this cluster", len(scrapedAllProjects), foundCount, len(clusterProjects))
 }
@@ -112,27 +112,11 @@ func pathEscape(s string) string {
 func (s *Server) GetVariables() []*gitlab.PipelineVariable {
 	meta := s.Cluster.GetMeta()
 
-	var variables []*gitlab.PipelineVariable
-
-	for m := range meta {
-		row := meta[m]
-
-		if m == "variables" {
-
-			err := mapstructure.Decode(row, &variables)
-			if err != nil {
-				color.Red("%s", err)
-				return nil
-			}
-
-		}
-	}
-
-	for _, variable := range variables {
+	for _, variable := range meta.Gitlab.Variables {
 		variable.VariableType = "file"
 	}
 
-	return variables
+	return meta.Gitlab.Variables
 }
 
 func (s *Server) HistoryPipelines()  {
@@ -158,7 +142,7 @@ func (s *Server) Deploy()  {
 
 	countGitlabIds := 0
 	for _, project := range clusterProjects {
-		if project.GitlabId > 0 {
+		if project.Labels.Gitlab.Id > 0 {
 			countGitlabIds += 1
 		}
 	}
@@ -179,8 +163,8 @@ func (s *Server) Deploy()  {
 
 		bar.Set("title", description)
 
-		pipeline, response, errorPipeline := gitlabClient.Pipelines.CreatePipeline(project.GitlabId, &gitlab.CreatePipelineOptions{
-			Ref:       &project.Branch,
+		pipeline, response, errorPipeline := gitlabClient.Pipelines.CreatePipeline(project.Labels.Gitlab.Id, &gitlab.CreatePipelineOptions{
+			Ref:       &project.Labels.Git.Branch,
 			Variables: variables,
 		}, func(request *retryablehttp.Request) error {
 			return nil

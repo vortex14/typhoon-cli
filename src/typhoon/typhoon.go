@@ -275,6 +275,55 @@ var ClusterCommands = []*cli.Command{
 						Value:   "cluster.local.yaml",
 						Usage:   "Cluster config yaml",
 					},
+					&cli.StringFlag{
+						Name:    "grafana-dashboard",
+						Aliases: []string{"g"},
+						Value: "monitoring-grafana.json",
+						Usage:   "Load configuration from `FILE`",
+					},
+
+				},
+				Name: "import",
+				Usage: "import cluster of projects template to grafana api",
+				Action: func(context *cli.Context) error {
+					clusterName := context.String("name")
+					configClusterName := context.String("config")
+					cluster := Cluster{
+						Config: configClusterName,
+						Name: clusterName,
+					}
+					projects := cluster.GetProjects()
+					envSettings := cluster.GetEnvSettings()
+					configDashboard := context.String("grafana-dashboard")
+
+					for _, projectCluster := range projects {
+						project := &Project{
+							ConfigFile: projectCluster.Config,
+							Path: envSettings.Projects + "/" + projectCluster.Name,
+						}
+						dashboard := grafana.DashBoard{
+							ConfigName: configDashboard,
+							Project: project,
+						}
+						dashboard.ImportGrafanaConfig()
+					}
+					return nil
+				},
+			},
+			&cli.Command{
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:    "name",
+						Aliases: []string{"n"},
+						Value:   "test",
+						Usage:   "Cluster name",
+					},
+					&cli.StringFlag{
+						Name:    "config",
+						Aliases: []string{"c"},
+						Value:   "cluster.local.yaml",
+						Usage:   "Cluster config yaml",
+					},
 				},
 				Name: "init",
 				Subcommands: []*cli.Command{
@@ -358,6 +407,55 @@ var ClusterCommands = []*cli.Command{
 					},
 				},
 				Usage: "Create grafana base template monitoring for each project of the cluster",
+			},
+			&cli.Command{
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:    "name",
+						Aliases: []string{"n"},
+						Value:   "test",
+						Usage:   "Cluster name",
+					},
+					&cli.StringFlag{
+						Name:    "config",
+						Aliases: []string{"c"},
+						Value:   "cluster.local.yaml",
+						Usage:   "Cluster config yaml",
+					},
+					&cli.StringFlag{
+						Name:    "grafana-dashboard",
+						Aliases: []string{"g"},
+						Value: "monitoring-grafana.json",
+						Usage:   "Load configuration from `FILE`",
+					},
+
+				},
+				Name: "remove",
+				Usage: "Remove project dashboard from grafana api",
+				Action: func(context *cli.Context) error {
+					clusterName := context.String("name")
+					configClusterName := context.String("config")
+					cluster := Cluster{
+						Config: configClusterName,
+						Name: clusterName,
+					}
+					projects := cluster.GetProjects()
+					envSettings := cluster.GetEnvSettings()
+					configDashboard := context.String("grafana-dashboard")
+
+					for _, projectCluster := range projects {
+						project := &Project{
+							ConfigFile: projectCluster.Config,
+							Path: envSettings.Projects + "/" + projectCluster.Name,
+						}
+						dashboard := grafana.DashBoard{
+							ConfigName: configDashboard,
+							Project: project,
+						}
+						dashboard.RemoveGrafanaDashboard()
+					}
+					return nil
+				},
 			},
 		},
 		Name: "grafana",

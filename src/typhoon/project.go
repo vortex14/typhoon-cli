@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/fatih/color"
 	"github.com/fsnotify/fsnotify"
+	"github.com/go-git/go-git/v5"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"log"
@@ -14,6 +15,7 @@ import (
 	"os/exec"
 	"os/signal"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"sync"
 	"time"
@@ -28,40 +30,108 @@ import (
 )
 
 type components = struct {
-	ActiveComponents 	map[string] *Component
 	PathProject 		string
 	TyphoonPath			string
 	ConfigFile			string
+	ActiveComponents 	map[string] *Component
 }
 
 type Task struct {
+	ticker *time.Ticker
 	closed chan struct{}
 	wg     sync.WaitGroup
-	ticker *time.Ticker
 }
 
 
 
 type Project struct {
+	task              *Task
+	AutoReload        bool
 	Path              string
 	Name              string
 	Tag 			  string
 	LogLevel		  string
 	DockerImageName   string
+	ConfigFile        string
+	Version           string
 	SelectedComponent []string
 	components        components
-	ConfigFile        string
-	AutoReload        bool
-	Version           string
-	BuilderOptions    *interfaces.BuilderOptions
-	task              *Task
-	EnvSettings       *environment.Settings
+	repo 			  *git.Repository
+	Config 			  *config.Project
 	Watcher           fsnotify.Watcher
-	Config *config.Project
+	EnvSettings       *environment.Settings
+	BuilderOptions    *interfaces.BuilderOptions
+	Labels 			  *interfaces.ClusterProjectLabels
 }
 
 func (p *Project) GetDockerImageName() string {
 	return p.DockerImageName
+}
+
+func (p *Project) GetLabels() *interfaces.ClusterProjectLabels {
+	return p.Labels
+}
+
+func (p *Project) GetRepo() (error, *git.Repository) {
+	if p.repo == nil {
+		repo, err := git.PlainOpen(p.GetProjectPath())
+		if err != nil {
+			return err, nil
+		}
+		p.repo = repo
+	}
+	return nil, p.repo
+}
+
+func (p *Project) GetConfigs() []string {
+	var configs []string
+	re := regexp.MustCompile(`config.*.yaml`)
+	files, errR := ioutil.ReadDir(p.GetProjectPath())
+	if errR != nil {
+		color.Red("%s,", errR.Error())
+		return nil
+	}
+	for _, f := range files {
+		found := string(re.Find([]byte(f.Name())))
+		if len(found) == 0 {
+			continue
+		}
+		configs = append(configs, found)
+	}
+	return configs
+}
+
+func (p *Project) GetBranch() (error, string) {
+	var branchName string
+	var err error
+	errRepo, repo := p.GetRepo()
+	repoData, errHead := repo.Head()
+	if errHead != nil{
+		err = errHead
+	}
+	if errRepo != nil {
+		err = errRepo
+	}
+
+	if repoData != nil {
+		branchName = repoData.Name().Short()
+	}
+
+	return err, branchName
+}
+
+func (p *Project) GetRemotes() ([]*git.Remote, error) {
+	var err error
+	errRepo, repo := p.GetRepo()
+	remotes, errRemote := repo.Remotes()
+	if errRepo != nil {
+		err = errRepo
+	}
+	if errRemote != nil {
+		err = errRemote
+	}
+
+	return remotes, err
 }
 
 func watchDirTeet(path string, fi os.FileInfo, err error) error {
@@ -569,6 +639,11 @@ func (p *Project) LoadConfig() (configProject *config.Project) {
 	config.ConfigFile = configPath
 
 	p.Config = &config
+
+	env := &environment.Environment{}
+	_, settings := env.GetSettings()
+
+	p.EnvSettings = settings
 	return p.Config
 }
 
