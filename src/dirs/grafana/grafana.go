@@ -29,6 +29,12 @@ var Commands = []*cli.Command{
 					Value: "monitoring-grafana.json",
 					Usage:   "Load configuration from `FILE`",
 				},
+				&cli.StringFlag{
+					Name:    "folder-id",
+					Aliases: []string{"id"},
+					Value: "0",
+					Usage:   "Path Grafana FolderId",
+				},
 
 			},
 			Name: "import",
@@ -38,6 +44,7 @@ var Commands = []*cli.Command{
 				config := context.String("config")
 				configDashboard := context.String("grafana-dashboard")
 				pathProject, _ := os.Getwd()
+				folderId := context.String("folder-id")
 				project := &typhoon.Project{
 					Version: version,
 					ConfigFile: config,
@@ -48,7 +55,7 @@ var Commands = []*cli.Command{
 					ConfigName: configDashboard,
 					Project: project,
 				}
-				dashboard.ImportGrafanaConfig()
+				dashboard.ImportGrafanaConfig(folderId)
 
 				return nil
 			},

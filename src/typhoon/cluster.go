@@ -159,7 +159,7 @@ func (c *Cluster) isExistProject(projectName string) bool {
 func (c *Cluster) SaveConfig()  {
 	settings := c.GetEnvSettings()
 	c.clusterConfigPath = settings.Clusters + "/" + c.Name + "/" + c.Config
-	data, _ := yaml.Marshal(c)
+	data, _ := yaml.Marshal(&c)
 	u := utils.Utils{}
 	_ = u.DumpToFile(&interfaces.FileObject{
 		Data: string(data),
@@ -189,7 +189,9 @@ func (c *Cluster) LoadConfig(settings *environment.Settings) *Cluster {
 	c.Projects = configClusterLoad.Projects
 	c.Meta = configClusterLoad.Meta
 	c.Typhoon = configClusterLoad.Typhoon
-
+	if len(c.Typhoon.Kind) == 0 {
+		c.Typhoon.Kind = "Cluster"
+	}
 
 	return &configClusterLoad
 

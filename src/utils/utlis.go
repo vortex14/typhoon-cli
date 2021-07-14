@@ -6,6 +6,7 @@ import (
 	"github.com/go-logfmt/logfmt"
 	"github.com/gobuffalo/packd"
 	"github.com/gobuffalo/packr"
+	"github.com/olekukonko/tablewriter"
 	"io/ioutil"
 	"log"
 	"os"
@@ -214,4 +215,11 @@ func (u *Utils) RemoveFiles(paths []string)  {
 	for _, path := range paths {
 		_ = os.RemoveAll(path)
 	}
+}
+
+func (u *Utils) RenderTableOutput(header []string, data [][]string) {
+	table := tablewriter.NewWriter(os.Stdout)
+	table.SetHeader(header)
+	table.AppendBulk(data)
+	table.Render()
 }

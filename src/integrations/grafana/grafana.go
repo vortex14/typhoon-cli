@@ -23,6 +23,7 @@ type DashBoard struct {
 	FolderId string
 	ConfigName string
 	Project interfaces.Project
+	Cluster interfaces.Cluster
 }
 
 type ResponseImportDashboard struct {
@@ -98,7 +99,15 @@ func (d *DashBoard) getClient(configProject *config.Project) (context.Context, *
 	return ctx, c
 }
 
-func (d *DashBoard) ImportGrafanaConfigLowLevel(jsonConfig []byte) *ResponseImportDashboard {
+func (d *DashBoard) GetGrafanaDashboard() *DashboardGrafana {
+	var configData DashboardGrafana
+	_ = d.Project.LoadConfig()
+	rawBoard, _ := ioutil.ReadFile(d.Project.GetProjectPath() + "/" +d.ConfigName)
+	_ = json.Unmarshal(rawBoard, &configData)
+	return &configData
+}
+
+func (d *DashBoard) ImportGrafanaConfigLowLevel(jsonConfig []byte, folderId string) *config.GrafanaConfig {
 	configProject := d.Project.LoadConfig()
 	settings := d.Project.GetEnvSettings()
 	ctx, c := d.getClient(configProject)
@@ -108,14 +117,11 @@ func (d *DashBoard) ImportGrafanaConfigLowLevel(jsonConfig []byte) *ResponseImpo
 	var configData DashboardGrafana
 	_ = json.Unmarshal(jsonConfig, &configData)
 
-	folderID := d.getFolderId(ctx, c, configProject.Config.Grafana.FolderId)
+	folderID := d.getFolderId(ctx, c, folderId)
 
 	configData.FolderId = folderID
-	if len(configProject.Config.Grafana.Name) == 0 {
-		color.Red("Not found title for Grafana Dashboard. %s", configProject.Config.ProjectName)
-		configProject.Config.Grafana.Name = fmt.Sprintf("Dashboard of %s", configProject.Config.ProjectName)
-	}
-	configData.Dashboard.Title = configProject.Config.Grafana.Name
+	dashboardName := fmt.Sprintf("Dashboard of %s", configData.Dashboard.Title)
+	configData.Dashboard.Title = dashboardName
 
 	requestBody, _ := json.Marshal(configData)
 	req, err := http.NewRequest("POST", importUrl, bytes.NewBuffer(requestBody))
@@ -137,9 +143,16 @@ func (d *DashBoard) ImportGrafanaConfigLowLevel(jsonConfig []byte) *ResponseImpo
 		os.Exit(1)
 	}
 
-	configProject.Config.Grafana.Id = strings.Split(strings.Split(response.ImportedURL, "d/")[1], "/")[0]
-	configProject.Config.Grafana.DashboardUrl = settings.GrafanaEndpoint + response.ImportedURL
-	color.Yellow("%+v", response)
+	configDashboard := config.GrafanaConfig{
+		Id:           strings.Split(strings.Split(response.ImportedURL, "d/")[1], "/")[0],
+		Name:         dashboardName,
+		FolderId:     folderId,
+		DashboardUrl: settings.GrafanaEndpoint + response.ImportedURL,
+	}
+
+	configProject.Config.Grafana = append(configProject.Config.Grafana, configDashboard)
+
+	//color.Yellow("%+v", response)
 	configDumpData, err := yaml.Marshal(&configProject.Config)
 	if err != nil {
 		log.Fatalf("error: %v", err)
@@ -147,7 +160,7 @@ func (d *DashBoard) ImportGrafanaConfigLowLevel(jsonConfig []byte) *ResponseImpo
 	}
 	u := &utils.Utils{}
 	err = u.DumpToFile(&interfaces.FileObject{
-		Name: d.ConfigName,
+		Name: configProject.ConfigFile,
 		Data: string(configDumpData),
 		Path: configProject.ConfigFile,
 	})
@@ -156,16 +169,16 @@ func (d *DashBoard) ImportGrafanaConfigLowLevel(jsonConfig []byte) *ResponseImpo
 		return nil
 	}
 	if response.Imported {
-		color.Green("%s created !", configProject.Config.Grafana.Name)
+		color.Green("%s created !", dashboardName)
 	}
 
-	return &response
+	return &configDashboard
 }
 
 
 func (d *DashBoard) getFolderId(ctx context.Context, c *sdk.Client,folderUID string) int {
 	var FolderId int
-	if len(folderUID) > 0 {
+	if len(folderUID) > 0 && folderUID != "0" {
 		data, _ := c.GetFolderByUID(ctx, folderUID)
 		if data.ID == 0 {
 			color.Red("Folder not found. UUID %s", folderUID)
@@ -183,28 +196,48 @@ func (d *DashBoard) getFolderId(ctx context.Context, c *sdk.Client,folderUID str
 
 
 }
-func (d *DashBoard) ImportGrafanaConfig()  {
+func (d *DashBoard) ImportGrafanaConfig(folderId string) *config.GrafanaConfig {
 	_ = d.Project.LoadConfig()
 	rawBoard, _ := ioutil.ReadFile(d.Project.GetProjectPath() + "/" +d.ConfigName)
 
-	_ = d.ImportGrafanaConfigLowLevel(rawBoard)
+	configDashboard := d.ImportGrafanaConfigLowLevel(rawBoard, folderId)
+
+	return configDashboard
 }
 
-func (d *DashBoard) RemoveGrafanaDashboard()  {
+
+func (d *DashBoard) RemoveGrafanaDashboard() (error, *config.GrafanaConfig) {
 	configProject := d.Project.LoadConfig()
+	grafanaDashboard := d.GetGrafanaDashboard()
+	var removedDashboard config.GrafanaConfig
 	ctx, c := d.getClient(configProject)
-	_, err := c.DeleteDashboardByUID(ctx, configProject.Config.Grafana.Id)
+	var dashboardId string
+	dashboardName := "Dashboard of " + grafanaDashboard.Dashboard.Title
+	for i, dashboard := range configProject.Config.Grafana {
+		if dashboard.Name == dashboardName {
+			configProject.Config.Grafana = append(configProject.Config.Grafana[:i], configProject.Config.Grafana[i+1:]...)
+			dashboardId = dashboard.Id
+			removedDashboard = config.GrafanaConfig{
+				Name: dashboardName,
+				Id: dashboardId,
+			}
+			break
+		}
+	}
+
+
+	_, err := c.DeleteDashboardByUID(ctx, dashboardId)
 	if err != nil {
 		color.Red("%s", err.Error())
 		os.Exit(1)
 	}
-	color.Green("%s was be removed.", configProject.Config.Grafana.Name)
-	configProject.Config.Grafana.Id = ""
-	configProject.Config.Grafana.DashboardUrl = ""
+
+	color.Green("%s was be removed.", dashboardName)
+
 	configDumpData, err := yaml.Marshal(&configProject.Config)
 	if err != nil {
 		log.Fatalf("error: %v", err)
-		return
+		return err, nil
 	}
 	u := &utils.Utils{}
 	err = u.DumpToFile(&interfaces.FileObject{
@@ -214,8 +247,10 @@ func (d *DashBoard) RemoveGrafanaDashboard()  {
 	})
 	if err != nil {
 		log.Fatalf("error: %v", err)
-		return
+		return err, nil
 	}
+
+	return nil, &removedDashboard
 	//_, data := c.GetAllFolders(ctx)
 	//color.Red("%+v", data)
 }
@@ -246,10 +281,10 @@ func (d *DashBoard) CreateGrafanaMonitoringTemplates()  {
 func (d *DashBoard) CreateBaseGrafanaConfig()  {
 	color.Yellow("Creating base grafana properties into typhoon project config.yaml")
 	configProject := d.Project.LoadConfig()
-	configProject.Config.Grafana = config.GrafanaConfig{
+	configProject.Config.Grafana = append(configProject.Config.Grafana, config.GrafanaConfig{
 		Name: "Typhoon project dashboard",
 		Id: "0000000",
-	}
+	})
 
 	configDumpData, _ := yaml.Marshal(&configProject.Config)
 
@@ -281,13 +316,8 @@ func (d *DashBoard) CreateGrafanaNSQMonitoringTemplates()  {
 	err := u.CopyFileAndReplaceLabel(exportPath, &interfaces.ReplaceLabel{Label: "{{.projectName}}", Value: d.Project.GetName()}, fileObject)
 
 	if err != nil {
-
 		color.Red("Error %s", err)
 		os.Exit(0)
-
 	}
-
 	color.Green("Generated Grafana NSQ monitoring template for %s", d.Project.GetName())
-	color.Yellow("%s", exportPath)
-	fmt.Printf("========================  ")
 }

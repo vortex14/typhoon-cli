@@ -7,6 +7,7 @@ import (
 	"github.com/urfave/cli/v2"
 	"os"
 	"path/filepath"
+	"strconv"
 	"typhoon-cli/src/integrations/gitlab"
 	"typhoon-cli/src/integrations/grafana"
 	"typhoon-cli/src/interfaces"
@@ -292,11 +293,15 @@ var ClusterCommands = []*cli.Command{
 						Config: configClusterName,
 						Name: clusterName,
 					}
+
 					projects := cluster.GetProjects()
 					envSettings := cluster.GetEnvSettings()
+					clusterConfig := cluster.LoadConfig(envSettings)
 					configDashboard := context.String("grafana-dashboard")
-
-					for _, projectCluster := range projects {
+					folderId := clusterConfig.Meta.Grafana.FolderId
+					header := []string{"№", "name", "url"}
+					var data[][]string
+					for i, projectCluster := range projects {
 						project := &Project{
 							ConfigFile: projectCluster.Config,
 							Path: envSettings.Projects + "/" + projectCluster.Name,
@@ -305,8 +310,16 @@ var ClusterCommands = []*cli.Command{
 							ConfigName: configDashboard,
 							Project: project,
 						}
-						dashboard.ImportGrafanaConfig()
+						configImportedDashboard := dashboard.ImportGrafanaConfig(folderId)
+						projectCluster.Labels.Grafana = append(projectCluster.Labels.Grafana, configImportedDashboard)
+						data = append(data, []string{strconv.Itoa(i+1),  projectCluster.Name,  configImportedDashboard.DashboardUrl})
+
 					}
+					u := utils.Utils{}
+					u.RenderTableOutput(header, data)
+					cluster.Projects = projects
+
+					cluster.SaveConfig()
 					return nil
 				},
 			},
@@ -435,7 +448,7 @@ var ClusterCommands = []*cli.Command{
 				Action: func(context *cli.Context) error {
 					clusterName := context.String("name")
 					configClusterName := context.String("config")
-					cluster := Cluster{
+					cluster := &Cluster{
 						Config: configClusterName,
 						Name: clusterName,
 					}
@@ -451,9 +464,23 @@ var ClusterCommands = []*cli.Command{
 						dashboard := grafana.DashBoard{
 							ConfigName: configDashboard,
 							Project: project,
+							Cluster: cluster,
 						}
-						dashboard.RemoveGrafanaDashboard()
+						err, imported := dashboard.RemoveGrafanaDashboard()
+						if err != nil {
+							color.Red("%s", err.Error())
+							os.Exit(1)
+						}
+
+						for di, dashboardRecord := range projectCluster.Labels.Grafana {
+							if dashboardRecord.Id == imported.Id {
+								projectCluster.Labels.Grafana = append(projectCluster.Labels.Grafana[:di], projectCluster.Labels.Grafana[di+1:]...)
+							}
+						}
+						//color.Green("%+v", imported)
+
 					}
+					cluster.SaveConfig()
 					return nil
 				},
 			},

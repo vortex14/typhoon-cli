@@ -64,7 +64,7 @@ type Config struct {
 	NsqdNodes               []struct {
 		IP string `yaml:"ip"`
 	} `yaml:"nsqd_nodes"`
-	Grafana GrafanaConfig
+	Grafana [] GrafanaConfig
 	WaitingTasks        int     `yaml:"waiting_tasks"`
 	PauseTime           int     `yaml:"pause_time"`
 	MaxProcessorRetries int     `yaml:"max_processor_retries"`
