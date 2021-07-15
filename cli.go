@@ -11,6 +11,7 @@ import (
 	"typhoon-cli/src/dirs/gitlab"
 	"typhoon-cli/src/dirs/grafana"
 	"typhoon-cli/src/dirs/helm"
+	"typhoon-cli/src/dirs/ssh"
 	"typhoon-cli/src/dirs/tests"
 	"typhoon-cli/src/environment"
 	"typhoon-cli/src/interfaces"
@@ -309,6 +310,11 @@ func main() {
 				Name: "tests",
 				Usage: "Typhoon tests",
 				Subcommands: tests.Commands,
+			},
+			{
+				Name: "ssh",
+				Usage: "SSH connection",
+				Subcommands: ssh.Commands,
 			},
 			{
 				Name: "import",

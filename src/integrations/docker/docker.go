@@ -3,6 +3,7 @@ package docker
 import (
 	"bufio"
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -13,14 +14,20 @@ import (
 	"github.com/fatih/color"
 	"io"
 	"os"
-	"strings"
+	"strconv"
 	"time"
 	"typhoon-cli/src/environment"
 	"typhoon-cli/src/interfaces"
 	"typhoon-cli/src/utils"
 )
 
+
+//echo -n 'LOGIN:PASSWORD' | base64
+
 type Docker struct {
+	isLatestTag bool
+	LatestTag string
+	env *environment.Settings
 	Project interfaces.Project
 }
 
@@ -37,6 +44,8 @@ type ErrorDetail struct {
 
 type Log struct {
 	Stream string `json:"stream"`
+	Status string `json:"status"`
+
 }
 
 func (d *Docker) print(rd io.Reader) error {
@@ -45,9 +54,12 @@ func (d *Docker) print(rd io.Reader) error {
 	scanner := bufio.NewScanner(rd)
 	for scanner.Scan() {
 		lastLine = scanner.Text()
-		var log Log
-		json.Unmarshal(scanner.Bytes(), &log)
-		fmt.Println(strings.ReplaceAll(log.Stream, "\n", ""))
+		color.Yellow("%s", lastLine)
+		//var log Log
+		//json.Unmarshal(scanner.Bytes(), &log)
+		//logLine := fmt.Sprintf("%s, %s", strings.ReplaceAll(log.Stream, "\n", ""), log.Status)
+		//color.Yellow(logLine)
+
 	}
 
 	errLine := &ErrorLine{}
@@ -63,14 +75,31 @@ func (d *Docker) print(rd io.Reader) error {
 	return nil
 }
 
+func (d *Docker) GetLastTagName() string {
+	currTime := time.Now()
+	tagName := fmt.Sprintf("%s:%d-%d-%d", d.env.DockerImages, currTime.Day(), int(currTime.Month()), currTime.Year())
+	return tagName
+}
+
+func (d *Docker) CreateNewTag(cli *client.Client)  {
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+	tagName := d.GetLastTagName()
+	errTag := cli.ImageTag(ctx, "typhoon-lite:latest", tagName)
+	if errTag != nil {
+		color.Red("%s", errTag.Error())
+	} else {
+		color.Green("created new image tag: %s", tagName)
+	}
+}
+
 func (d *Docker) build(workDir string, options *archive.TarOptions, opts types.ImageBuildOptions) error {
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
 		fmt.Println(err.Error())
 		return err
 	}
-
-
 
 	color.Green("PatH: %s", workDir)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*120)
@@ -81,20 +110,97 @@ func (d *Docker) build(workDir string, options *archive.TarOptions, opts types.I
 		return err
 	}
 
+	if err != nil {
+		color.Red("%s", err.Error())
+		return err
+	}
+
 	res, err := cli.ImageBuild(ctx, tar, opts)
 	if err != nil {
-		color.Red("Error!")
+		color.Red("%s", err.Error())
 		return err
 	}
 
 	defer res.Body.Close()
-	_ = d.print(res.Body)
+	exceptions := d.print(res.Body)
+
+	if exceptions != nil {
+		color.Red("%s", exceptions.Error())
+	}
+	d.CreateNewTag(cli)
 
 	return nil
 }
 
+func (d *Docker) initEnv() {
+	envSetting := environment.Environment{}
+	_, env := envSetting.GetSettings()
+	d.env = env
+}
+
+func (d *Docker) GetAuthConfig() types.AuthConfig {
+	var authConfig = types.AuthConfig{
+		Username: d.env.DockerLogin,
+		Password: d.env.DockerPassword,
+	}
+
+	return authConfig
+}
+
+func (d *Docker) PushImage()  {
+	d.initEnv()
+	color.Yellow("Typhoon docker push to %s...", d.env.DockerHub)
+	b, err := strconv.ParseBool(d.LatestTag)
+	if err != nil{
+
+		color.Red(err.Error())
+		os.Exit(1)
+	}
+	var lastTagName string
+
+	if b {
+		lastTagName = d.GetLastTagName()
+	} else {
+		lastTagName = "typhoon-lite:latest"
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*120)
+	defer cancel()
+
+	var authConfig = types.AuthConfig{
+		Username:      d.env.DockerLogin,
+		Password:      d.env.DockerPassword,
+		ServerAddress: d.env.DockerHub,
+	}
+	authConfigBytes, _ := json.Marshal(authConfig)
+	authConfigEncoded := base64.URLEncoding.EncodeToString(authConfigBytes)
+
+	opts := types.ImagePushOptions{RegistryAuth: authConfigEncoded}
+	dockerClient, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+	if err != nil {
+		fmt.Println(err.Error())
+		os.Exit(1)
+	}
+
+	rd, err := dockerClient.ImagePush(ctx, dockerRegistryUserID + lastTagName, opts)
+	if err != nil {
+		color.Red("%s", err.Error())
+		os.Exit(1)
+	}
+
+	defer rd.Close()
+
+	exceptions := d.print(rd)
+
+	if exceptions != nil {
+		color.Red("%s", exceptions.Error())
+	}
+	color.Green("%s", lastTagName)
+}
+
 func (d *Docker) BuildImage()  {
 	color.Yellow("Typhoon docker build ...")
+	d.initEnv()
 
 	options := &archive.TarOptions{
 		ExcludePatterns: []string{
@@ -107,17 +213,18 @@ func (d *Docker) BuildImage()  {
 		Dockerfile: "Dockerfile",
 		Tags:       []string{dockerRegistryUserID + "typhoon-lite"},
 		Remove:     true,
+		AuthConfigs: map[string]types.AuthConfig{
+			d.env.DockerHub: d.GetAuthConfig(),
+		},
 
 	}
 
-	envSetting := environment.Environment{}
-	_, env := envSetting.GetSettings()
-
-	err := d.build(env.Path, options, opts)
+	err := d.build(d.env.Path, options, opts)
 	if err != nil {
 		color.Red(err.Error())
 		return
 	}
+
 
 }
 

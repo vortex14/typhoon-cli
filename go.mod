@@ -35,6 +35,7 @@ require (
 	github.com/vbauerster/mpb/v7 v7.0.3 // indirect
 	github.com/xanzy/go-gitlab v0.50.1
 	go.mongodb.org/mongo-driver v1.5.3
+	golang.org/x/crypto v0.0.0-20210616213533-5ff15b29337e
 	google.golang.org/grpc v1.38.0 // indirect
 	gopkg.in/cheggaaa/pb.v1 v1.0.25 // indirect
 	gopkg.in/yaml.v2 v2.4.0

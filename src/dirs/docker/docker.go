@@ -59,10 +59,104 @@ var Commands = []*cli.Command{
 					projectDocker := docker.Docker{
 						Project: project,
 					}
+					projectDocker.BuildImage()
+					projectDocker.PushImage()
+					return nil
+				},
+			},
+		},
+	},
+	&cli.Command{
+		Name:   "push",
+		Usage: "Push Docker resources to registry",
+		Subcommands: []*cli.Command{
+			&cli.Command{
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:    "name",
+						Aliases: []string{"n"},
+						Value:   "typhoon-lite:latest",
+						Usage:   "Pass image name",
+					},
+					&cli.StringFlag{
+						Name:    "latest-date",
+						Aliases: []string{"l"},
+						Value:   "true",
+						Usage:   "Pass image name",
+					},
+				},
+				Name: "image",
+				Usage: "Push Typhoon docker image to Registry",
+				Action: func(context *cli.Context) error {
+					imageName := context.String("name")
+					LatestDate := context.String("latest-date")
+					project := &typhoon.Project{
+						DockerImageName: imageName,
+					}
+					projectDocker := docker.Docker{Project: project, LatestTag: LatestDate}
+					projectDocker.PushImage()
+					return nil
+				},
+			},
+			&cli.Command{
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:    "name",
+						Aliases: []string{"n"},
+						Value:   "typhoon-lite:latest",
+						Usage:   "Pass image name",
+					},
+					&cli.StringFlag{
+						Name:    "config",
+						Aliases: []string{"c"},
+						Value: "config.local.yaml",
+						Usage:   "Load configuration from `FILE`",
+					},
+				},
+				Name: "project",
+				Usage: "Build image for project",
+				Action: func(context *cli.Context) error {
+					imageName := context.String("name")
+					configFile := context.String("config")
+					project := &typhoon.Project{
+						DockerImageName: imageName,
+						ConfigFile: configFile,
+					}
+					projectDocker := docker.Docker{
+						Project: project,
+					}
 					projectDocker.ProjectBuild()
 					return nil
 				},
 			},
+		},
+	},
+	&cli.Command{
+		Name:   "build-push",
+		Flags: []cli.Flag{
+			&cli.StringFlag{
+				Name:    "name",
+				Aliases: []string{"n"},
+				Value:   "typhoon-lite:latest",
+				Usage:   "Pass image name",
+			},
+			&cli.StringFlag{
+				Name:    "latest-date",
+				Aliases: []string{"l"},
+				Value:   "true",
+				Usage:   "Pass image name",
+			},
+		},
+		Usage: "Build and push Docker resources to registry",
+		Action: func(context *cli.Context) error {
+			imageName := context.String("name")
+			LatestDate := context.String("latest-date")
+			project := &typhoon.Project{
+				DockerImageName: imageName,
+			}
+			projectDocker := docker.Docker{Project: project, LatestTag: LatestDate}
+			projectDocker.PushImage()
+			return nil
 		},
 	},
 	&cli.Command{

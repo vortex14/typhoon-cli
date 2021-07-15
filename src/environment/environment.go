@@ -12,15 +12,38 @@ import (
 	"strings"
 )
 
-type Settings struct {
-	Path string
-	Status string
-	Gitlab string
-	Clusters string
-	Projects string
-	GitlabToken string
+type DockerSettings struct {
+	DockerLogin string
+	DockerPassword string
+	DockerHub string
+	DockerImages string
+}
+
+type GrafanaSettings struct {
 	GrafanaToken string
 	GrafanaEndpoint string
+}
+
+type GitlabSettings struct {
+	Gitlab string
+	GitlabToken string
+}
+
+type TyphoonSettings struct {
+	Path string
+	Status string
+	Clusters string
+	Projects string
+
+}
+
+type Settings struct {
+
+	DockerSettings
+	GitlabSettings
+	GrafanaSettings
+	TyphoonSettings
+
 }
 
 type Environment struct {
