@@ -5,31 +5,38 @@ import (
 	"fmt"
 	"github.com/fatih/color"
 	"golang.org/x/crypto/ssh"
+	"net"
 	"os"
 )
 
 type SSH struct {
+	Ip string
+	Login string
+	Password string
+	client *ssh.Client
 
 }
 
-func (s SSH) TestConnection()  {
-	var hostKey ssh.PublicKey
+func (s *SSH) TestConnection() {
 	config := &ssh.ClientConfig{
-		User: "1",
+		User: s.Login,
 		Auth: []ssh.AuthMethod{
-			ssh.Password("2"),
+			ssh.Password(s.Password),
 		},
-		HostKeyCallback: ssh.FixedHostKey(hostKey),
+		HostKeyCallback: ssh.HostKeyCallback(func(hostname string, remote net.Addr, key ssh.PublicKey) error { return nil }),
 	}
-	client, err := ssh.Dial("tcp", "45.135.233.171:22", config)
+	address := fmt.Sprintf("%s:22", s.Ip)
+	client, err := ssh.Dial("tcp", address, config)
 	if err != nil {
 		color.Red("%s", err.Error())
 		os.Exit(1)
 	}
+
 	defer client.Close()
 	session, err := client.NewSession()
 	if err != nil {
 		color.Red("Failed to create session: ", err.Error())
+		os.Exit(1)
 	}
 	defer session.Close()
 
@@ -37,7 +44,7 @@ func (s SSH) TestConnection()  {
 	// the remote side using the Run method.
 	var b bytes.Buffer
 	session.Stdout = &b
-	if err := session.Run("/usr/bin/whoami"); err != nil {
+	if err := session.Run("df -h"); err != nil {
 		color.Red("Failed to run: " + err.Error())
 	}
 	fmt.Println(b.String())

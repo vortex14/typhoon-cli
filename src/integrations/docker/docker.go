@@ -29,6 +29,7 @@ type Docker struct {
 	LatestTag string
 	env *environment.Settings
 	Project interfaces.Project
+	client *client.Client
 }
 
 var dockerRegistryUserID = ""
@@ -79,6 +80,18 @@ func (d *Docker) GetLastTagName() string {
 	currTime := time.Now()
 	tagName := fmt.Sprintf("%s:%d-%d-%d", d.env.DockerImages, currTime.Day(), int(currTime.Month()), currTime.Year())
 	return tagName
+}
+
+func (d *Docker) GetClient() *client.Client {
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+	if err != nil {
+		fmt.Println(err.Error())
+		os.Exit(1)
+	}
+
+	d.client = cli
+
+	return cli
 }
 
 func (d *Docker) CreateNewTag(cli *client.Client)  {

@@ -1,0 +1,5 @@
+FROM {{.Image}}
+WORKDIR /app
+COPY ["donor.py", "fetcher.py", "processor.py", "result_transporter.py", "scheduler.py", {{.Config}}, "/app/"]
+COPY ["./project", "/app/project"]
+CMD ["python", "donor.py", "--config={{.Config}}", "--level=DEBUG"]

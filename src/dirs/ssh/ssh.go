@@ -22,22 +22,35 @@ var Commands = []*cli.Command{
 				Value: "config.local.yaml",
 				Usage:   "Load configuration from `FILE`",
 			},
+			&cli.StringFlag{
+				Name:    "ip",
+				Aliases: []string{"i"},
+				Value: "127.0.0.1",
+				Usage:   "Remote ip Addresses",
+			},
+			&cli.StringFlag{
+				Name:    "login",
+				Aliases: []string{"i"},
+				Value: "root",
+				Usage:   "Remote login",
+			},
+			&cli.StringFlag{
+				Name:    "password",
+				Aliases: []string{"p"},
+				Value: "password",
+				Usage:   "Remote password",
+			},
 
 		},
 		Name: "test-connection",
 		Usage: "Run test for connection to services from config.yaml",
 		Action: func(context *cli.Context) error {
-			ssh := ssh.SSH{}
+			ssh := ssh.SSH{
+				Login: context.String("login"),
+				Password: context.String("password"),
+				Ip: context.String("ip"),
+			}
 			ssh.TestConnection()
-			//version := context.String("version")
-			//config := context.String("config")
-			//pathProject, _ := os.Getwd()
-			//project := &typhoon.Project{
-			//	Version: version,
-			//	ConfigFile: config,
-			//	Path: pathProject,
-			//}
-			//project.RunTestServices()
 			return nil
 		},
 	},

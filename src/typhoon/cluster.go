@@ -11,7 +11,6 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	"time"
 	"typhoon-cli/src/environment"
 	"typhoon-cli/src/interfaces"
 	"typhoon-cli/src/utils"
@@ -226,26 +225,34 @@ func (c *Cluster) renderTable(data [][]string)  {
 }
 
 func (c *Cluster) Show()  {
-	data := [][]string{
-		[]string{"A", "The Good", "500"},
-		[]string{"B", "The Very very Bad Man", "288"},
-		[]string{"C", "The Ugly", "120"},
-		[]string{"D", "The Gopher", "800"},
+	settings := c.GetEnvSettings()
+
+	if len(settings.Clusters) == 0 {
+		color.Red("Cluster Path not found !")
+		os.Exit(1)
+	} else {
+		color.Green("Cluster Path: %s", settings.Clusters)
 	}
 
-	c.renderTable(data)
+	files, _ := ioutil.ReadDir(settings.Clusters)
 
+	var allClusters [][]string
+	for n, f := range files {
+		if !f.IsDir() {
+			continue
+		}
+		if f.Name()[:1] == "." {
+			continue
+		}
 
-	time.Sleep(2 * time.Second)
-
-	data2 := [][]string{
-		[]string{"A", "!!", "500"},
-		[]string{"B", "The Very very Bad Man", "288"},
-		[]string{"C", "The Ugly", "120"},
-		[]string{"D", "The Gopher", "800"},
+		allClusters = append(allClusters, []string{strconv.Itoa(n), f.Name()})
 	}
-	c.renderTable(data2)
 
+	u := utils.Utils{}
+
+	header := []string{"№", "Name"}
+
+	u.RenderTableOutput(header, allClusters)
 
 }
 

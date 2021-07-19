@@ -488,7 +488,95 @@ var ClusterCommands = []*cli.Command{
 		Name: "grafana",
 		Usage: "Integration of Typhoon cluster with Grafana",
 	},
+	&cli.Command{
+		Subcommands: []*cli.Command{
+			&cli.Command{
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:    "name",
+						Aliases: []string{"n"},
+						Value:   "test",
+						Usage:   "Cluster name",
+					},
+					&cli.StringFlag{
+						Name:    "config",
+						Aliases: []string{"c"},
+						Value:   "cluster.local.yaml",
+						Usage:   "Cluster config yaml",
+					},
+					&cli.StringFlag{
+						Name:    "docker-file",
+						Aliases: []string{"d"},
+						Value: "Dockerfile",
+						Usage:   "Load Dockerfile template from `FILE`",
+					},
+					&cli.StringFlag{
+						Name:    "tag",
+						Aliases: []string{"t"},
+						Value: "typhoon-lite:latest",
+						Usage:   "Typhoon Lite Tag",
+					},
 
+				},
+				Name: "generate",
+				Usage: "Generate own a dockerfile for all cluster",
+				Action: func(context *cli.Context) error {
+					clusterName := context.String("name")
+					imageTag := context.String("tag")
+					configClusterName := context.String("config")
+					dockerFileTemplate := context.String("docker-file")
+					u := utils.Utils{}
+					cluster := Cluster{
+						Config: configClusterName,
+						Name: clusterName,
+					}
+					projects := cluster.GetProjects()
+					envSettings := cluster.GetEnvSettings()
+					//clusterConfig := cluster.LoadConfig(envSettings)
+
+					header := []string{"№", "name"}
+					var data[][]string
+					for i, projectCluster := range projects {
+						project := &Project{
+							ConfigFile: projectCluster.Config,
+							Path: envSettings.Projects + "/" + projectCluster.Name,
+						}
+						project.LoadConfig()
+
+						path := project.GetProjectPath()
+						//color.Green("%s", path)
+						exportPath := fmt.Sprintf("%s/Dockerfile", path)
+
+						fileObject := &interfaces.FileObject{
+							Path: ".",
+							Name: dockerFileTemplate,
+						}
+
+						lables := []interfaces.ReplaceLabel{
+							interfaces.ReplaceLabel{Label: "{{.Image}}", Value: imageTag},
+							interfaces.ReplaceLabel{Label: "{{.Config}}", Value: project.GetConfigFile()},
+						}
+
+						err := u.CopyFileAndReplaceLabelsFromHost(exportPath, lables, fileObject)
+
+						if err != nil {
+
+							color.Red("Error: %s", err)
+							os.Exit(0)
+
+						}
+						data = append(data, []string{strconv.Itoa(i+1),  projectCluster.Name})
+
+					}
+
+					u.RenderTableOutput(header, data)
+					return nil
+				},
+			},
+		},
+		Name: "docker",
+		Usage: "Integration of Typhoon cluster with Docker",
+	},
 }
 
 

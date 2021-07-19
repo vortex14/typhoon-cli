@@ -1,12 +1,16 @@
 package utils
 
 import (
+	"bufio"
+	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/fatih/color"
 	"github.com/go-logfmt/logfmt"
 	"github.com/gobuffalo/packd"
 	"github.com/gobuffalo/packr"
 	"github.com/olekukonko/tablewriter"
+	"io"
 	"io/ioutil"
 	"log"
 	"os"
@@ -17,6 +21,15 @@ import (
 )
 
 type Utils struct {}
+
+type ErrorLine struct {
+	Error       string      `json:"error"`
+	ErrorDetail ErrorDetail `json:"errorDetail"`
+}
+
+type ErrorDetail struct {
+	Message string `json:"message"`
+}
 
 func (u *Utils) GoRunTemplate(goTemplate *interfaces.GoTemplate) bool {
 	tmpl, _ := template.New("new").Parse(goTemplate.Source)
@@ -145,13 +158,28 @@ func (u *Utils) DumpToFile(object *interfaces.FileObject) error {
 
 func (u *Utils) CopyFileAndReplaceLabel(name string, label *interfaces.ReplaceLabel, object *interfaces.FileObject) error {
 	box := packr.NewBox(object.Path)
-	template, _ := box.FindString(object.Name)
-
+	templateFile, _ := box.FindString(object.Name)
 	f, err := os.Create(name)
 	if err != nil {
 		log.Println("create err", err)
 	}
-	data := strings.ReplaceAll(template, label.Label, label.Value)
+	data := strings.ReplaceAll(templateFile, label.Label, label.Value)
+	f.WriteString(data)
+	_ = f.Close()
+	return nil
+}
+
+func (u *Utils) CopyFileAndReplaceLabelsFromHost(name string, labels []interfaces.ReplaceLabel, object *interfaces.FileObject) error {
+	dat, err := ioutil.ReadFile(object.Name)
+	templateFile := string(dat)
+	f, err := os.Create(name)
+	if err != nil {
+		log.Println("create err", err)
+	}
+	data := templateFile
+	for _, label := range labels {
+		data = strings.ReplaceAll(data, label.Label, label.Value)
+	}
 	f.WriteString(data)
 	_ = f.Close()
 
@@ -222,4 +250,27 @@ func (u *Utils) RenderTableOutput(header []string, data [][]string) {
 	table.SetHeader(header)
 	table.AppendBulk(data)
 	table.Render()
+}
+
+
+func (u *Utils) print(rd io.Reader) error {
+	var lastLine string
+
+	scanner := bufio.NewScanner(rd)
+	for scanner.Scan() {
+		lastLine = scanner.Text()
+		color.Yellow("%s", lastLine)
+	}
+
+	errLine := &ErrorLine{}
+	json.Unmarshal([]byte(lastLine), errLine)
+	if errLine.Error != "" {
+		return errors.New(errLine.Error)
+	}
+
+	if err := scanner.Err(); err != nil {
+		return err
+	}
+
+	return nil
 }

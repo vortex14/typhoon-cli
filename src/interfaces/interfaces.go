@@ -150,7 +150,7 @@ type ReplaceLabel struct {
 	Value string
 }
 
-type ReplaceLabels []ReplaceLabel
+type ReplaceLabels []*ReplaceLabel
 
 
 type MapFileObjects map[string]*FileObject
