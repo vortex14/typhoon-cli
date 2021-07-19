@@ -183,7 +183,6 @@ func (c *Cluster) LoadConfig(settings *environment.Settings) *Cluster {
 		color.Red("%s", errDecode)
 		os.Exit(1)
 	}
-
 	c.Description = configClusterLoad.Description
 	c.Projects = configClusterLoad.Projects
 	c.Meta = configClusterLoad.Meta

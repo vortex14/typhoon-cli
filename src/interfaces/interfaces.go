@@ -31,7 +31,7 @@ type ClusterGrafana struct {
 }
 
 type ClusterDocker struct {
-
+	Image string
 }
 
 type ClusterMeta struct {

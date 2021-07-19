@@ -532,7 +532,8 @@ var ClusterCommands = []*cli.Command{
 					}
 					projects := cluster.GetProjects()
 					envSettings := cluster.GetEnvSettings()
-					//clusterConfig := cluster.LoadConfig(envSettings)
+
+					cluster.Meta.Docker.Image = imageTag
 
 					header := []string{"№", "name"}
 					var data[][]string
@@ -569,6 +570,7 @@ var ClusterCommands = []*cli.Command{
 
 					}
 
+					cluster.SaveConfig()
 					u.RenderTableOutput(header, data)
 					return nil
 				},

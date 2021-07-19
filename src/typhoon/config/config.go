@@ -24,9 +24,9 @@ type GrafanaConfig struct {
 }
 
 type Discovery struct {
-	Port    int    `yaml:"port"`
-	Host    string `yaml:"host"`
-	Cluster string `yaml:"cluster"`
+	Port    int    `yaml:"port,omitempty"`
+	Host    string `yaml:"host,omitempty"`
+	Cluster string `yaml:"cluster,omitempty"`
 }
 
 type ServiceRedis struct {
@@ -61,6 +61,7 @@ type Config struct {
 	AutoThrottling          bool   `yaml:"auto_throttling"`
 	IsRunning               bool   `yaml:"is_running"`
 	NsqlookupdIP            string `yaml:"nsqlookupd_ip"`
+	Consolidator			interface{} `yaml:"consolidator,omitempty"`
 	NsqdNodes               []struct {
 		IP string `yaml:"ip"`
 	} `yaml:"nsqd_nodes"`
@@ -71,7 +72,7 @@ type Config struct {
 	MaxFailed           int     `yaml:"max_failed"`
 	MemoryLimit         float64 `yaml:"memory_limit"`
 	RetryingDelay       int     `yaml:"retrying_delay"`
-	RegisterService  	Discovery `yaml:"register_service"`
+	RegisterService  	Discovery `yaml:"register_service,omitempty"`
 	TyComponents struct {
 		Fetcher struct {
 			Port   int `yaml:"port"`
