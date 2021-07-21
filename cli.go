@@ -7,12 +7,14 @@ import (
 	"os"
 	"sort"
 	"strings"
-	"typhoon-cli/src/dirs/docker"
-	"typhoon-cli/src/dirs/gitlab"
-	"typhoon-cli/src/dirs/grafana"
-	"typhoon-cli/src/dirs/helm"
-	"typhoon-cli/src/dirs/ssh"
-	"typhoon-cli/src/dirs/tests"
+	"typhoon-cli/src/commands/docker"
+	"typhoon-cli/src/commands/git"
+	"typhoon-cli/src/commands/gitlab"
+	"typhoon-cli/src/commands/grafana"
+	"typhoon-cli/src/commands/helm"
+	"typhoon-cli/src/commands/ssh"
+	"typhoon-cli/src/commands/tests"
+	typhoonCommands "typhoon-cli/src/commands/typhoon"
 	"typhoon-cli/src/environment"
 	"typhoon-cli/src/interfaces"
 	"typhoon-cli/src/typhoon"
@@ -307,6 +309,11 @@ func main() {
 				Subcommands: gitlab.Commands,
 			},
 			{
+				Name: "git",
+				Usage: "Typhoon git",
+				Subcommands: git.Commands,
+			},
+			{
 				Name: "tests",
 				Usage: "Typhoon tests",
 				Subcommands: tests.Commands,
@@ -319,12 +326,12 @@ func main() {
 			{
 				Name: "import",
 				Usage: "Typhoon import",
-				Subcommands: typhoon.Commands,
+				Subcommands: typhoonCommands.Commands,
 			},
 			{
 				Name: "cluster",
 				Usage: "Typhoon cluster",
-				Subcommands: typhoon.ClusterCommands,
+				Subcommands: typhoonCommands.ClusterCommands,
 			},
 			{
 				Name: "grafana",

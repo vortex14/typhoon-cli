@@ -8,12 +8,12 @@ import (
 	"typhoon-cli/src/typhoon/config"
 )
 
-type ServiceRedis struct {
+type Service struct {
 	Config *config.Config
 	connection *redis.Client
 }
 
-func (r *ServiceRedis) connect(service *config.ServiceRedis) bool {
+func (r *Service) connect(service *config.ServiceRedis) bool {
 	var ctx = context.Background()
 	status := false
 	redisString := fmt.Sprintf("%s:%d", service.Details.Host, service.Details.Port)
@@ -34,7 +34,7 @@ func (r *ServiceRedis) connect(service *config.ServiceRedis) bool {
 	return status
 }
 
-func (r *ServiceRedis) TestConnect() bool {
+func (r *Service) TestConnect() bool {
 	//color.Yellow("Run test connection to redis")
 	projectConfig := r.Config
 	status := false
@@ -46,7 +46,7 @@ func (r *ServiceRedis) TestConnect() bool {
 	return status
 }
 
-func (r *ServiceRedis) Set(key string, value interface{})  {
+func (r *Service) Set(key string, value interface{})  {
 	var ctx = context.Background()
 	_ = r.connection.Set(ctx, key, value, 0)
 	//color.Yellow("%s", output)

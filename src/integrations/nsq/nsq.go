@@ -7,11 +7,11 @@ import (
 	"typhoon-cli/src/typhoon/config"
 )
 
-type ServiceNSQ struct {
+type Service struct {
 	Config *config.Config
 }
 
-func (s *ServiceNSQ) TestConnect() bool  {
+func (s *Service) TestConnect() bool  {
 	status := false
 	projectConfig := s.Config
 	NsqlookupdIP := strings.ReplaceAll(projectConfig.NsqlookupdIP, "http://","")

@@ -11,11 +11,11 @@ import (
 	"typhoon-cli/src/typhoon/config"
 )
 
-type ServiceMongo struct {
+type Service struct {
 	Config *config.Config
 }
 
-func (m *ServiceMongo) connect(service *config.ServiceMongo) bool {
+func (m *Service) connect(service *config.ServiceMongo) bool {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
 	status := false
@@ -31,7 +31,7 @@ func (m *ServiceMongo) connect(service *config.ServiceMongo) bool {
 	return status
 }
 
-func (m *ServiceMongo) TestConnect() bool {
+func (m *Service) TestConnect() bool {
 	projectConfig := m.Config
 	status := false
 	for _, service := range projectConfig.Services.Mongo.Debug {

@@ -41,6 +41,9 @@ type ServiceRedis struct {
 type ServiceMongo struct {
 	Name    string `yaml:"name"`
 	Details struct {
+		AuthSource string `yaml:"authSource,omitempty"`
+		Username string `yaml:"username,omitempty"`
+		Password string `yaml:"password,omitempty"`
 		Host string `yaml:"host"`
 		Port int    `yaml:"port"`
 	} `yaml:"details"`
@@ -62,6 +65,7 @@ type Config struct {
 	IsRunning               bool   `yaml:"is_running"`
 	NsqlookupdIP            string `yaml:"nsqlookupd_ip"`
 	Consolidator			interface{} `yaml:"consolidator,omitempty"`
+	ApiKey					string `yaml:"API_KEY,omitempty"`
 	NsqdNodes               []struct {
 		IP string `yaml:"ip"`
 	} `yaml:"nsqd_nodes"`

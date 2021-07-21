@@ -177,7 +177,7 @@ func (p *Project) ImportResponseData(url string, sourceFile string)  {
 	taskid := md5.Sum([]byte(url))
 	redisPath := fmt.Sprintf("%s:%s", p.GetName(), hex.EncodeToString(taskid[:]))
 
-	redisService := redis.ServiceRedis{Config: &p.Config.Config}
+	redisService := redis.Service{Config: &p.Config.Config}
 
 	_ = redisService.TestConnect()
 	redisService.Set(redisPath, string(dat))

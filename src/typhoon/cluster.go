@@ -97,6 +97,10 @@ func (c *Cluster) getAllProjects(settings *environment.Settings) []string {
 
 }
 
+func (c *Cluster) ChangeClusterBranch() {
+
+}
+
 func (c *Cluster) findProjectsByTerm(term string, projects []string) [] string{
 	var foundProjects []string
 	for _, project := range projects {

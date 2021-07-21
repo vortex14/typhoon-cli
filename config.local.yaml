@@ -319,11 +319,11 @@ services:
     - name: main
       details:
         host: localhost
-        port: 6380
+        port: 6379
         password:
     debug:
     - name: main
       details:
         host: localhost
-        port: 6380
+        port: 6379
         password:
