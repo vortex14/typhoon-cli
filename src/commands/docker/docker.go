@@ -155,6 +155,7 @@ var Commands = []*cli.Command{
 				DockerImageName: imageName,
 			}
 			projectDocker := docker.Docker{Project: project, LatestTag: LatestDate}
+			projectDocker.BuildImage()
 			projectDocker.PushImage()
 			return nil
 		},
