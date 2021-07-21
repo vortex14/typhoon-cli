@@ -1,2 +1,0 @@
-helm template {{.projectName}} -n {{.projectName}} --debug ./helm | pygmentize -l yaml
-

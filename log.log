@@ -1,1 +1,20 @@
-event_time=2020-12-22T02:25:01+1000 level=INFO logger=typhoon.app file=/Users/dmitrijviharev/Desktop/projects/typhoon_projects/amazon_api/typhoon/components/scheduler/scheduler.py:on_start:13 module=scheduler log_id=16fa55c9-e775-451e-8fa4-4e1485df6541 hostname=vortex-mac.local component=app task_id=null request_id=null message='start'
++------+-----------------------+--------+
+| NAME |         SIGN          | RATING |
++------+-----------------------+--------+
+| A    | The Good              |    500 |
+| B    | The Very very Bad Man |    288 |
+| C    | The Ugly              |    120 |
+| D    | The Gopher            |    800 |
++------+-----------------------+--------+
++------+-----------------------+--------+
+| NAME |         SIGN          | RATING |
++------+-----------------------+--------+
+| A    | The Good              |    500 |
+| B    | The Very very Bad Man |    288 |
+| C    | The Ugly              |    120 |
+| D    | The Gopher            |    800 |
+| A    | !!                    |    500 |
+| B    | The Very very Bad Man |    288 |
+| C    | The Ugly              |    120 |
+| D    | The Gopher            |    800 |
++------+-----------------------+--------+

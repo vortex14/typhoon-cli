@@ -3,19 +3,22 @@ package main
 import (
 	"github.com/fatih/color"
 	"github.com/urfave/cli/v2"
+	"github.com/vortex14/gotyphoon"
+	"github.com/vortex14/gotyphoon/environment"
+	"github.com/vortex14/gotyphoon/interfaces"
+	"github.com/vortex14/gotyphoon/utils"
 	"log"
 	"os"
 	"sort"
 	"strings"
-	"typhoon-cli/src/dirs/docker"
-	"typhoon-cli/src/dirs/gitlab"
-	"typhoon-cli/src/dirs/grafana"
-	"typhoon-cli/src/dirs/helm"
-	"typhoon-cli/src/dirs/tests"
-	"typhoon-cli/src/environment"
-	"typhoon-cli/src/interfaces"
-	"typhoon-cli/src/typhoon"
-	"typhoon-cli/src/utils"
+	"typhoon-cli/commands/docker"
+	"typhoon-cli/commands/git"
+	"typhoon-cli/commands/gitlab"
+	"typhoon-cli/commands/grafana"
+	"typhoon-cli/commands/helm"
+	"typhoon-cli/commands/ssh"
+	"typhoon-cli/commands/tests"
+	typhoonCommands "typhoon-cli/commands/typhoon"
 )
 
 func main() {
@@ -32,7 +35,6 @@ func main() {
 			typhoon logging --file=test-log.log
 `		,
 		Description: "For running typhoon lite in command line",
-		HelpName: "test thelp",
 		EnableBashCompletion: true,
 		Usage: "cli app",
 		Commands: []*cli.Command{
@@ -269,7 +271,7 @@ func main() {
 			},
 			{
 				Name: "create",
-				Usage: "Create new Typhoon project",
+				Usage: "Create a new Typhoon project",
 				Flags: []cli.Flag{
 					&cli.StringFlag{
 						Name:    "new",
@@ -307,18 +309,38 @@ func main() {
 				Subcommands: gitlab.Commands,
 			},
 			{
-				Name: "tests",
-				Usage: "Typhoon tests",
+				Name:        "git",
+				Usage:       "Typhoon git",
+				Subcommands: git.Commands,
+			},
+			{
+				Name:        "tests",
+				Usage:       "Typhoon tests",
 				Subcommands: tests.Commands,
 			},
 			{
-				Name: "grafana",
-				Usage: "Grafana integration",
+				Name:        "ssh",
+				Usage:       "SSH connection",
+				Subcommands: ssh.Commands,
+			},
+			{
+				Name:        "import",
+				Usage:       "Typhoon import",
+				Subcommands: typhoonCommands.Commands,
+			},
+			{
+				Name:        "cluster",
+				Usage:       "Typhoon cluster",
+				Subcommands: typhoonCommands.ClusterCommands,
+			},
+			{
+				Name:        "grafana",
+				Usage:       "Grafana integration",
 				Subcommands: grafana.Commands,
 			},
 			{
-				Name: "docker",
-				Usage: "Docker integration",
+				Name:        "docker",
+				Usage:       "Docker integration",
 				Subcommands: docker.Commands,
 			},
 			{
