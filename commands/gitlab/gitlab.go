@@ -2,7 +2,7 @@ package gitlab
 
 import (
 	"github.com/urfave/cli/v2"
-	"github.com/vortex14/gotyphoon/src"
+	"github.com/vortex14/gotyphoon"
 )
 
 var Commands = []*cli.Command{

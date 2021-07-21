@@ -3,8 +3,8 @@ package grafana
 import (
 	"github.com/fatih/color"
 	"github.com/urfave/cli/v2"
-	"github.com/vortex14/gotyphoon/src"
-	"github.com/vortex14/gotyphoon/src/integrations/grafana"
+	"github.com/vortex14/gotyphoon"
+	"github.com/vortex14/gotyphoon/integrations/grafana"
 	"os"
 )
 

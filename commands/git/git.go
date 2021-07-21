@@ -2,9 +2,9 @@ package git
 
 import (
 	"github.com/urfave/cli/v2"
-	"github.com/vortex14/gotyphoon/src"
-	"github.com/vortex14/gotyphoon/src/integrations/docker"
-	"github.com/vortex14/gotyphoon/src/integrations/git"
+	"github.com/vortex14/gotyphoon"
+	"github.com/vortex14/gotyphoon/integrations/docker"
+	"github.com/vortex14/gotyphoon/integrations/git"
 )
 
 var Commands = []*cli.Command{

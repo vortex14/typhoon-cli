@@ -2,8 +2,8 @@ package docker
 
 import (
 	"github.com/urfave/cli/v2"
-	"github.com/vortex14/gotyphoon/src"
-	"github.com/vortex14/gotyphoon/src/integrations/docker"
+	"github.com/vortex14/gotyphoon"
+	"github.com/vortex14/gotyphoon/integrations/docker"
 )
 
 var Commands = []*cli.Command{
