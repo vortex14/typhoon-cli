@@ -52,7 +52,9 @@ var ClusterGitCommands = []*cli.Command{
 				projectGit := git.Git{
 					Path: project.GetProjectPath(),
 				}
-				color.Green("Git status of %s:", project.GetName())
+				_, branchName := project.GetBranch()
+				color.Green("Git status of %s", project.GetName())
+				color.Green("Project branch: %s", branchName)
 				projectGit.RepoStatus()
 				fmt.Println("")
 

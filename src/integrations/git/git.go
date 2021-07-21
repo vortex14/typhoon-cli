@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 	"typhoon-cli/src/environment"
+	"typhoon-cli/src/interfaces"
 )
 
 type Git struct {
@@ -18,6 +19,7 @@ type Git struct {
 	repo *git.Repository
 	Path string
 	workTree *git.Worktree
+	Project interfaces.Project
 }
 
 var fileStatusMapping = map[git.StatusCode]string{

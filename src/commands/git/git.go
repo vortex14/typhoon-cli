@@ -51,6 +51,7 @@ var Commands = []*cli.Command{
 			project.LoadConfig()
 			projectGit := git.Git{
 				Path: project.GetProjectPath(),
+				Project: project,
 			}
 			projectGit.RepoStatus()
 			return nil
