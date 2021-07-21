@@ -3,22 +3,22 @@ package main
 import (
 	"github.com/fatih/color"
 	"github.com/urfave/cli/v2"
+	"github.com/vortex14/gotyphoon/src"
+	"github.com/vortex14/gotyphoon/src/environment"
+	"github.com/vortex14/gotyphoon/src/interfaces"
+	"github.com/vortex14/gotyphoon/src/utils"
 	"log"
 	"os"
 	"sort"
 	"strings"
-	"typhoon-cli/src/commands/docker"
-	"typhoon-cli/src/commands/git"
-	"typhoon-cli/src/commands/gitlab"
-	"typhoon-cli/src/commands/grafana"
-	"typhoon-cli/src/commands/helm"
-	"typhoon-cli/src/commands/ssh"
-	"typhoon-cli/src/commands/tests"
-	typhoonCommands "typhoon-cli/src/commands/typhoon"
-	"typhoon-cli/src/environment"
-	"typhoon-cli/src/interfaces"
-	"typhoon-cli/src/typhoon"
-	"typhoon-cli/src/utils"
+	"typhoon-cli/commands/docker"
+	"typhoon-cli/commands/git"
+	"typhoon-cli/commands/gitlab"
+	"typhoon-cli/commands/grafana"
+	"typhoon-cli/commands/helm"
+	"typhoon-cli/commands/ssh"
+	"typhoon-cli/commands/tests"
+	typhoonCommands "typhoon-cli/commands/typhoon"
 )
 
 func main() {
@@ -309,38 +309,38 @@ func main() {
 				Subcommands: gitlab.Commands,
 			},
 			{
-				Name: "git",
-				Usage: "Typhoon git",
+				Name:        "git",
+				Usage:       "Typhoon git",
 				Subcommands: git.Commands,
 			},
 			{
-				Name: "tests",
-				Usage: "Typhoon tests",
+				Name:        "tests",
+				Usage:       "Typhoon tests",
 				Subcommands: tests.Commands,
 			},
 			{
-				Name: "ssh",
-				Usage: "SSH connection",
+				Name:        "ssh",
+				Usage:       "SSH connection",
 				Subcommands: ssh.Commands,
 			},
 			{
-				Name: "import",
-				Usage: "Typhoon import",
+				Name:        "import",
+				Usage:       "Typhoon import",
 				Subcommands: typhoonCommands.Commands,
 			},
 			{
-				Name: "cluster",
-				Usage: "Typhoon cluster",
+				Name:        "cluster",
+				Usage:       "Typhoon cluster",
 				Subcommands: typhoonCommands.ClusterCommands,
 			},
 			{
-				Name: "grafana",
-				Usage: "Grafana integration",
+				Name:        "grafana",
+				Usage:       "Grafana integration",
 				Subcommands: grafana.Commands,
 			},
 			{
-				Name: "docker",
-				Usage: "Docker integration",
+				Name:        "docker",
+				Usage:       "Docker integration",
 				Subcommands: docker.Commands,
 			},
 			{

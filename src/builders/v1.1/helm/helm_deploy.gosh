@@ -1,2 +1,0 @@
-helm install {{.projectName}} -n {{.projectName}} --create-namespace ./helm
-

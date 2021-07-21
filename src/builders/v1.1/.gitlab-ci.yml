@@ -1,3 +1,0 @@
-include:
-  - project: 'thor/auto-devops'
-    file: .gitlab-ci-thor.yml
