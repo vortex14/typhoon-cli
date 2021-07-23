@@ -4,6 +4,7 @@ go 1.14
 
 require (
 	github.com/aws/aws-sdk-go v1.34.28 // indirect
+	github.com/deliveryhero/pipeline v0.3.1
 	github.com/docker/go-connections v0.4.0 // indirect
 	github.com/fatih/color v1.12.0
 	github.com/goccy/go-yaml v1.8.10 // indirect

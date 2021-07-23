@@ -16,6 +16,7 @@ import (
 	"typhoon-cli/commands/gitlab"
 	"typhoon-cli/commands/grafana"
 	"typhoon-cli/commands/helm"
+	"typhoon-cli/commands/nsq"
 	"typhoon-cli/commands/ssh"
 	"typhoon-cli/commands/tests"
 	typhoonCommands "typhoon-cli/commands/typhoon"
@@ -327,6 +328,11 @@ func main() {
 				Name:        "import",
 				Usage:       "Typhoon import",
 				Subcommands: typhoonCommands.Commands,
+			},
+			{
+				Name:        "nsq",
+				Usage:       "Typhoon NSQ integration",
+				Subcommands: nsq.Commands,
 			},
 			{
 				Name:        "cluster",
