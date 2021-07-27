@@ -5,13 +5,14 @@ import (
 	"github.com/urfave/cli/v2"
 	"github.com/vortex14/gotyphoon"
 	"github.com/vortex14/gotyphoon/integrations/nsq"
+	"github.com/vortex14/gotyphoon/interfaces"
 	"os"
 	"strconv"
 	"strings"
 )
 
 var Commands = []*cli.Command{
-	&cli.Command{
+	{
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:    "version",
@@ -37,20 +38,20 @@ var Commands = []*cli.Command{
 			}
 
 			nsqService := nsq.Service{Project: project}
-			status := nsqService.TestConnect()
+			status := nsqService.Ping()
 			color.Yellow(` Test NSQ connection:
 			status: %t
 			NSQd addresses: %+v
 			NSQ LookupD: %+v 
 `,
 			status,
-			project.Config.Config.NsqdNodes,
-			project.Config.Config.NsqlookupdIP,
+			project.Config.NsqdNodes,
+			project.Config.NsqlookupdIP,
 			)
 			return nil
 		},
 	},
-	&cli.Command{
+	{
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:    "name",
@@ -82,6 +83,12 @@ var Commands = []*cli.Command{
 				Value: "test",
 				Usage:   "topic name",
 			},
+			&cli.StringFlag{
+				Name:    "channel",
+				Aliases: []string{"ch"},
+				Value: "tasks",
+				Usage:   "Channel name",
+			},
 
 		},
 		Name: "pub",
@@ -92,6 +99,7 @@ var Commands = []*cli.Command{
 			message := context.String("message")
 			topic := context.String("topic")
 			name := context.String("name")
+			channel := context.String("channel")
 			pathProject, _ := os.Getwd()
 			project := &typhoon.Project{
 				ConfigFile: config,
@@ -99,13 +107,17 @@ var Commands = []*cli.Command{
 			}
 
 			nsqService := nsq.Service{Project: project}
-			status := nsqService.TestConnect()
+			status := nsqService.Ping()
 			if !status {
 				color.Red("Connection failed to NSQ")
 				os.Exit(1)
 			}
 
-			nsqService.InitProducer(name)
+			nsqService.InitQueue(&interfaces.Queue{
+				Channel:    channel,
+				Topic:      topic,
+				Writable:   true,
+			})
 
 			err := nsqService.Pub(name, topic, message)
 			if err != nil {
@@ -121,8 +133,8 @@ var Commands = []*cli.Command{
 			task: %s
 `,
 				status,
-				project.Config.Config.NsqdNodes,
-				project.Config.Config.NsqlookupdIP,
+				project.Config.NsqdNodes,
+				project.Config.NsqlookupdIP,
 				topic,
 				message,
 				task,
@@ -133,7 +145,7 @@ var Commands = []*cli.Command{
 			return nil
 		},
 	},
-	&cli.Command{
+	{
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:    "name",
@@ -163,6 +175,12 @@ var Commands = []*cli.Command{
 				Name:    "topic",
 				Aliases: []string{"i"},
 				Value: "test",
+				Usage:   "topic name",
+			},
+			&cli.StringFlag{
+				Name:    "count",
+				Aliases: []string{"ct"},
+				Value: "100",
 				Usage:   "topic name",
 			},
 
@@ -175,6 +193,11 @@ var Commands = []*cli.Command{
 			message := context.String("message")
 			topic := context.String("topic")
 			name := context.String("name")
+			count, err := strconv.Atoi(context.String("count"))
+			if err != nil {
+				color.Red("%s", err.Error())
+				os.Exit(1)
+			}
 			pathProject, _ := os.Getwd()
 			project := &typhoon.Project{
 				ConfigFile: config,
@@ -182,18 +205,23 @@ var Commands = []*cli.Command{
 			}
 
 			nsqService := nsq.Service{Project: project}
-			status := nsqService.TestConnect()
+			status := nsqService.Ping()
 			if !status {
 				color.Red("Connection failed to NSQ")
 				os.Exit(1)
 			}
-
-			nsqService.InitProducer(name)
-
-			err := nsqService.Pub(name, topic, message)
-			if err != nil {
-				color.Red("%s", err.Error())
+			settings := &interfaces.Queue{}
+			settings.SetGroupName(name)
+			nsqService.InitQueue(settings)
+			iterCount := 0
+			for iterCount <= count {
+				iterCount += 1
+				err := nsqService.Pub(name, topic, message)
+				if err != nil {
+					color.Red("%s", err.Error())
+				}
 			}
+
 
 			color.Yellow(` Test NSQ connection:
 			status: %t
@@ -204,8 +232,8 @@ var Commands = []*cli.Command{
 			task: %s
 `,
 				status,
-				project.Config.Config.NsqdNodes,
-				project.Config.Config.NsqlookupdIP,
+				project.Config.NsqdNodes,
+				project.Config.NsqlookupdIP,
 				topic,
 				message,
 				task,
@@ -216,7 +244,7 @@ var Commands = []*cli.Command{
 			return nil
 		},
 	},
-	&cli.Command{
+	{
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:    "config",
@@ -258,16 +286,17 @@ var Commands = []*cli.Command{
 			}
 
 			nsqService := nsq.Service{Project: project}
-			status := nsqService.TestConnect()
+			status := nsqService.Ping()
 			if !status {
 				color.Red("Connection failed to NSQ")
 				os.Exit(1)
 			}
 
-			consumer := nsqService.InitConsumer(name, topic, channel, 1)
+			setting := &interfaces.Queue{Topic: topic, Concurrent: 1, Channel: channel}
+			setting.SetGroupName(name)
+
+			consumer := nsqService.InitConsumer(setting)
 			var count int
-
-
 			count = 0
 			for msg := range consumer.Messages() {
 
@@ -281,11 +310,11 @@ var Commands = []*cli.Command{
 			NSQd addresses: %+v
 			NSQ LookupD: %+v 
 			topic: %s
-			read messages: %d
+			read messages: %d	
 `,
 				status,
-				project.Config.Config.NsqdNodes,
-				project.Config.Config.NsqlookupdIP,
+				project.Config.NsqdNodes,
+				project.Config.NsqlookupdIP,
 				topic,
 				count,
 
@@ -295,7 +324,7 @@ var Commands = []*cli.Command{
 			return nil
 		},
 	},
-	&cli.Command{
+	{
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:    "config",
@@ -331,7 +360,7 @@ var Commands = []*cli.Command{
 			}
 
 			nsqService := nsq.Service{Project: project}
-			status := nsqService.TestConnect()
+			status := nsqService.Ping()
 			if !status {
 				color.Red("Connection failed to NSQ")
 				os.Exit(1)
@@ -347,52 +376,39 @@ var Commands = []*cli.Command{
 			)
 
 			for i, topic := range topicsArr {
-				nsqService.InitConsumer("reader-"+strconv.Itoa(i), topic, channel, 1)
+				setting := &interfaces.Queue{Topic: topic, Channel: channel, Concurrent: 1}
+				setting.SetGroupName("reader-"+strconv.Itoa(i))
+				nsqService.InitConsumer(setting)
 			}
 
+			total := 0
+			for yield := range nsqService.Read() {
+				total += 1
 
-			nsqService.Read()
+
+					color.Green(`
+				
+				From Topic: %s
+				Channel: %s
+				Body: %s
+				Name: %s
+				Total: %d
+				`,
+						yield.Topic,
+						yield.Channel,
+						string(yield.Msg.Body),
+						yield.Name,
+						total,
+					)
 
 
+				yield.Msg.Finish()
+			}
 			nsqService.StopConsumers()
-
-
-
-
-
-
-//			consumer := nsqService.InitConsumer(name, topic, channel, 1)
-//			var count int
-//
-//
-//			count = 0
-//			for msg := range consumer.Messages() {
-//
-//				color.Yellow("%s", msg.Body)
-//				msg.Finish()
-//				count += 1
-//			}
-//
-//			color.Yellow(` Test NSQ connection:
-//			status: %t
-//			NSQd addresses: %+v
-//			NSQ LookupD: %+v
-//			topic: %s
-//			read messages: %d
-//`,
-//				status,
-//				project.Config.Config.NsqdNodes,
-//				project.Config.Config.NsqlookupdIP,
-//				topic,
-//				count,
-//
-//			)
-//
-//			nsqService.StopProducers()
 			return nil
 		},
 	},
-	&cli.Command{
+	{
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:    "config",
@@ -412,6 +428,12 @@ var Commands = []*cli.Command{
 				Value: "test,test1,test2",
 				Usage:   "topics name with , delimiter",
 			},
+			&cli.StringFlag{
+				Name:    "concurrent",
+				Aliases: []string{"ct"},
+				Value: "1",
+				Usage:   "Concurrent message from Queue",
+			},
 
 		},
 		Name: "group-batch-sub",
@@ -419,6 +441,12 @@ var Commands = []*cli.Command{
 		Action: func(context *cli.Context) error {
 			config := context.String("config")
 			topics := context.String("topics")
+			concurrentStr := context.String("concurrent")
+			concurrent, err := strconv.Atoi(concurrentStr)
+			if err != nil {
+				color.Red("%s", err.Error())
+				os.Exit(1)
+			}
 			topicsArr := strings.Split(topics, ",")
 			channel := context.String("channel")
 			pathProject, _ := os.Getwd()
@@ -428,7 +456,7 @@ var Commands = []*cli.Command{
 			}
 
 			nsqService := nsq.Service{Project: project}
-			status := nsqService.TestConnect()
+			status := nsqService.Ping()
 			if !status {
 				color.Red("Connection failed to NSQ")
 				os.Exit(1)
@@ -444,7 +472,13 @@ var Commands = []*cli.Command{
 			)
 
 			for i, topic := range topicsArr {
-				nsqService.InitConsumer("reader-"+strconv.Itoa(i), topic, channel, 1)
+				setting := &interfaces.Queue{
+					Topic: topic,
+					Concurrent: concurrent,
+					Channel: channel,
+				}
+				setting.SetGroupName("reader-"+strconv.Itoa(i))
+				nsqService.InitConsumer(setting)
 			}
 
 

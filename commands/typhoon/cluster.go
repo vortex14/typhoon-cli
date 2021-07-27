@@ -16,7 +16,7 @@ import (
 
 
 var ClusterGitCommands = []*cli.Command{
-	&cli.Command{
+	{
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:    "name",
@@ -64,7 +64,7 @@ var ClusterGitCommands = []*cli.Command{
 			return nil
 		},
 	},
-	&cli.Command{
+	{
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:    "name",
@@ -107,7 +107,7 @@ var ClusterGitCommands = []*cli.Command{
 			return nil
 		},
 	},
-	&cli.Command{
+	{
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:    "name",
@@ -150,7 +150,7 @@ var ClusterGitCommands = []*cli.Command{
 			return nil
 		},
 	},
-	&cli.Command{
+	{
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:    "name",
@@ -192,7 +192,7 @@ var ClusterGitCommands = []*cli.Command{
 			return nil
 		},
 	},
-	&cli.Command{
+	{
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:    "name",
@@ -236,7 +236,7 @@ var ClusterGitCommands = []*cli.Command{
 			return nil
 		},
 	},
-	&cli.Command{
+	{
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:    "name",
@@ -291,7 +291,7 @@ var ClusterGitCommands = []*cli.Command{
 			return nil
 		},
 	},
-	&cli.Command{
+	{
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:    "name",
@@ -339,7 +339,7 @@ var ClusterGitCommands = []*cli.Command{
 			return nil
 		},
 	},
-	&cli.Command{
+	{
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:    "name",
@@ -393,7 +393,7 @@ var ClusterGitCommands = []*cli.Command{
 			return nil
 		},
 	},
-	&cli.Command{
+	{
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:    "name",
@@ -445,7 +445,7 @@ var ClusterGitCommands = []*cli.Command{
 
 
 var ClusterDeployCommands = []*cli.Command{
-	&cli.Command{
+	{
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:    "name",
@@ -481,7 +481,7 @@ var ClusterDeployCommands = []*cli.Command{
 	},
 }
 var ClusterGrafanaCommands = []*cli.Command{
-	&cli.Command{
+	{
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:    "name",
@@ -542,7 +542,7 @@ var ClusterGrafanaCommands = []*cli.Command{
 			return nil
 		},
 	},
-	&cli.Command{
+	{
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:    "name",
@@ -559,7 +559,7 @@ var ClusterGrafanaCommands = []*cli.Command{
 		},
 		Name: "init",
 		Subcommands: []*cli.Command{
-			&cli.Command{
+			{
 				Flags: []cli.Flag{
 					&cli.StringFlag{
 						Name:    "name",
@@ -598,7 +598,7 @@ var ClusterGrafanaCommands = []*cli.Command{
 					return nil
 				},
 			},
-			&cli.Command{
+			{
 				Flags: []cli.Flag{
 					&cli.StringFlag{
 						Name:    "name",
@@ -640,7 +640,7 @@ var ClusterGrafanaCommands = []*cli.Command{
 		},
 		Usage: "Create grafana base template monitoring for each project of the cluster",
 	},
-	&cli.Command{
+	{
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:    "name",
@@ -706,7 +706,7 @@ var ClusterGrafanaCommands = []*cli.Command{
 }
 
 var ClusterDockerCommands = []*cli.Command{
-	&cli.Command{
+	{
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:    "name",
@@ -770,8 +770,8 @@ var ClusterDockerCommands = []*cli.Command{
 				}
 
 				lables := []interfaces.ReplaceLabel{
-					interfaces.ReplaceLabel{Label: "{{.Image}}", Value: imageTag},
-					interfaces.ReplaceLabel{Label: "{{.Config}}", Value: project.GetConfigFile()},
+					{Label: "{{.Image}}", Value: imageTag},
+					{Label: "{{.Config}}", Value: project.GetConfigFile()},
 				}
 
 				err := u.CopyFileAndReplaceLabelsFromHost(exportPath, lables, fileObject)
@@ -794,7 +794,7 @@ var ClusterDockerCommands = []*cli.Command{
 }
 
 var ClusterCommands = []*cli.Command{
-	&cli.Command{
+	{
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:    "name",
@@ -830,7 +830,7 @@ var ClusterCommands = []*cli.Command{
 			return nil
 		},
 	},
-	&cli.Command{
+	{
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:    "name",
@@ -858,7 +858,7 @@ var ClusterCommands = []*cli.Command{
 			return nil
 		},
 	},
-	&cli.Command{
+	{
 		Flags: []cli.Flag{},
 		Name: "show",
 		Usage: "Show all Typhoon clusters",
@@ -868,7 +868,7 @@ var ClusterCommands = []*cli.Command{
 			return nil
 		},
 	},
-	&cli.Command{
+	{
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:    "name",
@@ -902,7 +902,7 @@ var ClusterCommands = []*cli.Command{
 			return nil
 		},
 	},
-	&cli.Command{
+	{
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:    "name",
@@ -921,17 +921,17 @@ var ClusterCommands = []*cli.Command{
 		Name:        "deploy",
 		Usage:       "Typhoon deploy the cluster into env",
 	},
-	&cli.Command{
+	{
 		Subcommands: ClusterGrafanaCommands,
 		Name:        "grafana",
 		Usage:       "Integration of Typhoon cluster with Grafana",
 	},
-	&cli.Command{
+	{
 		Subcommands: ClusterDockerCommands,
 		Name:        "docker",
 		Usage:       "Integration of Typhoon cluster with Docker",
 	},
-	&cli.Command{
+	{
 		Subcommands: ClusterGitCommands,
 		Name:        "git",
 		Usage:       "Integration of Typhoon cluster with Git",

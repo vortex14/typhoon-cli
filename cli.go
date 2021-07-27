@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/fatih/color"
 	"github.com/urfave/cli/v2"
+	fetcher "github.com/vortex14/gofetcher/commands"
 	"github.com/vortex14/gotyphoon"
 	"github.com/vortex14/gotyphoon/environment"
 	"github.com/vortex14/gotyphoon/interfaces"
@@ -16,6 +17,7 @@ import (
 	"typhoon-cli/commands/gitlab"
 	"typhoon-cli/commands/grafana"
 	"typhoon-cli/commands/helm"
+	"typhoon-cli/commands/mongo"
 	"typhoon-cli/commands/nsq"
 	"typhoon-cli/commands/ssh"
 	"typhoon-cli/commands/tests"
@@ -23,7 +25,13 @@ import (
 )
 
 func main() {
-	typhoonComponents := []string{"fetcher", "result_transporter", "donor", "processor", "scheduler"}
+	typhoonComponents := []string{
+		interfaces.FETCHER,
+		interfaces.PROCESSOR,
+		interfaces.SCHEDULER,
+		interfaces.TRANSPORTER,
+		interfaces.DONOR,
+	}
 
 	app := &cli.App{
 		Name: "Typhoon",
@@ -216,7 +224,7 @@ func main() {
 					&cli.StringFlag{
 						Name:    "component",
 						Aliases: []string{"ct"},
-						Value:   "processor",
+						Value:   "Processor",
 						Usage:   "check component of dir",
 
 					},
@@ -224,6 +232,7 @@ func main() {
 						Name:    "components",
 						Aliases: []string{"cs"},
 						Usage:   "check a few component of dir ",
+						//Value: "Fetcher,Processor",
 					},
 				},
 				Action:  func(c *cli.Context) error {
@@ -335,6 +344,11 @@ func main() {
 				Subcommands: nsq.Commands,
 			},
 			{
+				Name:        "mongo",
+				Usage:       "Typhoon Mongo integration",
+				Subcommands: mongo.Commands,
+			},
+			{
 				Name:        "cluster",
 				Usage:       "Typhoon cluster",
 				Subcommands: typhoonCommands.ClusterCommands,
@@ -391,6 +405,13 @@ func main() {
 
 					},
 				},
+
+			},
+			{
+
+				Name: "fetcher",
+				Usage: "Manage of fetcher component",
+				Subcommands: fetcher.FetcherCommands,
 
 			},
 			{

@@ -1,14 +1,17 @@
 package git
 
 import (
+	"fmt"
+	"github.com/fatih/color"
 	"github.com/urfave/cli/v2"
 	"github.com/vortex14/gotyphoon"
 	"github.com/vortex14/gotyphoon/integrations/docker"
 	"github.com/vortex14/gotyphoon/integrations/git"
+	"os"
 )
 
 var Commands = []*cli.Command{
-	&cli.Command{
+	{
 		Name:   "remove-untracked",
 		Usage: "Remove all untracked files",
 		Flags: []cli.Flag{
@@ -32,7 +35,7 @@ var Commands = []*cli.Command{
 			return nil
 		},
 	},
-	&cli.Command{
+	{
 		Name:   "status",
 		Usage: "Status git files",
 		Flags: []cli.Flag{
@@ -57,11 +60,71 @@ var Commands = []*cli.Command{
 			return nil
 		},
 	},
-	&cli.Command{
+	{
+		Flags: []cli.Flag{
+			&cli.StringFlag{
+				Name:    "config",
+				Aliases: []string{"c"},
+				Value:   "config.local.yaml",
+				Usage:   "Project config yaml",
+			},
+			&cli.StringFlag{
+				Name:    "backup",
+				Aliases: []string{"b"},
+				Value:   "true",
+				Usage:   "force git backup",
+			},
+			&cli.StringFlag{
+				Name:    "remote",
+				Aliases: []string{"r"},
+				Usage:   "git remote",
+			},
+			&cli.StringFlag{
+				Name:    "branch",
+				Aliases: []string{"bc"},
+				Usage:   "branch",
+			},
+		},
+		Name: "reset",
+		Usage: "Synchronize local files by remote branch",
+		Action: func(context *cli.Context) error {
+			config := context.String("config")
+			backup := context.String("backup")
+			remote := context.String("remote")
+			branch := context.String("branch")
+
+			if len(branch) == 0 || len(remote) == 0 {
+				color.Red("Required Arguments: remote, branch")
+				os.Exit(1)
+			}
+
+			backupFlag := false
+			if backup == "true" {
+				backupFlag = true
+			}
+
+			project := &typhoon.Project{
+				ConfigFile: config,
+			}
+			project.LoadConfig()
+			projectGit := git.Git{
+				Path: project.GetProjectPath(),
+			}
+			color.Green("Remove untracked files for %s:", project.Name)
+			projectGit.LocalResetLikeRemote(remote, branch, backupFlag)
+			fmt.Println("")
+
+
+			color.Yellow("Run git reset for all %s. backup: %t", project.GetName(), backupFlag)
+
+			return nil
+		},
+	},
+	{
 		Name:   "push",
 		Usage: "Push Docker resources to registry",
 		Subcommands: []*cli.Command{
-			&cli.Command{
+			{
 				Flags: []cli.Flag{
 					&cli.StringFlag{
 						Name:    "name",
@@ -89,7 +152,7 @@ var Commands = []*cli.Command{
 					return nil
 				},
 			},
-			&cli.Command{
+			{
 				Flags: []cli.Flag{
 					&cli.StringFlag{
 						Name:    "name",

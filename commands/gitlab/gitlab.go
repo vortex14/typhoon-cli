@@ -6,11 +6,11 @@ import (
 )
 
 var Commands = []*cli.Command{
-	&cli.Command{
+	{
 		Name:   "init",
 		Usage: "Create Ci base templates",
 		Subcommands: []*cli.Command{
-			&cli.Command{
+			{
 				Flags: []cli.Flag{
 					&cli.StringFlag{
 						Name:    "typhoon-image",

@@ -8,11 +8,11 @@ import (
 )
 
 var Commands = []*cli.Command{
-	&cli.Command{
+	{
 		Name:   "init",
 		Usage: "Create helm resources",
 		Subcommands: []*cli.Command{
-			&cli.Command{
+			{
 				Flags: []cli.Flag{
 					&cli.StringFlag{
 						Name:    "version",
@@ -54,11 +54,11 @@ var Commands = []*cli.Command{
 		},
 
 	},
-	&cli.Command{
+	{
 		Name:   "remove",
 		Usage: "Create helm resources",
 		Subcommands: []*cli.Command{
-			&cli.Command{
+			{
 				Flags: []cli.Flag{
 					&cli.StringFlag{
 						Name:    "version",

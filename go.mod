@@ -4,7 +4,7 @@ go 1.14
 
 require (
 	github.com/aws/aws-sdk-go v1.34.28 // indirect
-	github.com/deliveryhero/pipeline v0.3.1
+	github.com/deliveryhero/pipeline v0.3.1 // indirect
 	github.com/docker/go-connections v0.4.0 // indirect
 	github.com/fatih/color v1.12.0
 	github.com/goccy/go-yaml v1.8.10 // indirect
@@ -17,9 +17,13 @@ require (
 	github.com/urfave/cli v1.22.5 // indirect
 	github.com/urfave/cli/v2 v2.3.0
 	github.com/vbauerster/mpb/v7 v7.0.3 // indirect
+	github.com/vortex14/gofetcher v0.0.0-00010101000000-000000000000 // indirect
 	github.com/vortex14/gotyphoon v0.0.0-00010101000000-000000000000
+	go.mongodb.org/mongo-driver v1.7.0
 	go.opentelemetry.io/otel v0.20.0 // indirect
 	gopkg.in/cheggaaa/pb.v1 v1.0.25 // indirect
 )
 
 replace github.com/vortex14/gotyphoon => ../typhoon
+
+replace github.com/vortex14/gofetcher => ../fetcher

@@ -8,7 +8,7 @@ import (
 )
 
 var Commands = []*cli.Command{
-	&cli.Command{
+	{
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:    "version",
@@ -39,7 +39,7 @@ var Commands = []*cli.Command{
 			return nil
 		},
 	},
-	&cli.Command{
+	{
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:    "version",

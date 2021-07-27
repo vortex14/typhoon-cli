@@ -7,11 +7,11 @@ import (
 )
 
 var Commands = []*cli.Command{
-	&cli.Command{
+	{
 		Name:   "build",
 		Usage: "Create new Typhoon build",
 		Subcommands: []*cli.Command{
-			&cli.Command{
+			{
 				Flags: []cli.Flag{
 					&cli.StringFlag{
 						Name:    "name",
@@ -32,7 +32,7 @@ var Commands = []*cli.Command{
 					return nil
 				},
 			},
-			&cli.Command{
+			{
 				Flags: []cli.Flag{
 					&cli.StringFlag{
 						Name:    "name",
@@ -66,11 +66,11 @@ var Commands = []*cli.Command{
 			},
 		},
 	},
-	&cli.Command{
+	{
 		Name:   "push",
 		Usage: "Push Docker resources to registry",
 		Subcommands: []*cli.Command{
-			&cli.Command{
+			{
 				Flags: []cli.Flag{
 					&cli.StringFlag{
 						Name:    "name",
@@ -98,7 +98,7 @@ var Commands = []*cli.Command{
 					return nil
 				},
 			},
-			&cli.Command{
+			{
 				Flags: []cli.Flag{
 					&cli.StringFlag{
 						Name:    "name",
@@ -131,7 +131,7 @@ var Commands = []*cli.Command{
 			},
 		},
 	},
-	&cli.Command{
+	{
 		Name:   "build-push",
 		Flags: []cli.Flag{
 			&cli.StringFlag{
@@ -160,11 +160,11 @@ var Commands = []*cli.Command{
 			return nil
 		},
 	},
-	&cli.Command{
+	{
 		Name:   "list",
 		Usage: "Create new Typhoon build",
 		Subcommands: []*cli.Command{
-			&cli.Command{
+			{
 				Name: "containers",
 				Usage: "Show list containers",
 				Action: func(context *cli.Context) error {
@@ -176,11 +176,11 @@ var Commands = []*cli.Command{
 			},
 		},
 	},
-	&cli.Command{
+	{
 		Name:   "run",
 		Usage: "Create new Typhoon build",
 		Subcommands: []*cli.Command{
-			&cli.Command{
+			{
 				Name: "component",
 				Usage: "Run Typhoon component in docker container",
 				Flags: []cli.Flag{
@@ -209,11 +209,11 @@ var Commands = []*cli.Command{
 			},
 		},
 	},
-	&cli.Command{
+	{
 		Name:   "remove",
 		Usage: "Remove Docker resources",
 		Subcommands: []*cli.Command{
-			&cli.Command{
+			{
 				Name: "files",
 				Usage: "Run Typhoon component in docker container",
 				Flags: []cli.Flag{

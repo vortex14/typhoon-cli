@@ -9,7 +9,7 @@ import (
 )
 
 var Commands = []*cli.Command{
-		&cli.Command{
+		{
 			Flags: []cli.Flag{
 				&cli.StringFlag{
 					Name:    "version",
@@ -60,7 +60,7 @@ var Commands = []*cli.Command{
 				return nil
 			},
 		},
-		&cli.Command{
+		{
 			Flags: []cli.Flag{
 				&cli.StringFlag{
 					Name:    "version",
@@ -103,7 +103,7 @@ var Commands = []*cli.Command{
 				return nil
 			},
 		},
-		&cli.Command{
+		{
 			Flags: []cli.Flag{
 				&cli.StringFlag{
 					Name:    "version",
@@ -135,11 +135,11 @@ var Commands = []*cli.Command{
 				return nil
 			},
 		},
-		&cli.Command{
+		{
 			Name:   "init",
 			Usage: "Create grafana base template for project monitoring",
 			Subcommands: []*cli.Command{
-				&cli.Command{
+				{
 					Flags: []cli.Flag{
 						&cli.StringFlag{
 							Name:    "version",
@@ -173,7 +173,7 @@ var Commands = []*cli.Command{
 						return nil
 					},
 				},
-				&cli.Command{
+				{
 					Flags: []cli.Flag{
 						&cli.StringFlag{
 							Name:    "version",
