@@ -105,7 +105,7 @@ var Commands = []*cli.Command{
 				color.Red("%s", err.Error())
 				return err
 			} else if tick <= 0 {
-				color.Red("-t > 0")
+				color.Red("--timeout > 0")
 				return nil
 			}
 			project := &typhoon.Project{
@@ -113,20 +113,6 @@ var Commands = []*cli.Command{
 				SelectedComponent: []string{component},
 			}
 			project.LoadConfig()
-			var f fake.Product
-			err = gofakeit.Struct(&f)
-			if err != nil {
-				color.Red("%s", err.Error())
-				return err
-			}
-
-			fakeTask, _ := fake.CreateFakeTask(interfaces.FakeTaskOptions{
-				UserAgent: true,
-				Cookies: true,
-				Proxy: false,
-			})
-
-			dump := u.PrintPrettyJson(fakeTask)
 
 			project.LoadServices()
 			if !project.Services.Collections.Nsq.Ping() {
@@ -142,6 +128,24 @@ var Commands = []*cli.Command{
 			bar := bar.Bar{}
 			bar.NewOption(0, -1)
 			tickerGen := timer.SetInterval(func (args ...interface{}) {
+
+				var f fake.Product
+				err = gofakeit.Struct(&f)
+				if err != nil {
+					color.Red("%s", err.Error())
+					return
+				}
+
+				fakeTask, _ := fake.CreateFakeTask(interfaces.FakeTaskOptions{
+					UserAgent: true,
+					Cookies: true,
+					Proxy: false,
+				})
+
+				dump := u.PrintPrettyJson(fakeTask)
+
+
+
 				count += 1
 				bar.Play(int64(count), "Total generated tasks")
 				rand.Seed(time.Now().Unix()) // initialize global pseudo random generator
