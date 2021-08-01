@@ -14,7 +14,6 @@ import (
 	"strconv"
 )
 
-
 var ClusterGitCommands = []*cli.Command{
 	{
 		Flags: []cli.Flag{
@@ -31,7 +30,7 @@ var ClusterGitCommands = []*cli.Command{
 				Usage:   "Cluster config yaml",
 			},
 		},
-		Name: "status",
+		Name:  "status",
 		Usage: "Cluster repository status",
 		Action: func(context *cli.Context) error {
 			clusterName := context.String("name")
@@ -60,7 +59,6 @@ var ClusterGitCommands = []*cli.Command{
 
 			}
 
-
 			return nil
 		},
 	},
@@ -79,7 +77,7 @@ var ClusterGitCommands = []*cli.Command{
 				Usage:   "Cluster config yaml",
 			},
 		},
-		Name: "remove-untracked",
+		Name:  "remove-untracked",
 		Usage: "Remove all untracked files",
 		Action: func(context *cli.Context) error {
 			clusterName := context.String("name")
@@ -122,7 +120,7 @@ var ClusterGitCommands = []*cli.Command{
 				Usage:   "Cluster config yaml",
 			},
 		},
-		Name: "remove-ignores",
+		Name:  "remove-ignores",
 		Usage: "Remove all ignore files",
 		Action: func(context *cli.Context) error {
 			clusterName := context.String("name")
@@ -170,7 +168,7 @@ var ClusterGitCommands = []*cli.Command{
 				Usage:   "Cluster branch name",
 			},
 		},
-		Name: "change-branch",
+		Name:  "change-branch",
 		Usage: "Change project branch to cluster branch",
 		Action: func(context *cli.Context) error {
 			clusterName := context.String("name")
@@ -207,7 +205,7 @@ var ClusterGitCommands = []*cli.Command{
 				Usage:   "Cluster config yaml",
 			},
 		},
-		Name: "show-ignores",
+		Name:  "show-ignores",
 		Usage: "Show all ignore files",
 		Action: func(context *cli.Context) error {
 			clusterName := context.String("name")
@@ -257,7 +255,7 @@ var ClusterGitCommands = []*cli.Command{
 				Usage:   "force git backup",
 			},
 		},
-		Name: "reset",
+		Name:  "reset",
 		Usage: "Synchronize local files by remote branch",
 		Action: func(context *cli.Context) error {
 			clusterName := context.String("name")
@@ -306,7 +304,7 @@ var ClusterGitCommands = []*cli.Command{
 				Usage:   "Cluster config yaml",
 			},
 		},
-		Name: "push",
+		Name:  "push",
 		Usage: "Push cluster projects to git",
 		Action: func(context *cli.Context) error {
 			clusterName := context.String("name")
@@ -364,7 +362,7 @@ var ClusterGitCommands = []*cli.Command{
 				Usage:   "Update project",
 			},
 		},
-		Name: "new-branch",
+		Name:  "new-branch",
 		Usage: "Create a new local branch and add new files",
 		Action: func(context *cli.Context) error {
 			clusterName := context.String("name")
@@ -413,7 +411,7 @@ var ClusterGitCommands = []*cli.Command{
 				Usage:   "Git message",
 			},
 		},
-		Name: "commit",
+		Name:  "commit",
 		Usage: "Create a new commit and add new files",
 		Action: func(context *cli.Context) error {
 			clusterName := context.String("name")
@@ -443,7 +441,6 @@ var ClusterGitCommands = []*cli.Command{
 	},
 }
 
-
 var ClusterDeployCommands = []*cli.Command{
 	{
 		Flags: []cli.Flag{
@@ -460,7 +457,7 @@ var ClusterDeployCommands = []*cli.Command{
 				Usage:   "Cluster config yaml",
 			},
 		},
-		Name: "gitlab",
+		Name:  "gitlab",
 		Usage: "Deploy Typhoon cluster to Gitlab",
 		Action: func(context *cli.Context) error {
 			clusterName := context.String("name")
@@ -498,12 +495,11 @@ var ClusterGrafanaCommands = []*cli.Command{
 			&cli.StringFlag{
 				Name:    "grafana-dashboard",
 				Aliases: []string{"g"},
-				Value: "monitoring-grafana.json",
+				Value:   "monitoring-grafana.json",
 				Usage:   "Load configuration from `FILE`",
 			},
-
 		},
-		Name: "import",
+		Name:  "import",
 		Usage: "import cluster of projects template to grafana api",
 		Action: func(context *cli.Context) error {
 			clusterName := context.String("name")
@@ -519,7 +515,7 @@ var ClusterGrafanaCommands = []*cli.Command{
 			configDashboard := context.String("grafana-dashboard")
 			folderId := clusterConfig.Meta.Grafana.FolderId
 			header := []string{"№", "name", "url"}
-			var data[][]string
+			var data [][]string
 			for i, projectCluster := range projects {
 				project := &typhoon.Project{
 					ConfigFile: projectCluster.Config,
@@ -531,7 +527,7 @@ var ClusterGrafanaCommands = []*cli.Command{
 				}
 				configImportedDashboard := dashboard.ImportGrafanaConfig(folderId)
 				projectCluster.Labels.Grafana = append(projectCluster.Labels.Grafana, configImportedDashboard)
-				data = append(data, []string{strconv.Itoa(i +1),  projectCluster.Name,  configImportedDashboard.DashboardUrl})
+				data = append(data, []string{strconv.Itoa(i + 1), projectCluster.Name, configImportedDashboard.DashboardUrl})
 
 			}
 			u := utils.Utils{}
@@ -574,7 +570,7 @@ var ClusterGrafanaCommands = []*cli.Command{
 						Usage:   "Cluster config yaml",
 					},
 				},
-				Name: "monitoring",
+				Name:  "monitoring",
 				Usage: "create base template for monitoring of project",
 				Action: func(context *cli.Context) error {
 					clusterName := context.String("name")
@@ -613,7 +609,7 @@ var ClusterGrafanaCommands = []*cli.Command{
 						Usage:   "Cluster config yaml",
 					},
 				},
-				Name: "nsq-monitoring",
+				Name:  "nsq-monitoring",
 				Usage: "create base template for nsq monitoring of project",
 				Action: func(context *cli.Context) error {
 					clusterName := context.String("name")
@@ -657,12 +653,11 @@ var ClusterGrafanaCommands = []*cli.Command{
 			&cli.StringFlag{
 				Name:    "grafana-dashboard",
 				Aliases: []string{"g"},
-				Value: "monitoring-grafana.json",
+				Value:   "monitoring-grafana.json",
 				Usage:   "Load configuration from `FILE`",
 			},
-
 		},
-		Name: "remove",
+		Name:  "remove",
 		Usage: "Remove project dashboard from grafana api",
 		Action: func(context *cli.Context) error {
 			clusterName := context.String("name")
@@ -723,18 +718,17 @@ var ClusterDockerCommands = []*cli.Command{
 			&cli.StringFlag{
 				Name:    "docker-file",
 				Aliases: []string{"d"},
-				Value: "Dockerfile",
+				Value:   "Dockerfile",
 				Usage:   "Load Dockerfile template from `FILE`",
 			},
 			&cli.StringFlag{
 				Name:    "tag",
 				Aliases: []string{"t"},
-				Value: "typhoon-lite:latest",
+				Value:   "typhoon-lite:latest",
 				Usage:   "Typhoon Lite Tag",
 			},
-
 		},
-		Name: "generate",
+		Name:  "generate",
 		Usage: "Generate own a dockerfile for all cluster",
 		Action: func(context *cli.Context) error {
 			clusterName := context.String("name")
@@ -752,7 +746,7 @@ var ClusterDockerCommands = []*cli.Command{
 			cluster.Meta.Docker.Image = imageTag
 
 			header := []string{"№", "name"}
-			var data[][]string
+			var data [][]string
 			for i, projectCluster := range projects {
 				project := &typhoon.Project{
 					ConfigFile: projectCluster.Config,
@@ -782,7 +776,7 @@ var ClusterDockerCommands = []*cli.Command{
 					os.Exit(0)
 
 				}
-				data = append(data, []string{strconv.Itoa(i +1),  projectCluster.Name})
+				data = append(data, []string{strconv.Itoa(i + 1), projectCluster.Name})
 
 			}
 
@@ -815,7 +809,7 @@ var ClusterCommands = []*cli.Command{
 				Usage:   "Cluster config yaml",
 			},
 		},
-		Name: "create",
+		Name:  "create",
 		Usage: "Create a new Typhoon cluster",
 		Action: func(context *cli.Context) error {
 			name := context.String("name")
@@ -845,7 +839,7 @@ var ClusterCommands = []*cli.Command{
 				Usage:   "Cluster config yaml",
 			},
 		},
-		Name: "add",
+		Name:  "add",
 		Usage: "Add the project to Typhoon cluster",
 		Action: func(context *cli.Context) error {
 			clusterName := context.String("name")
@@ -860,7 +854,7 @@ var ClusterCommands = []*cli.Command{
 	},
 	{
 		Flags: []cli.Flag{},
-		Name: "show",
+		Name:  "show",
 		Usage: "Show all Typhoon clusters",
 		Action: func(context *cli.Context) error {
 			cluster := typhoon.Cluster{}
@@ -883,7 +877,7 @@ var ClusterCommands = []*cli.Command{
 				Usage:   "Cluster config yaml",
 			},
 		},
-		Name: "sync-gitlab",
+		Name:  "sync-gitlab",
 		Usage: "Typhoon sync cluster with gitlab projects",
 		Action: func(context *cli.Context) error {
 			clusterName := context.String("name")
@@ -937,4 +931,3 @@ var ClusterCommands = []*cli.Command{
 		Usage:       "Integration of Typhoon cluster with Git",
 	},
 }
-

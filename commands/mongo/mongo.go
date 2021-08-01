@@ -16,19 +16,19 @@ import (
 
 var Commands = []*cli.Command{
 	{
-		Name:   "show",
+		Name:  "show",
 		Usage: "Show collections of the project",
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:    "config",
 				Aliases: []string{"c"},
-				Value: "config.local.yaml",
+				Value:   "config.local.yaml",
 				Usage:   "Load configuration from `FILE`",
 			},
 			&cli.StringFlag{
 				Name:    "group",
 				Aliases: []string{"g"},
-				Value: "main",
+				Value:   "main",
 				Usage:   "Services group mongo name.",
 			},
 		},
@@ -59,17 +59,17 @@ var Commands = []*cli.Command{
 			collections := mongoService.GetCollections()
 			for i, collection := range collections {
 				query := &interfaces.MongoQuery{
-					Timeout: 5,
-					Filter:  bson.D{},
-					Context: Context.TODO(),
-					Database: project.GetName(),
+					Timeout:    5,
+					Filter:     bson.D{},
+					Context:    Context.TODO(),
+					Database:   project.GetName(),
 					Collection: collection.Name,
-					Options: &options.CountOptions{},
+					Options:    &options.CountOptions{},
 				}
 
 				count := mongoService.GetCountDocuments(query)
 				tableData = append(tableData, []string{
-					strconv.Itoa(i+1),
+					strconv.Itoa(i + 1),
 					groupName,
 					project.GetName(),
 					collection.Name,
@@ -84,31 +84,31 @@ var Commands = []*cli.Command{
 		},
 	},
 	{
-		Name:   "export",
+		Name:  "export",
 		Usage: "Export Data from collection of the project",
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:    "config",
 				Aliases: []string{"c"},
-				Value: "config.local.yaml",
+				Value:   "config.local.yaml",
 				Usage:   "Load configuration from `FILE`",
 			},
 			&cli.StringFlag{
 				Name:    "group",
 				Aliases: []string{"g"},
-				Value: "main",
+				Value:   "main",
 				Usage:   "Services group mongo name.",
 			},
 			&cli.StringFlag{
 				Name:    "file",
 				Aliases: []string{"f"},
-				Value: "test-output-mongo.json",
+				Value:   "test-output-mongo.json",
 				Usage:   "Export file name.",
 			},
 			&cli.StringFlag{
 				Name:    "collection",
 				Aliases: []string{"i"},
-				Value: "test",
+				Value:   "test",
 				Usage:   "Export collection name.",
 			},
 		},
@@ -162,37 +162,36 @@ var Commands = []*cli.Command{
 			u := utils.Utils{}
 			u.RenderTableOutput(header, tableData)
 
-
 			return nil
 
 		},
 	},
 	{
-		Name:   "import",
+		Name:  "import",
 		Usage: "Import data of project to collection",
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:    "config",
 				Aliases: []string{"c"},
-				Value: "config.local.yaml",
+				Value:   "config.local.yaml",
 				Usage:   "Load configuration from `FILE`",
 			},
 			&cli.StringFlag{
 				Name:    "group",
 				Aliases: []string{"g"},
-				Value: "main",
+				Value:   "main",
 				Usage:   "Services group mongo name.",
 			},
 			&cli.StringFlag{
 				Name:    "file",
 				Aliases: []string{"f"},
-				Value: "test-output-mongo.json",
+				Value:   "test-output-mongo.json",
 				Usage:   "Import file name.",
 			},
 			&cli.StringFlag{
 				Name:    "collection",
 				Aliases: []string{"i"},
-				Value: "import-test",
+				Value:   "import-test",
 				Usage:   "Export collection name.",
 			},
 		},
@@ -234,13 +233,8 @@ var Commands = []*cli.Command{
 			u := utils.Utils{}
 			u.RenderTableOutput(header, tableData)
 
-
 			return nil
 
 		},
 	},
 }
-
-
-
-

@@ -1,6 +1,5 @@
 package helm
 
-
 import (
 	"github.com/urfave/cli/v2"
 	"github.com/vortex14/gotyphoon"
@@ -9,7 +8,7 @@ import (
 
 var Commands = []*cli.Command{
 	{
-		Name:   "init",
+		Name:  "init",
 		Usage: "Create helm resources",
 		Subcommands: []*cli.Command{
 			{
@@ -29,11 +28,11 @@ var Commands = []*cli.Command{
 					&cli.StringFlag{
 						Name:    "config",
 						Aliases: []string{"c"},
-						Value: "config.local.yaml",
+						Value:   "config.local.yaml",
 						Usage:   "Load configuration from `FILE`",
 					},
 				},
-				Name: "minikube",
+				Name:  "minikube",
 				Usage: "create helm manifest for minikube",
 				Action: func(context *cli.Context) error {
 					version := context.String("version")
@@ -52,10 +51,9 @@ var Commands = []*cli.Command{
 				},
 			},
 		},
-
 	},
 	{
-		Name:   "remove",
+		Name:  "remove",
 		Usage: "Create helm resources",
 		Subcommands: []*cli.Command{
 			{
@@ -75,11 +73,11 @@ var Commands = []*cli.Command{
 					&cli.StringFlag{
 						Name:    "config",
 						Aliases: []string{"c"},
-						Value: "config.local.yaml",
+						Value:   "config.local.yaml",
 						Usage:   "Load configuration from `FILE`",
 					},
 				},
-				Name: "minikube",
+				Name:  "minikube",
 				Usage: "remove helm manifest for minikube",
 				Action: func(context *cli.Context) error {
 					helmResources := helm.Resources{}
@@ -88,10 +86,5 @@ var Commands = []*cli.Command{
 				},
 			},
 		},
-
 	},
 }
-
-
-
-

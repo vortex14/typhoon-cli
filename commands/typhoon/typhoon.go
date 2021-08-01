@@ -18,24 +18,23 @@ var Commands = []*cli.Command{
 			&cli.StringFlag{
 				Name:    "config",
 				Aliases: []string{"c"},
-				Value: "config.local.yaml",
+				Value:   "config.local.yaml",
 				Usage:   "Load configuration from `FILE`",
 			},
 			&cli.StringFlag{
 				Name:    "source",
 				Aliases: []string{"s"},
-				Value: "source.json",
+				Value:   "source.json",
 				Usage:   "Load source from `FILE`",
 			},
 			&cli.StringFlag{
 				Name:    "url",
 				Aliases: []string{"u"},
-				Value: "https://200.ru",
+				Value:   "https://200.ru",
 				Usage:   "Response url",
 			},
-
 		},
-		Name: "cache",
+		Name:  "cache",
 		Usage: "Load cache and save to Redis Storage",
 		Action: func(context *cli.Context) error {
 			//color.Red("Load cache and save to Redis Storage")
@@ -64,12 +63,11 @@ var Commands = []*cli.Command{
 			&cli.StringFlag{
 				Name:    "config",
 				Aliases: []string{"c"},
-				Value: "config.local.yaml",
+				Value:   "config.local.yaml",
 				Usage:   "Load configuration from `FILE`",
 			},
-
 		},
-		Name: "check",
+		Name:  "check",
 		Usage: "test check interface",
 		Action: func(context *cli.Context) error {
 			version := context.String("version")
@@ -85,8 +83,3 @@ var Commands = []*cli.Command{
 		},
 	},
 }
-
-
-
-
-

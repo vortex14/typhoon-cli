@@ -7,7 +7,7 @@ import (
 
 var Commands = []*cli.Command{
 	{
-		Name:   "init",
+		Name:  "init",
 		Usage: "Create Ci base templates",
 		Subcommands: []*cli.Command{
 			{
@@ -25,7 +25,7 @@ var Commands = []*cli.Command{
 						Usage:   "Project name",
 					},
 				},
-				Name: "templates",
+				Name:  "templates",
 				Usage: "create ci templates for k8 cluster",
 				Action: func(context *cli.Context) error {
 					version := context.String("typhoon-image")
@@ -41,6 +41,3 @@ var Commands = []*cli.Command{
 		},
 	},
 }
-
-
-

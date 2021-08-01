@@ -19,36 +19,35 @@ var Commands = []*cli.Command{
 			&cli.StringFlag{
 				Name:    "config",
 				Aliases: []string{"c"},
-				Value: "config.local.yaml",
+				Value:   "config.local.yaml",
 				Usage:   "Load configuration from `FILE`",
 			},
 			&cli.StringFlag{
 				Name:    "ip",
 				Aliases: []string{"i"},
-				Value: "127.0.0.1",
+				Value:   "127.0.0.1",
 				Usage:   "Remote ip Addresses",
 			},
 			&cli.StringFlag{
 				Name:    "login",
 				Aliases: []string{"i"},
-				Value: "root",
+				Value:   "root",
 				Usage:   "Remote login",
 			},
 			&cli.StringFlag{
 				Name:    "password",
 				Aliases: []string{"p"},
-				Value: "password",
+				Value:   "password",
 				Usage:   "Remote password",
 			},
-
 		},
-		Name: "test-connection",
+		Name:  "test-connection",
 		Usage: "Run test for connection to services from config.yaml",
 		Action: func(context *cli.Context) error {
 			ssh := ssh.SSH{
-				Login: context.String("login"),
+				Login:    context.String("login"),
 				Password: context.String("password"),
-				Ip: context.String("ip"),
+				Ip:       context.String("ip"),
 			}
 			ssh.TestConnection()
 			return nil
@@ -65,12 +64,11 @@ var Commands = []*cli.Command{
 			&cli.StringFlag{
 				Name:    "config",
 				Aliases: []string{"c"},
-				Value: "config.local.yaml",
+				Value:   "config.local.yaml",
 				Usage:   "Load configuration from `FILE`",
 			},
-
 		},
-		Name: "check",
+		Name:  "check",
 		Usage: "test check interface",
 		Action: func(context *cli.Context) error {
 			version := context.String("version")
@@ -86,6 +84,3 @@ var Commands = []*cli.Command{
 		},
 	},
 }
-
-
-

@@ -4,6 +4,8 @@ go 1.14
 
 require (
 	github.com/aws/aws-sdk-go v1.34.28 // indirect
+	github.com/brianvoe/gofakeit/v6 v6.5.0
+	github.com/coreybutler/go-timer v1.0.2 // indirect
 	github.com/deliveryhero/pipeline v0.3.1 // indirect
 	github.com/docker/go-connections v0.4.0 // indirect
 	github.com/fatih/color v1.12.0
@@ -13,6 +15,7 @@ require (
 	github.com/moby/sys/mount v0.2.0 // indirect
 	github.com/morikuni/aec v1.0.0 // indirect
 	github.com/nsqio/go-nsq v1.0.8 // indirect
+	github.com/osamingo/checkdigit v1.0.0 // indirect
 	github.com/schollz/progressbar/v3 v3.8.2 // indirect
 	github.com/urfave/cli v1.22.5 // indirect
 	github.com/urfave/cli/v2 v2.3.0

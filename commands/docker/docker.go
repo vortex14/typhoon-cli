@@ -8,7 +8,7 @@ import (
 
 var Commands = []*cli.Command{
 	{
-		Name:   "build",
+		Name:  "build",
 		Usage: "Create new Typhoon build",
 		Subcommands: []*cli.Command{
 			{
@@ -20,7 +20,7 @@ var Commands = []*cli.Command{
 						Usage:   "Pass image name",
 					},
 				},
-				Name: "image",
+				Name:  "image",
 				Usage: "Create new image",
 				Action: func(context *cli.Context) error {
 					imageName := context.String("name")
@@ -43,11 +43,11 @@ var Commands = []*cli.Command{
 					&cli.StringFlag{
 						Name:    "config",
 						Aliases: []string{"c"},
-						Value: "config.local.yaml",
+						Value:   "config.local.yaml",
 						Usage:   "Load configuration from `FILE`",
 					},
 				},
-				Name: "project",
+				Name:  "project",
 				Usage: "Build image for project",
 				Action: func(context *cli.Context) error {
 					imageName := context.String("name")
@@ -67,7 +67,7 @@ var Commands = []*cli.Command{
 		},
 	},
 	{
-		Name:   "push",
+		Name:  "push",
 		Usage: "Push Docker resources to registry",
 		Subcommands: []*cli.Command{
 			{
@@ -85,7 +85,7 @@ var Commands = []*cli.Command{
 						Usage:   "Pass image name",
 					},
 				},
-				Name: "image",
+				Name:  "image",
 				Usage: "Push Typhoon docker image to Registry",
 				Action: func(context *cli.Context) error {
 					imageName := context.String("name")
@@ -109,11 +109,11 @@ var Commands = []*cli.Command{
 					&cli.StringFlag{
 						Name:    "config",
 						Aliases: []string{"c"},
-						Value: "config.local.yaml",
+						Value:   "config.local.yaml",
 						Usage:   "Load configuration from `FILE`",
 					},
 				},
-				Name: "project",
+				Name:  "project",
 				Usage: "Build image for project",
 				Action: func(context *cli.Context) error {
 					imageName := context.String("name")
@@ -132,7 +132,7 @@ var Commands = []*cli.Command{
 		},
 	},
 	{
-		Name:   "build-push",
+		Name: "build-push",
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:    "name",
@@ -161,11 +161,11 @@ var Commands = []*cli.Command{
 		},
 	},
 	{
-		Name:   "list",
+		Name:  "list",
 		Usage: "Create new Typhoon build",
 		Subcommands: []*cli.Command{
 			{
-				Name: "containers",
+				Name:  "containers",
 				Usage: "Show list containers",
 				Action: func(context *cli.Context) error {
 					project := &typhoon.Project{}
@@ -177,17 +177,17 @@ var Commands = []*cli.Command{
 		},
 	},
 	{
-		Name:   "run",
+		Name:  "run",
 		Usage: "Create new Typhoon build",
 		Subcommands: []*cli.Command{
 			{
-				Name: "component",
+				Name:  "component",
 				Usage: "Run Typhoon component in docker container",
 				Flags: []cli.Flag{
 					&cli.StringFlag{
 						Name:    "config",
 						Aliases: []string{"c"},
-						Value: "config.local.yaml",
+						Value:   "config.local.yaml",
 						Usage:   "Load configuration from `FILE`",
 					},
 				},
@@ -210,17 +210,17 @@ var Commands = []*cli.Command{
 		},
 	},
 	{
-		Name:   "remove",
+		Name:  "remove",
 		Usage: "Remove Docker resources",
 		Subcommands: []*cli.Command{
 			{
-				Name: "files",
+				Name:  "files",
 				Usage: "Run Typhoon component in docker container",
 				Flags: []cli.Flag{
 					&cli.StringFlag{
 						Name:    "config",
 						Aliases: []string{"c"},
-						Value: "config.local.yaml",
+						Value:   "config.local.yaml",
 						Usage:   "Load configuration from `FILE`",
 					},
 				},
@@ -240,7 +240,3 @@ var Commands = []*cli.Command{
 		},
 	},
 }
-
-
-
-

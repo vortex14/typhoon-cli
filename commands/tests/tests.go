@@ -1,6 +1,5 @@
 package tests
 
-
 import (
 	"github.com/urfave/cli/v2"
 	"github.com/vortex14/gotyphoon"
@@ -19,12 +18,11 @@ var Commands = []*cli.Command{
 			&cli.StringFlag{
 				Name:    "config",
 				Aliases: []string{"c"},
-				Value: "config.local.yaml",
+				Value:   "config.local.yaml",
 				Usage:   "Load configuration from `FILE`",
 			},
-
 		},
-		Name: "services",
+		Name:  "services",
 		Usage: "Run test for connection to services from config.yaml",
 		Action: func(context *cli.Context) error {
 			version := context.String("version")
@@ -50,12 +48,11 @@ var Commands = []*cli.Command{
 			&cli.StringFlag{
 				Name:    "config",
 				Aliases: []string{"c"},
-				Value: "config.local.yaml",
+				Value:   "config.local.yaml",
 				Usage:   "Load configuration from `FILE`",
 			},
-
 		},
-		Name: "check",
+		Name:  "check",
 		Usage: "test check interface",
 		Action: func(context *cli.Context) error {
 			version := context.String("version")
@@ -71,6 +68,3 @@ var Commands = []*cli.Command{
 		},
 	},
 }
-
-
-

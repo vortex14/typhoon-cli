@@ -301,29 +301,29 @@ ty_components:
 services:
   mongo:
     production:
-    - name: main
-      details:
-        host: localhost
-        port: 27017
-      db_names:
-      - *project_name
+      - name: main
+        details:
+          host: localhost
+          port: 27017
+        db_names:
+          - *project_name
     debug:
-    - name: main
-      details:
-        host: localhost
-        port: 27017
-      db_names:
-        - *project_name
+      - name: main
+        details:
+          host: localhost
+          port: 27017
+        db_names:
+          - *project_name
   redis:
     production:
-    - name: main
-      details:
-        host: localhost
-        port: 6379
-        password:
+      - name: main
+        details:
+          host: localhost
+          port: 6379
+          password:
     debug:
-    - name: main
-      details:
-        host: localhost
-        port: 6379
-        password:
+      - name: main
+        details:
+          host: localhost
+          port: 6379
+          password:

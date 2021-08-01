@@ -13,6 +13,7 @@ import (
 	"sort"
 	"strings"
 	"typhoon-cli/commands/docker"
+	"typhoon-cli/commands/generates"
 	"typhoon-cli/commands/git"
 	"typhoon-cli/commands/gitlab"
 	"typhoon-cli/commands/grafana"
@@ -42,19 +43,19 @@ func main() {
 
 
 			typhoon logging --file=test-log.log
-`		,
-		Description: "For running typhoon lite in command line",
+`,
+		Description:          "For running typhoon lite in command line",
 		EnableBashCompletion: true,
-		Usage: "cli app",
+		Usage:                "cli app",
 		Commands: []*cli.Command{
 			{
-				Name: "logging",
+				Name:  "logging",
 				Usage: "Check typhoon parse log",
 				Flags: []cli.Flag{
 					&cli.StringFlag{
 						Name:    "file",
 						Aliases: []string{"f"},
-						Value: "log.log",
+						Value:   "log.log",
 						Usage:   "Load log from `FILE` for test parsing",
 					},
 				},
@@ -69,7 +70,7 @@ func main() {
 				},
 			},
 			{
-				Name: "init",
+				Name:  "init",
 				Usage: "create symbolic link to typhoon",
 				Action: func(context *cli.Context) error {
 					color.Green("create symbolic link to typhoon ")
@@ -77,10 +78,9 @@ func main() {
 					err := project.CreateSymbolicLink()
 					return err
 				},
-
 			},
 			{
-				Name: "bashrc",
+				Name:  "bashrc",
 				Usage: "Read from ~/.bashrc Typhoon variables",
 				Action: func(context *cli.Context) error {
 					log.Printf("Read from bashrc")
@@ -93,7 +93,7 @@ func main() {
 				},
 			},
 			{
-				Name: "migrate",
+				Name:  "migrate",
 				Usage: "Migrate typhoon project to new version",
 				Flags: []cli.Flag{
 					&cli.StringFlag{
@@ -101,41 +101,37 @@ func main() {
 						Aliases: []string{"n"},
 						Value:   "v1.1",
 						Usage:   "migrate project to v1.1",
-
 					},
 					&cli.StringFlag{
 						Name:    "tag",
 						Aliases: []string{"t"},
 						Value:   "v1.0.0",
 						Usage:   "docker images tag",
-
 					},
 					&cli.StringFlag{
-						Name:    "name",
-						Aliases: []string{"p"},
-						Usage:   "Project name ",
+						Name:     "name",
+						Aliases:  []string{"p"},
+						Usage:    "Project name ",
 						Required: true,
 					},
 				},
 				Action: func(context *cli.Context) error {
 					project := typhoon.Project{
 						Version: context.String("new"),
-						Name: context.String("name"),
-						Tag: context.String("tag"),
+						Name:    context.String("name"),
+						Tag:     context.String("tag"),
 					}
 					project.Migrate()
 					return nil
 				},
 			},
 			{
-				Name: "debug",
+				Name:  "debug",
 				Usage: "Run cli Ui for debugging",
 				Action: func(context *cli.Context) error {
 					typhoon.RunUI()
 					return nil
 				},
-
-
 			},
 			{
 				Name:    "up",
@@ -145,23 +141,23 @@ func main() {
 					&cli.StringFlag{
 						Name:    "config",
 						Aliases: []string{"c"},
-						Value: "config.local.yaml",
+						Value:   "config.local.yaml",
 						Usage:   "Load configuration from `FILE`",
 					},
 					&cli.StringFlag{
 						Name:    "level",
 						Aliases: []string{"l"},
-						Value: "DEBUG",
+						Value:   "DEBUG",
 						Usage:   "LOG LEVEL",
 					},
 					&cli.StringFlag{
 						Name:    "reload",
 						Aliases: []string{"r"},
-						Value: "true",
+						Value:   "true",
 						Usage:   "Auto reloading project",
 					},
 				},
-				Action:  func(c *cli.Context) error {
+				Action: func(c *cli.Context) error {
 					configFile := c.String("config")
 					reloadF := c.String("reload")
 					logLevel := c.String("level")
@@ -179,10 +175,10 @@ func main() {
 
 					project := &typhoon.Project{
 						SelectedComponent: typhoonComponents,
-						ConfigFile: configFile,
-						AutoReload: reload,
-						Path: pathProject,
-						LogLevel: logLevel,
+						ConfigFile:        configFile,
+						AutoReload:        reload,
+						Path:              pathProject,
+						LogLevel:          logLevel,
 					}
 					project.Run()
 					return nil
@@ -196,11 +192,11 @@ func main() {
 					&cli.StringFlag{
 						Name:    "config",
 						Aliases: []string{"c"},
-						Value: "config.local.yaml",
+						Value:   "config.local.yaml",
 						Usage:   "Load configuration from `FILE`",
 					},
 				},
-				Action:  func(c *cli.Context) error {
+				Action: func(c *cli.Context) error {
 					configFile := c.String("config")
 					pathProject, err := os.Getwd()
 					if err != nil {
@@ -209,15 +205,15 @@ func main() {
 
 					project := &typhoon.Project{
 						SelectedComponent: typhoonComponents,
-						ConfigFile: configFile,
-						Path: pathProject,
+						ConfigFile:        configFile,
+						Path:              pathProject,
 					}
 					project.Down()
 					return nil
 				},
 			},
 			{
-				Name: "check",
+				Name:    "check",
 				Aliases: []string{"rc"},
 				Usage:   "Check health component of dir",
 				Flags: []cli.Flag{
@@ -226,7 +222,6 @@ func main() {
 						Aliases: []string{"ct"},
 						Value:   "Processor",
 						Usage:   "check component of dir",
-
 					},
 					&cli.StringFlag{
 						Name:    "components",
@@ -235,7 +230,7 @@ func main() {
 						//Value: "Fetcher,Processor",
 					},
 				},
-				Action:  func(c *cli.Context) error {
+				Action: func(c *cli.Context) error {
 					componentName := c.String("component")
 					componentsName := c.String("components")
 					utils := utils.Utils{}
@@ -266,13 +261,11 @@ func main() {
 						project.CheckProject()
 					}
 
-
 					return nil
 				},
-
 			},
 			{
-				Name: "watch",
+				Name:  "watch",
 				Usage: "Watch for changing in typhoon project",
 				Action: func(context *cli.Context) error {
 					typhoon.WatchTest()
@@ -280,7 +273,7 @@ func main() {
 				},
 			},
 			{
-				Name: "create",
+				Name:  "create",
 				Usage: "Create a new Typhoon project",
 				Flags: []cli.Flag{
 					&cli.StringFlag{
@@ -306,8 +299,8 @@ func main() {
 
 					project := typhoon.Project{
 						Version: context.String("new"),
-						Name: context.String("name"),
-						Tag: context.String("tag"),
+						Name:    context.String("name"),
+						Tag:     context.String("tag"),
 					}
 					project.CreateProject()
 					return nil
@@ -369,12 +362,17 @@ func main() {
 				Subcommands: helm.Commands,
 			},
 			{
+				Name:        "generate",
+				Usage:       "Typhoon generate",
+				Subcommands: generates.Commands,
+			},
+			{
 
-				Name: "transporter",
+				Name:  "transporter",
 				Usage: "Manage of transporter component",
 				Subcommands: []*cli.Command{
 					&cli.Command{
-						Name:   "create",
+						Name:  "create",
 						Usage: "Create resource for component",
 						Subcommands: []*cli.Command{
 							&cli.Command{
@@ -386,7 +384,7 @@ func main() {
 										Usage:   "Create for available version",
 									},
 								},
-								Name: "manifest",
+								Name:  "manifest",
 								Usage: "generate transporter yaml manifest",
 								Action: func(context *cli.Context) error {
 									version := context.String("version")
@@ -394,7 +392,7 @@ func main() {
 										Version: version,
 										BuilderOptions: &interfaces.BuilderOptions{
 											Component: "transporter",
-											Type: "manifest",
+											Type:      "manifest",
 										},
 									}
 									project.Build()
@@ -402,17 +400,14 @@ func main() {
 								},
 							},
 						},
-
 					},
 				},
-
 			},
 			{
 
-				Name: "fetcher",
-				Usage: "Manage of fetcher component",
+				Name:        "fetcher",
+				Usage:       "Manage of fetcher component",
 				Subcommands: fetcher.FetcherCommands,
-
 			},
 			{
 				Name:    "run",
@@ -424,12 +419,11 @@ func main() {
 						Aliases: []string{"ct"},
 						Value:   "processor",
 						Usage:   "Run one component",
-
 					},
 					&cli.StringFlag{
 						Name:    "level",
 						Aliases: []string{"l"},
-						Value: "DEBUG",
+						Value:   "DEBUG",
 						Usage:   "LOG LEVEL",
 					},
 					&cli.StringFlag{
@@ -440,17 +434,17 @@ func main() {
 					&cli.StringFlag{
 						Name:    "config",
 						Aliases: []string{"c"},
-						Value: "config.local.yaml",
+						Value:   "config.local.yaml",
 						Usage:   "Load configuration from `FILE`",
 					},
 					&cli.StringFlag{
 						Name:    "reload",
 						Aliases: []string{"r"},
-						Value: "true",
+						Value:   "true",
 						Usage:   "Auto reloading project",
 					},
 				},
-				Action:  func(c *cli.Context) error {
+				Action: func(c *cli.Context) error {
 					configFile := c.String("config")
 					componentName := c.String("component")
 					componentsName := c.String("components")
@@ -472,13 +466,10 @@ func main() {
 
 						project := &typhoon.Project{
 							SelectedComponent: componentsArr,
-							AutoReload: true,
-							ConfigFile: configFile,
-							LogLevel: logLevel,
+							AutoReload:        true,
+							ConfigFile:        configFile,
+							LogLevel:          logLevel,
 						}
-
-
-
 
 						project.Run()
 
@@ -486,13 +477,12 @@ func main() {
 						color.Yellow("run: %s , config: %s", componentName, configFile)
 						project := &typhoon.Project{
 							SelectedComponent: []string{componentName},
-							AutoReload: true,
-							ConfigFile: configFile,
+							AutoReload:        true,
+							ConfigFile:        configFile,
 						}
 
 						project.Run()
 					}
-
 
 					return nil
 				},

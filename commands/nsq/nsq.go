@@ -23,11 +23,11 @@ var Commands = []*cli.Command{
 			&cli.StringFlag{
 				Name:    "config",
 				Aliases: []string{"c"},
-				Value: "config.local.yaml",
+				Value:   "config.local.yaml",
 				Usage:   "Load configuration from `FILE`",
 			},
 		},
-		Name: "test",
+		Name:  "test",
 		Usage: "Test NSQ connection",
 		Action: func(context *cli.Context) error {
 			config := context.String("config")
@@ -44,9 +44,9 @@ var Commands = []*cli.Command{
 			NSQd addresses: %+v
 			NSQ LookupD: %+v 
 `,
-			status,
-			project.Config.NsqdNodes,
-			project.Config.NsqlookupdIP,
+				status,
+				project.Config.NsqdNodes,
+				project.Config.NsqlookupdIP,
 			)
 			return nil
 		},
@@ -62,36 +62,35 @@ var Commands = []*cli.Command{
 			&cli.StringFlag{
 				Name:    "config",
 				Aliases: []string{"c"},
-				Value: "config.local.yaml",
+				Value:   "config.local.yaml",
 				Usage:   "Load configuration from `FILE`",
 			},
 			&cli.StringFlag{
 				Name:    "task",
 				Aliases: []string{"t"},
-				Value: "task.json",
+				Value:   "task.json",
 				Usage:   "Load task from `FILE`",
 			},
 			&cli.StringFlag{
 				Name:    "message",
 				Aliases: []string{"m"},
-				Value: "message",
+				Value:   "message",
 				Usage:   "Load json message from line",
 			},
 			&cli.StringFlag{
 				Name:    "topic",
 				Aliases: []string{"i"},
-				Value: "test",
+				Value:   "test",
 				Usage:   "topic name",
 			},
 			&cli.StringFlag{
 				Name:    "channel",
 				Aliases: []string{"ch"},
-				Value: "tasks",
+				Value:   "tasks",
 				Usage:   "Channel name",
 			},
-
 		},
-		Name: "pub",
+		Name:  "pub",
 		Usage: "Pub message to NSQ",
 		Action: func(context *cli.Context) error {
 			config := context.String("config")
@@ -114,9 +113,9 @@ var Commands = []*cli.Command{
 			}
 
 			nsqService.InitQueue(&interfaces.Queue{
-				Channel:    channel,
-				Topic:      topic,
-				Writable:   true,
+				Channel:  channel,
+				Topic:    topic,
+				Writable: true,
 			})
 
 			err := nsqService.Pub(name, topic, message)
@@ -156,36 +155,35 @@ var Commands = []*cli.Command{
 			&cli.StringFlag{
 				Name:    "config",
 				Aliases: []string{"c"},
-				Value: "config.local.yaml",
+				Value:   "config.local.yaml",
 				Usage:   "Load configuration from `FILE`",
 			},
 			&cli.StringFlag{
 				Name:    "task",
 				Aliases: []string{"t"},
-				Value: "task.json",
+				Value:   "task.json",
 				Usage:   "Load task from `FILE`",
 			},
 			&cli.StringFlag{
 				Name:    "message",
 				Aliases: []string{"m"},
-				Value: "message",
+				Value:   "message",
 				Usage:   "Load json message from line",
 			},
 			&cli.StringFlag{
 				Name:    "topic",
 				Aliases: []string{"i"},
-				Value: "test",
+				Value:   "test",
 				Usage:   "topic name",
 			},
 			&cli.StringFlag{
 				Name:    "count",
 				Aliases: []string{"ct"},
-				Value: "100",
+				Value:   "100",
 				Usage:   "topic name",
 			},
-
 		},
-		Name: "batch-pub",
+		Name:  "batch-pub",
 		Usage: "Pub message to NSQ",
 		Action: func(context *cli.Context) error {
 			config := context.String("config")
@@ -222,7 +220,6 @@ var Commands = []*cli.Command{
 				}
 			}
 
-
 			color.Yellow(` Test NSQ connection:
 			status: %t
 			NSQd addresses: %+v
@@ -249,30 +246,29 @@ var Commands = []*cli.Command{
 			&cli.StringFlag{
 				Name:    "config",
 				Aliases: []string{"c"},
-				Value: "config.local.yaml",
+				Value:   "config.local.yaml",
 				Usage:   "Load configuration from `FILE`",
 			},
 			&cli.StringFlag{
 				Name:    "channel",
 				Aliases: []string{"ch"},
-				Value: "tasks",
+				Value:   "tasks",
 				Usage:   "Channel name",
 			},
 			&cli.StringFlag{
 				Name:    "name",
 				Aliases: []string{"n"},
-				Value: "reader",
+				Value:   "reader",
 				Usage:   "Reader name",
 			},
 			&cli.StringFlag{
 				Name:    "topic",
 				Aliases: []string{"i"},
-				Value: "test",
+				Value:   "test",
 				Usage:   "topic name",
 			},
-
 		},
-		Name: "sub",
+		Name:  "sub",
 		Usage: "Sub messages from NSQ",
 		Action: func(context *cli.Context) error {
 			config := context.String("config")
@@ -329,24 +325,23 @@ var Commands = []*cli.Command{
 			&cli.StringFlag{
 				Name:    "config",
 				Aliases: []string{"c"},
-				Value: "config.local.yaml",
+				Value:   "config.local.yaml",
 				Usage:   "Load configuration from `FILE`",
 			},
 			&cli.StringFlag{
 				Name:    "channel",
 				Aliases: []string{"ch"},
-				Value: "tasks",
+				Value:   "tasks",
 				Usage:   "Channel name",
 			},
 			&cli.StringFlag{
 				Name:    "topics",
 				Aliases: []string{"i"},
-				Value: "test,test1,test2",
+				Value:   "test,test1,test2",
 				Usage:   "topics name with , delimiter",
 			},
-
 		},
-		Name: "group-sub",
+		Name:  "group-sub",
 		Usage: "Subscribe messages from a few topics from NSQ. Only Stream",
 		Action: func(context *cli.Context) error {
 			config := context.String("config")
@@ -370,14 +365,14 @@ var Commands = []*cli.Command{
 			topics: %+v
 			channel: %s
 			`,
-			len(topicsArr),
-			topicsArr,
-			channel,
+				len(topicsArr),
+				topicsArr,
+				channel,
 			)
 
 			for i, topic := range topicsArr {
 				setting := &interfaces.Queue{Topic: topic, Channel: channel, Concurrent: 1}
-				setting.SetGroupName("reader-"+strconv.Itoa(i))
+				setting.SetGroupName("reader-" + strconv.Itoa(i))
 				nsqService.InitConsumer(setting)
 			}
 
@@ -385,8 +380,7 @@ var Commands = []*cli.Command{
 			for yield := range nsqService.Read() {
 				total += 1
 
-
-					color.Green(`
+				color.Green(`
 				
 				From Topic: %s
 				Channel: %s
@@ -394,13 +388,12 @@ var Commands = []*cli.Command{
 				Name: %s
 				Total: %d
 				`,
-						yield.Topic,
-						yield.Channel,
-						string(yield.Msg.Body),
-						yield.Name,
-						total,
-					)
-
+					yield.Topic,
+					yield.Channel,
+					string(yield.Msg.Body),
+					yield.Name,
+					total,
+				)
 
 				yield.Msg.Finish()
 			}
@@ -413,30 +406,29 @@ var Commands = []*cli.Command{
 			&cli.StringFlag{
 				Name:    "config",
 				Aliases: []string{"c"},
-				Value: "config.local.yaml",
+				Value:   "config.local.yaml",
 				Usage:   "Load configuration from `FILE`",
 			},
 			&cli.StringFlag{
 				Name:    "channel",
 				Aliases: []string{"ch"},
-				Value: "tasks",
+				Value:   "tasks",
 				Usage:   "Channel name",
 			},
 			&cli.StringFlag{
 				Name:    "topics",
 				Aliases: []string{"i"},
-				Value: "test,test1,test2",
+				Value:   "test,test1,test2",
 				Usage:   "topics name with , delimiter",
 			},
 			&cli.StringFlag{
 				Name:    "concurrent",
 				Aliases: []string{"ct"},
-				Value: "1",
+				Value:   "1",
 				Usage:   "Concurrent message from Queue",
 			},
-
 		},
-		Name: "group-batch-sub",
+		Name:  "group-batch-sub",
 		Usage: "Subscribe messages from a few topics from NSQ. Only Batch",
 		Action: func(context *cli.Context) error {
 			config := context.String("config")
@@ -473,24 +465,17 @@ var Commands = []*cli.Command{
 
 			for i, topic := range topicsArr {
 				setting := &interfaces.Queue{
-					Topic: topic,
+					Topic:      topic,
 					Concurrent: concurrent,
-					Channel: channel,
+					Channel:    channel,
 				}
-				setting.SetGroupName("reader-"+strconv.Itoa(i))
+				setting.SetGroupName("reader-" + strconv.Itoa(i))
 				nsqService.InitConsumer(setting)
 			}
 
-
 			//nsqService.BatchRead()
 
-
 			nsqService.StopConsumers()
-
-
-
-
-
 
 			//			consumer := nsqService.InitConsumer(name, topic, channel, 1)
 			//			var count int
@@ -523,10 +508,4 @@ var Commands = []*cli.Command{
 			return nil
 		},
 	},
-
 }
-
-
-
-
-

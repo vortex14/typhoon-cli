@@ -12,13 +12,13 @@ import (
 
 var Commands = []*cli.Command{
 	{
-		Name:   "remove-untracked",
+		Name:  "remove-untracked",
 		Usage: "Remove all untracked files",
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:    "config",
 				Aliases: []string{"c"},
-				Value: "config.local.yaml",
+				Value:   "config.local.yaml",
 				Usage:   "Load configuration from `FILE`",
 			},
 		},
@@ -36,13 +36,13 @@ var Commands = []*cli.Command{
 		},
 	},
 	{
-		Name:   "status",
+		Name:  "status",
 		Usage: "Status git files",
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:    "config",
 				Aliases: []string{"c"},
-				Value: "config.local.yaml",
+				Value:   "config.local.yaml",
 				Usage:   "Load configuration from `FILE`",
 			},
 		},
@@ -85,7 +85,7 @@ var Commands = []*cli.Command{
 				Usage:   "branch",
 			},
 		},
-		Name: "reset",
+		Name:  "reset",
 		Usage: "Synchronize local files by remote branch",
 		Action: func(context *cli.Context) error {
 			config := context.String("config")
@@ -114,14 +114,13 @@ var Commands = []*cli.Command{
 			projectGit.LocalResetLikeRemote(remote, branch, backupFlag)
 			fmt.Println("")
 
-
 			color.Yellow("Run git reset for all %s. backup: %t", project.GetName(), backupFlag)
 
 			return nil
 		},
 	},
 	{
-		Name:   "push",
+		Name:  "push",
 		Usage: "Push Docker resources to registry",
 		Subcommands: []*cli.Command{
 			{
@@ -139,7 +138,7 @@ var Commands = []*cli.Command{
 						Usage:   "Pass image name",
 					},
 				},
-				Name: "image",
+				Name:  "image",
 				Usage: "Push Typhoon docker image to Registry",
 				Action: func(context *cli.Context) error {
 					imageName := context.String("name")
@@ -163,11 +162,11 @@ var Commands = []*cli.Command{
 					&cli.StringFlag{
 						Name:    "config",
 						Aliases: []string{"c"},
-						Value: "config.local.yaml",
+						Value:   "config.local.yaml",
 						Usage:   "Load configuration from `FILE`",
 					},
 				},
-				Name: "project",
+				Name:  "project",
 				Usage: "Build image for project",
 				Action: func(context *cli.Context) error {
 					imageName := context.String("name")
@@ -186,7 +185,3 @@ var Commands = []*cli.Command{
 		},
 	},
 }
-
-
-
-
