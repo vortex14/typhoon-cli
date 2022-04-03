@@ -5,9 +5,9 @@ import (
 	"github.com/fatih/color"
 	"github.com/urfave/cli/v2"
 	typhoon "github.com/vortex14/gotyphoon"
-	"github.com/vortex14/gotyphoon/data/fake"
-	"github.com/vortex14/gotyphoon/extensions/bar"
-	"github.com/vortex14/gotyphoon/extensions/timer"
+	"github.com/vortex14/gotyphoon/elements/models/bar"
+	"github.com/vortex14/gotyphoon/elements/models/timer"
+	"github.com/vortex14/gotyphoon/extensions/data/fake"
 	"github.com/vortex14/gotyphoon/interfaces"
 	"github.com/vortex14/gotyphoon/utils"
 	"math/rand"
@@ -76,7 +76,6 @@ var Commands = []*cli.Command{
 				Value:   "1,2,3",
 				Usage:   "list of priorities int",
 			},
-
 		},
 		Action: func(context *cli.Context) error {
 			configFile := context.String("config")
@@ -109,12 +108,20 @@ var Commands = []*cli.Command{
 				return nil
 			}
 			project := &typhoon.Project{
-				ConfigFile: configFile,
+				ConfigFile:        configFile,
 				SelectedComponent: []string{component},
 			}
 			project.LoadConfig()
 
-			project.LoadServices()
+			project.LoadServices(
+				interfaces.TyphoonIntegrationsOptions{
+					NSQ: interfaces.MessageBrokerOptions{
+						Active:          true,
+						EnabledConsumer: true,
+						EnabledProducer: true,
+					},
+				},
+			)
 			if !project.Services.Collections.Nsq.Ping() {
 				color.Red("No ping to NSQ")
 				os.Exit(1)
@@ -127,7 +134,7 @@ var Commands = []*cli.Command{
 			count := 0
 			bar := bar.Bar{}
 			bar.NewOption(0, -1)
-			tickerGen := timer.SetInterval(func (args ...interface{}) {
+			tickerGen := timer.SetInterval(func(args ...interface{}) {
 
 				var f fake.Product
 				err = gofakeit.Struct(&f)
@@ -138,13 +145,11 @@ var Commands = []*cli.Command{
 
 				fakeTask, _ := fake.CreateFakeTask(interfaces.FakeTaskOptions{
 					UserAgent: true,
-					Cookies: true,
-					Proxy: false,
+					Cookies:   true,
+					Proxy:     false,
 				})
 
 				dump := u.PrintPrettyJson(fakeTask)
-
-
 
 				count += 1
 				bar.Play(int64(count), "Total generated tasks")
@@ -161,13 +166,11 @@ var Commands = []*cli.Command{
 			//
 			timer.SetTimeout(func(args ...interface{}) {
 				tickerGen.Stop()
-			}, timeout * 60 * 1000)
+			}, timeout*60*1000)
 
 			tickerGen.Await()
 
 			return nil
 		},
 	},
-
 }
-

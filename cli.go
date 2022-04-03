@@ -3,7 +3,7 @@ package main
 import (
 	"github.com/fatih/color"
 	"github.com/urfave/cli/v2"
-	fetcher "github.com/vortex14/gofetcher/commands"
+	//fetcher "github.com/vortex14/gofetcher/commands"
 	"github.com/vortex14/gotyphoon"
 	"github.com/vortex14/gotyphoon/environment"
 	"github.com/vortex14/gotyphoon/interfaces"
@@ -405,9 +405,9 @@ func main() {
 			},
 			{
 
-				Name:        "fetcher",
-				Usage:       "Manage of fetcher component",
-				Subcommands: fetcher.FetcherCommands,
+				Name:  "fetcher",
+				Usage: "Manage of fetcher component",
+				//Subcommands: fetcher.FetcherCommands,
 			},
 			{
 				Name:    "run",

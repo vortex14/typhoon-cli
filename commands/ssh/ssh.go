@@ -45,9 +45,11 @@ var Commands = []*cli.Command{
 		Usage: "Run test for connection to services from config.yaml",
 		Action: func(context *cli.Context) error {
 			ssh := ssh.SSH{
-				Login:    context.String("login"),
-				Password: context.String("password"),
-				Ip:       context.String("ip"),
+				Options: ssh.Options{
+					Login:    context.String("login"),
+					Password: context.String("password"),
+					Ip:       context.String("ip"),
+				},
 			}
 			ssh.TestConnection()
 			return nil
