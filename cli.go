@@ -1,17 +1,22 @@
 package main
 
 import (
-	"github.com/fatih/color"
-	"github.com/urfave/cli/v2"
 	//fetcher "github.com/vortex14/gofetcher/commands"
-	"github.com/vortex14/gotyphoon"
-	"github.com/vortex14/gotyphoon/environment"
-	"github.com/vortex14/gotyphoon/interfaces"
-	"github.com/vortex14/gotyphoon/utils"
 	"log"
 	"os"
 	"sort"
 	"strings"
+
+	"github.com/fatih/color"
+	"github.com/urfave/cli/v2"
+
+	typhoon "github.com/vortex14/gotyphoon"
+	"github.com/vortex14/gotyphoon/elements/forms"
+	"github.com/vortex14/gotyphoon/environment"
+	Python3 "github.com/vortex14/gotyphoon/extensions/project/python3"
+	"github.com/vortex14/gotyphoon/interfaces"
+	"github.com/vortex14/gotyphoon/utils"
+
 	"typhoon-cli/commands/docker"
 	"typhoon-cli/commands/generates"
 	"typhoon-cli/commands/git"
@@ -23,6 +28,8 @@ import (
 	"typhoon-cli/commands/ssh"
 	"typhoon-cli/commands/tests"
 	typhoonCommands "typhoon-cli/commands/typhoon"
+
+	. "github.com/vortex14/gotyphoon/elements/models/osignal"
 )
 
 func main() {
@@ -116,10 +123,12 @@ func main() {
 					},
 				},
 				Action: func(context *cli.Context) error {
-					project := typhoon.Project{
-						Version: context.String("new"),
-						Name:    context.String("name"),
-						Tag:     context.String("tag"),
+					project := Python3.Project{
+						Project: forms.Project{
+							Version: context.String("new"),
+							Name:    context.String("name"),
+							Tag:     context.String("tag"),
+						},
 					}
 					project.Migrate()
 					return nil
@@ -150,37 +159,43 @@ func main() {
 						Value:   "DEBUG",
 						Usage:   "LOG LEVEL",
 					},
-					&cli.StringFlag{
+					&cli.BoolFlag{
 						Name:    "reload",
 						Aliases: []string{"r"},
-						Value:   "true",
+						Value:   true,
 						Usage:   "Auto reloading project",
 					},
 				},
 				Action: func(c *cli.Context) error {
 					configFile := c.String("config")
-					reloadF := c.String("reload")
 					logLevel := c.String("level")
-					var reload bool
-					if reloadF == "true" {
-						reload = true
-					} else {
-						reload = false
-					}
+					reload := c.Bool("reload")
 
 					pathProject, err := os.Getwd()
 					if err != nil {
 						log.Println(err)
 					}
 
-					project := &typhoon.Project{
-						SelectedComponent: typhoonComponents,
-						ConfigFile:        configFile,
-						AutoReload:        reload,
-						Path:              pathProject,
-						LogLevel:          logLevel,
+					project := &Python3.Project{
+						Project: forms.Project{
+							SelectedComponent: typhoonComponents,
+							ConfigFile:        configFile,
+							AutoReload:        reload,
+							Path:              pathProject,
+							LogLevel:          logLevel,
+						},
 					}
 					project.Run()
+
+					(&OSignal{
+						Callback: func(logger interfaces.LoggerInterface, sig os.Signal) {
+							project.Close()
+							project.WaitPromises()
+							logger.Warning("close !")
+						},
+					}).Wait()
+
+					//project.Await()
 					return nil
 				},
 			},

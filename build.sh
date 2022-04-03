@@ -1,4 +1,4 @@
-packr
+packr2
 go build cli.go
 chmod +x cli
-cp cli /usr/local/bin/typhoon
+sudo cp cli /usr/local/bin/typhoon2
