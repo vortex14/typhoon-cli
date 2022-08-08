@@ -1,14 +1,19 @@
 package nsq
 
 import (
-	"github.com/fatih/color"
-	"github.com/urfave/cli/v2"
-	"github.com/vortex14/gotyphoon"
-	"github.com/vortex14/gotyphoon/integrations/nsq"
-	"github.com/vortex14/gotyphoon/interfaces"
+	"math/rand"
 	"os"
 	"strconv"
 	"strings"
+	"time"
+
+	"github.com/fatih/color"
+	"github.com/urfave/cli/v2"
+	"github.com/vortex14/gotyphoon"
+	"github.com/vortex14/gotyphoon/elements/models/bar"
+	"github.com/vortex14/gotyphoon/elements/models/timer"
+	"github.com/vortex14/gotyphoon/integrations/nsq"
+	"github.com/vortex14/gotyphoon/interfaces"
 )
 
 var Commands = []*cli.Command{
@@ -105,18 +110,25 @@ var Commands = []*cli.Command{
 				Path:       pathProject,
 			}
 
-			nsqService := nsq.Service{Project: project}
+			nsqService := nsq.Service{
+				Project: project,
+				Options: interfaces.MessageBrokerOptions{Active: true, EnabledProducer: true},
+			}
 			status := nsqService.Ping()
 			if !status {
 				color.Red("Connection failed to NSQ")
 				os.Exit(1)
 			}
 
-			nsqService.InitQueue(&interfaces.Queue{
+			q := &interfaces.Queue{
 				Channel:  channel,
 				Topic:    topic,
 				Writable: true,
-			})
+			}
+
+			q.SetGroupName(name)
+
+			nsqService.InitQueue(q)
 
 			err := nsqService.Pub(name, topic, message)
 			if err != nil {
@@ -137,7 +149,144 @@ var Commands = []*cli.Command{
 				topic,
 				message,
 				task,
+			)
 
+			nsqService.StopProducers()
+			return nil
+		},
+	},
+	{
+		Flags: []cli.Flag{
+			&cli.StringFlag{
+				Name:    "name",
+				Aliases: []string{"n"},
+				Value:   "my producer",
+				Usage:   "Producer name",
+			},
+			&cli.StringFlag{
+				Name:    "config",
+				Aliases: []string{"c"},
+				Value:   "config.local.yaml",
+				Usage:   "Load configuration from `FILE`",
+			},
+			&cli.StringFlag{
+				Name:    "task",
+				Aliases: []string{"t"},
+				Value:   "task.json",
+				Usage:   "Load task from `FILE`",
+			},
+			&cli.StringFlag{
+				Name:    "message",
+				Aliases: []string{"m"},
+				Value:   "message",
+				Usage:   "Load json message from line",
+			},
+			&cli.StringFlag{
+				Name:    "topic",
+				Aliases: []string{"i"},
+				Value:   "test",
+				Usage:   "topic name",
+			},
+			&cli.StringFlag{
+				Name:    "channel",
+				Aliases: []string{"ch"},
+				Value:   "tasks",
+				Usage:   "Channel name",
+			},
+			&cli.IntFlag{
+				Name:    "interval",
+				Aliases: []string{"v"},
+				Value:   1000,
+				Usage:   "Millisecond gen interval",
+			},
+			&cli.IntFlag{
+				Name:    "timeout",
+				Aliases: []string{"o"},
+				Value:   1,
+				Usage:   "Time until self-exit in minutes",
+			},
+		},
+		Name:  "pub-interval",
+		Usage: "Pub message to NSQ",
+		Action: func(context *cli.Context) error {
+			config := context.String("config")
+			task := context.String("task")
+			message := context.String("message")
+			topic := context.String("topic")
+			name := context.String("name")
+			channel := context.String("channel")
+
+			tick := context.Int("interval")
+			timeout := context.Int("timeout")
+
+			pathProject, _ := os.Getwd()
+			project := &typhoon.Project{
+				ConfigFile: config,
+				Path:       pathProject,
+			}
+
+			nsqService := nsq.Service{
+				Project: project,
+				Options: interfaces.MessageBrokerOptions{Active: true, EnabledProducer: true},
+			}
+			status := nsqService.Ping()
+			if !status {
+				color.Red("Connection failed to NSQ")
+				os.Exit(1)
+			}
+
+			q := &interfaces.Queue{
+				Channel:  channel,
+				Topic:    topic,
+				Writable: true,
+			}
+
+			q.SetGroupName(name)
+
+			nsqService.InitQueue(q)
+
+			count := 0
+			bar := bar.Bar{}
+			bar.NewOption(0, -1)
+			tickerGen := timer.SetInterval(func(args ...interface{}) {
+
+				count += 1
+				bar.Play(int64(count), "Total generated tasks")
+				rand.Seed(time.Now().Unix()) // initialize global pseudo random generator
+
+				err := nsqService.Pub(name, topic, message)
+				if err != nil {
+					color.Red("%s", err.Error())
+				}
+
+			}, tick)
+
+			timer.SetTimeout(func(args ...interface{}) {
+				tickerGen.Stop()
+			}, timeout*60*1000)
+
+			tickerGen.Await()
+
+			color.Yellow(` Test NSQ connection:
+			status: %t
+			NSQd addresses: %+v
+			NSQ LookupD: %+v 
+			topic: %s
+			message: %s
+			task: %s
+			count: %+v
+			interval: %+v
+			timeout: %+v
+`,
+				status,
+				project.Config.NsqdNodes,
+				project.Config.NsqlookupdIP,
+				topic,
+				message,
+				task,
+				count,
+				tick,
+				timeout,
 			)
 
 			nsqService.StopProducers()
@@ -234,7 +383,6 @@ var Commands = []*cli.Command{
 				topic,
 				message,
 				task,
-
 			)
 
 			nsqService.StopProducers()
@@ -313,7 +461,6 @@ var Commands = []*cli.Command{
 				project.Config.NsqlookupdIP,
 				topic,
 				count,
-
 			)
 
 			nsqService.StopProducers()

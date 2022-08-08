@@ -1,20 +1,22 @@
 package generates
 
 import (
+	"math/rand"
+	"os"
+	"strconv"
+	"strings"
+	"time"
+
 	"github.com/brianvoe/gofakeit/v6"
 	"github.com/fatih/color"
 	"github.com/urfave/cli/v2"
+
 	typhoon "github.com/vortex14/gotyphoon"
 	"github.com/vortex14/gotyphoon/elements/models/bar"
 	"github.com/vortex14/gotyphoon/elements/models/timer"
 	"github.com/vortex14/gotyphoon/extensions/data/fake"
 	"github.com/vortex14/gotyphoon/interfaces"
 	"github.com/vortex14/gotyphoon/utils"
-	"math/rand"
-	"os"
-	"strconv"
-	"strings"
-	"time"
 )
 
 var Commands = []*cli.Command{
@@ -131,6 +133,7 @@ var Commands = []*cli.Command{
 				EnabledConsumer: false,
 			}
 			project.Services.RunNSQ()
+
 			count := 0
 			bar := bar.Bar{}
 			bar.NewOption(0, -1)
@@ -159,11 +162,9 @@ var Commands = []*cli.Command{
 					priority,
 					interfaces.PROCESSOR2PRIORITY,
 					dump)
-
-				//color.Yellow("Total generated tasks %d", count)
+				
 			}, tick)
-			//
-			//
+
 			timer.SetTimeout(func(args ...interface{}) {
 				tickerGen.Stop()
 			}, timeout*60*1000)

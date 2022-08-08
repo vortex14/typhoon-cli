@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/urfave/cli/v2"
 	//fetcher "github.com/vortex14/gofetcher/commands"
 	"log"
 	"os"
@@ -8,14 +9,13 @@ import (
 	"strings"
 
 	"github.com/fatih/color"
-	"github.com/urfave/cli/v2"
-
 	typhoon "github.com/vortex14/gotyphoon"
 	"github.com/vortex14/gotyphoon/elements/forms"
 	"github.com/vortex14/gotyphoon/environment"
 	Python3 "github.com/vortex14/gotyphoon/extensions/project/python3"
 	"github.com/vortex14/gotyphoon/interfaces"
 	"github.com/vortex14/gotyphoon/utils"
+	"github.com/vortex14/gotyphoon/utils/code"
 
 	"typhoon-cli/commands/docker"
 	"typhoon-cli/commands/generates"
@@ -312,12 +312,14 @@ func main() {
 				},
 				Action: func(context *cli.Context) error {
 
-					project := typhoon.Project{
-						Version: context.String("new"),
-						Name:    context.String("name"),
-						Tag:     context.String("tag"),
-					}
-					project.CreateProject()
+					_ = (&Python3.Project{
+						Project: forms.Project{
+							Version: context.String("new"),
+							Name:    context.String("name"),
+							Tag:     context.String("tag"),
+						},
+					}).CreateProject()
+
 					return nil
 				},
 			},
@@ -423,6 +425,19 @@ func main() {
 				Name:  "fetcher",
 				Usage: "Manage of fetcher component",
 				//Subcommands: fetcher.FetcherCommands,
+			},
+			{
+				Name:    "comment_code",
+				Aliases: []string{"cc"},
+				Usage:   "Comment all marked code",
+				Flags:   []cli.Flag{},
+				Action: func(c *cli.Context) error {
+					p, _ := os.Getwd()
+					color.Green("Current dir: %s", p)
+					code.CommentDir(p, "ignore for building amd64-linux", map[string]bool{"vendor": true})
+					color.Yellow("Comment code")
+					return nil
+				},
 			},
 			{
 				Name:    "run",
