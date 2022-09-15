@@ -30,6 +30,8 @@ import (
 	typhoonCommands "typhoon-cli/commands/typhoon"
 
 	. "github.com/vortex14/gotyphoon/elements/models/osignal"
+
+	"github.com/vortex14/gotyphoon/extensions/servers/gin/domains/discovery"
 )
 
 func main() {
@@ -84,6 +86,13 @@ func main() {
 					project := typhoon.Project{}
 					err := project.CreateSymbolicLink()
 					return err
+				},
+			},
+			{
+				Name:  "discovery",
+				Usage: "run typhoon local discovery",
+				Action: func(context *cli.Context) error {
+					return discovery.Constructor(12735, nil, nil, nil).Run()
 				},
 			},
 			{

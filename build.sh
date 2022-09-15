@@ -1,4 +1,3 @@
-#packr2
 go mod vendor
 go build cli.go
 chmod +x cli
